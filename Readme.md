@@ -1,5 +1,3 @@
-
-**
 # Project Title
 
 ROS2 Ubuntu 22_04
