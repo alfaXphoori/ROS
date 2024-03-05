@@ -7,7 +7,7 @@ from ce_robot_interfaces.srv import CalRectangle
 
 class AddTwoInts_Client(Node):
     def __init__(self):
-        super().__init__("Add_Two_Ints_Client")
+        super().__init__("Cal_Rect_Client")
         #self.callback_add_two_ints_server(1.1, 2.2)
 
     def callback_add_two_ints_server(self, length, width):
