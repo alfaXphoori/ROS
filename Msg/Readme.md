@@ -22,6 +22,7 @@ rm -rf src
 สร้าง Folder สำหรับเก็บ Msg 
 ```base
 mkdir msg
+code .
 ```
 
 เพิ่ม 3 คำสั่ง ด้านล่างใน file package.xml ใต้ <buildtool_depend>ament_cmake</buildtool_depend>
@@ -30,11 +31,6 @@ mkdir msg
 - <exec_depend>rosidl_default_runtime</exec_depend>
 - <member_of_group>rosidl_interface_packages</member_of_group> 
 
-เข้าไปยัง Folder msg และสร้าง file HardwareStatus.msg เพื่อสร้างตัวแปร
-```base
-cd msg
-touch HardwareStatus.msg
-```
 พร้อมทำการเพิ่มคำสั่งใน CMakeLists.txt
 - find_package(ament_cmake REQUIRED)
 - find_package(rosidl_default_generators REQUIRED)
@@ -42,11 +38,11 @@ touch HardwareStatus.msg
 - rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/HardwareStatus.msg")
 
+เข้าไปยัง Folder msg และสร้าง file HardwareStatus.msg เพื่อสร้างตัวแปร
 ```base
-cd ..
-code .
+cd msg
+touch HardwareStatus.msg
 ```
-
 เพิ่มตัวแปร int bool string ใน file HardwareStatus.msg ตามต้องการ
 
 Build package ce_robot_interfaces เพื่อให้สามารถใช้งานได้
