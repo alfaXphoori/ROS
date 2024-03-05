@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
-from ce_robot_interface.msg import HardwareStatus
+from ce_robot_interfaces.msg import HardwareStatus
 
 class HwStatusNode(Node):
     def __init__(self):
