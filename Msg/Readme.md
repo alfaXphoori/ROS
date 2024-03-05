@@ -35,10 +35,7 @@ mkdir msg
 cd msg
 touch HardwareStatus.msg
 ```
-
-เพิ่มตัวแปร int bool string ใน file HardwareStatus.msg ตามต้องการ
-
-จากนั้นทำการกลับมาออกยัง Folder ce_robot_interfaces พร้อมทำการเพิ่มคำสั่งใน CMakeLists.txt
+พร้อมทำการเพิ่มคำสั่งใน CMakeLists.txt
 - find_package(ament_cmake REQUIRED)
 - find_package(rosidl_default_generators REQUIRED)
 
@@ -49,6 +46,8 @@ touch HardwareStatus.msg
 cd ..
 code .
 ```
+
+เพิ่มตัวแปร int bool string ใน file HardwareStatus.msg ตามต้องการ
 
 Build package ce_robot_interfaces เพื่อให้สามารถใช้งานได้
 ```base
