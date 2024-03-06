@@ -32,11 +32,12 @@ code .
 - <member_of_group>rosidl_interface_packages</member_of_group> 
 
 พร้อมทำการเพิ่มคำสั่งใน CMakeLists.txt
-- find_package(ament_cmake REQUIRED)
+
 - find_package(rosidl_default_generators REQUIRED)
 
-- rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/HardwareStatus.msg")
+- rosidl_generate_interfaces(${PROJECT_NAME}\
+  "msg/HardwareStatus.msg"\
+  )
 
 เข้าไปยัง Folder msg และสร้าง file HardwareStatus.msg เพื่อสร้างตัวแปร
 ```base
