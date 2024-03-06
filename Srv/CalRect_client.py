@@ -5,7 +5,7 @@ from functools import partial
 from rclpy.node import Node
 from ce_robot_interfaces.srv import CalRectangle
 
-class AddTwoInts_Client(Node):
+class Cal_Rectangle_Client(Node):
     def __init__(self):
         super().__init__("Cal_Rect_Client")
         #self.callback_add_two_ints_server(1.1, 2.2)
@@ -34,7 +34,7 @@ class AddTwoInts_Client(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = AddTwoInts_Client()
+    node = Cal_Rectangle_Client()
     reponse = node.callback_add_two_ints_server(float(sys.argv[1]), float(sys.argv[2]))
     rclpy.spin(node)
     rclpy.shutdown()
