@@ -20,8 +20,8 @@ code .
 ```
 
 ไปยัง CMakeLists แล้วทำการเพิ่มค่าตามนี้
--rosidl_generate_interfaces(${PROJECT_NAME}
-  "srv/CalRectangle.srv"
+- rosidl_generate_interfaces(${PROJECT_NAME}\
+    "srv/CalRectangle.srv"\
   )
 
 Build package ce_robot_interfaces เพื่อให้สามารถใช้งานได้
