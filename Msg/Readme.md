@@ -95,5 +95,5 @@ ros2 run ce_robot HardwareStatus_publish
 
 เปิด terminal ใหม่ เข้า source ./bashrc แล้วใช้คำสั่ง ros2 echo เพื่อตรวจสอบตัวแปร msg
 ```bash
-ros2 echo topic /hardware_status
+ros2 topic echo /hardware_status
 ```
