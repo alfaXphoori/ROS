@@ -42,15 +42,15 @@ ros2 interface show ce_robot_interfaces/srv/CalRectangle
 cd ros2_ws/src/ce_robot/ce_robot
 ```
 
-สร้าง file python ที่ชื่อว่า CalRectangle_Server.py
+สร้าง file python ที่ชื่อว่า CalRect_server.py
 ```bash
-touch CalRectangle_Server.py
-chmod +x CalRectangle_Server.py
+touch CalRect_server.py.py
+chmod +x CalRect_server.py.py
 ```
 
 จากนั้นทำการเขียน Code ภาษา python เมื่อเสร็จแล้วทำการทดสอบ file โดยใช้คำสั่ง 
 ```bash
-./CalRectangle_Server.py
+./CalRect_server.py.py
 ```
 
 แก้ไข file package.xml โดยเพิ่ม code ส่วน library\
