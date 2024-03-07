@@ -64,7 +64,7 @@ ros2 run ce_robot first_sub
 source ~/.bashrc
 rqt_graph
 ```
-Tree Directory
+Directory Tree
 
 ```bash
 |--ros2_ws
