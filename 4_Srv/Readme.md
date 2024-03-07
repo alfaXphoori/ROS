@@ -11,7 +11,7 @@ cd ros2_ws/src/ce_robot_interfaces
 mkdir srv
 ```
 
-เข้าไปยัง Folder msg และสร้าง file CalRectangle.srv เพื่อเก็บค่า service\
+เข้าไปยัง Folder srv และสร้าง file CalRectangle.srv เพื่อเก็บค่า service\
 ทำการเขียนค่า ตัวแปร srv ที่ต้องการ
 ```base
 cd srv
@@ -85,13 +85,13 @@ cd ros2_ws/src/ce_robot/ce_robot
 
 สร้าง file python ที่ชื่อว่า CalRectangle_Client.py
 ```bash
-touch CalRectangle_Client.py
-chmod +x CalRectangle_Client.py
+touch CalRect_client.py
+chmod +x CalRect_client.py
 ```
 
 จากนั้นทำการเขียน Code ภาษา python เมื่อเสร็จแล้วทำการทดสอบ file โดยใช้คำสั่ง 
 ```bash
-./CalRectangle_Client.py
+./CalRect_client.py
 ```
 
 แก้ไข file package.xml โดยเพิ่ม code ส่วน library\
@@ -109,5 +109,5 @@ colcon build --packages-select ce_robot --symlink-install
 เปิด terminal เข้า source ./bashrc แล้วใช้คำสั่ง ros2 run package ที่สร้างขึ้น
 ```bash
 source ~/.bashrc
-ros2 run ce_robot CalRectangle_Client 22.22 33.34
+ros2 run ce_robot CalRect_client 22.22 33.34
 ```
