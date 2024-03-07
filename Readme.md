@@ -220,10 +220,10 @@ ros2 pkg create ce_robot --build-type ament_python --dependencies rclpy
 cd ce_robot/ce_robot
 ```
 
-สร้าง file python ที่มีชื่อว่า first_package.py พร้อมเปลี่ยน Permission file เป็น +x 
+สร้าง file python ที่มีชื่อว่า first_node.py พร้อมเปลี่ยน Permission file เป็น +x 
 ```bash
-touch first_package.py
-chmod +x first_package.py
+touch first_node.py
+chmod +x first_node.py
 ```
 
 จากนั้นทำการเขียน Code ภาษา python เมื่อเสร็จแล้วทำการทดสอบ file โดยใช้คำสั่ง 
@@ -233,7 +233,7 @@ chmod +x first_package.py
 
 แก้ไข file package.xml โดยเพิ่ม code ส่วน library\
 เพิ่ม code ภายใต้ 'console_scripts': [ ] ของ file setup.py
-- "first_package = ce_robot.first_package:main",
+- "first_node = ce_robot.first_node:main",
 
 เมื่อ Code ไม่มี error แล้วต้องทำการ Colcon build เพื่อให้ Package \
 ที่เราสร้างขึ้นสามารถใช้งานผ่าน คำสั่ง ros2 run ได้
@@ -246,7 +246,7 @@ colcon build
 เปิด terminal เข้า source ./bashrc แล้วใช้คำสั่ง ros2 run package ที่สร้างขึ้น
 ```bash
 source ~/.bashrc
-ros2 run ce_robot first_package 
+ros2 run ce_robot first_node
 ```
 
 เสร็จสิ้นสำหรับการสร้าง Package แรก ใน ros2
