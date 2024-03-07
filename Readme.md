@@ -2,7 +2,7 @@
 
 ROS2 Ubuntu 22_04
 
-We chose Ros2 Iron Irwin to use.
+We chose Ros2 Iron Irwini to use.
 ## Authors
 
 - [@alfaXphoori](https://www.github.com/alfaXphoori)
@@ -251,7 +251,7 @@ ros2 run ce_robot first_node
 
 เสร็จสิ้นสำหรับการสร้าง Package แรก ใน ros2
 
-Tree Directory
+Directory Tree
 ```bash
 |--ros2_ws
    |--build
