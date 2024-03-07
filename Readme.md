@@ -250,3 +250,16 @@ ros2 run ce_robot first_node
 ```
 
 เสร็จสิ้นสำหรับการสร้าง Package แรก ใน ros2
+
+Tree Directory
+```bash
+|--ros2_ws
+   |--build
+   |--intstall
+   |--log
+   |--src
+      |--ce_robot
+         |--ce_robot
+            |--first_node.py
+          
+```
