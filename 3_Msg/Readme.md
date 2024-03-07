@@ -97,3 +97,23 @@ ros2 run ce_robot HardwareStatus_publish
 ```bash
 ros2 topic echo /hardware_status
 ```
+Tree Directory
+```bash
+|--ros2_ws
+   |--build
+   |--intstall
+   |--log
+   |--src
+      |--ce_robot_interfaces
+         |--msg
+            |--HardwareStatus.msg
+      |--ce_robot
+         |--ce_robot
+            |--first_node.py
+            |--first_publisher.py
+            |--first_subscriber.py
+            |--add_two_ints_server.py
+            |--add_two_ints_client.py
+            |--HardwareStatus_publish.py
+          
+```
