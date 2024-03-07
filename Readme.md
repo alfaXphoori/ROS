@@ -219,7 +219,7 @@ ros2 pkg create ce_robot --build-type ament_python --dependencies rclpy
 ```bash
 cd ce_robot/ce_robot
 ```
-
+เมื่อได้ Package แล้วทำการสร้าง Node เพื่อทำงานใน Ros2
 สร้าง file python ที่มีชื่อว่า first_node.py พร้อมเปลี่ยน Permission file เป็น +x 
 ```bash
 touch first_node.py
@@ -228,7 +228,7 @@ chmod +x first_node.py
 
 จากนั้นทำการเขียน Code ภาษา python เมื่อเสร็จแล้วทำการทดสอบ file โดยใช้คำสั่ง 
 ```bash
-./first_package.py
+./first_node.py
 ```
 
 แก้ไข file package.xml โดยเพิ่ม code ส่วน library\
