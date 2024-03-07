@@ -81,3 +81,20 @@ ros2 run ce_robot add_two_client 10 20
 source ~/.bashrc
 rqt_graph
 ```
+
+Tree Directory
+```bash
+|--ros2_ws
+   |--build
+   |--intstall
+   |--log
+   |--src
+      |--ce_robot
+         |--ce_robot
+            |--first_node.py
+            |--first_publisher.py
+            |--first_subscriber.py
+            |--add_two_ints_server.py
+            |--add_two_ints_client.py
+          
+```
