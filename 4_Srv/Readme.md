@@ -44,8 +44,8 @@ cd ros2_ws/src/ce_robot/ce_robot
 
 สร้าง file python ที่ชื่อว่า CalRect_server.py
 ```bash
-touch CalRect_server.py.py
-chmod +x CalRect_server.py.py
+touch CalRect_server.py
+chmod +x CalRect_server.py
 ```
 
 จากนั้นทำการเขียน Code ภาษา python เมื่อเสร็จแล้วทำการทดสอบ file โดยใช้คำสั่ง 
@@ -110,4 +110,28 @@ colcon build --packages-select ce_robot --symlink-install
 ```bash
 source ~/.bashrc
 ros2 run ce_robot CalRect_client 22.22 33.34
+```
+Tree Directory
+```bash
+|--ros2_ws
+   |--build
+   |--intstall
+   |--log
+   |--src
+      |--ce_robot_interfaces
+      |  |--msg
+      |  |  |--HardwareStatus.msg
+      |  |--srv
+      |     |--CalRectangle.srv
+      |--ce_robot
+         |--ce_robot
+            |--first_node.py
+            |--first_publisher.py
+            |--first_subscriber.py
+            |--add_two_ints_server.py
+            |--add_two_ints_client.py
+            |--HardwareStatus_publish.py
+            |--CalRect_server.py
+            |--CalRect_client.py
+          
 ```
