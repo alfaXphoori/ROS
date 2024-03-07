@@ -82,7 +82,7 @@ source ~/.bashrc
 rqt_graph
 ```
 
-Tree Directory
+Directory Tree
 ```bash
 |--ros2_ws
    |--build
