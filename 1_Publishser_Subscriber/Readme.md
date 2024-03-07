@@ -63,8 +63,9 @@ ros2 run ce_robot first_sub
 ```bash
 source ~/.bashrc
 rqt_graph
-
+```
 Tree Directory
+
 ```bash
 |--ros2_ws
    |--build
@@ -77,5 +78,4 @@ Tree Directory
             |--first_publisher.py
             |--first_subscriber.py
           
-```
 ```
