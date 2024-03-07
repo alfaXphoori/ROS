@@ -97,7 +97,7 @@ ros2 run ce_robot HardwareStatus_publish
 ```bash
 ros2 topic echo /hardware_status
 ```
-Tree Directory
+Directory Tree
 ```bash
 |--ros2_ws
    |--build
