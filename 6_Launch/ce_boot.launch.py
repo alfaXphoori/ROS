@@ -28,6 +28,7 @@ def generate_launch_description():
     HardwareStauts_para_node = Node(
         package="ce_robot",
         executable="hw_para",
+        name="HWStatus_para",
         remappings=[
             remap_hw_para_topic
         ],
