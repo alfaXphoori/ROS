@@ -21,8 +21,8 @@ mkdir launch
 พร้อมกับเปลี่ยน Permission ให้เป็น +x
  ```bash
 cd launch
-touch ce_boot.launch.py
-chmod+x ce_robot_bootup.launch.py
+touch ce_boot_launch.py
+chmod+x ce_robot_boot_launch.py
 ```
 
 เมื่อเสร็จแล้วให้ทำการเขียน Code python ตามตัวอย่างที่มีไว้ให้แล้ว
@@ -42,7 +42,7 @@ colcon build --packages-select ce_robot_bootup --symlink-install
 เมื่อ launch แล้ว จะเป็นการเปิด run ทั้ง 3 Node พร้อมกันตาม Code ที่ขัยนไว้
 ```bash
 source ~/.bashrc
-ros2 launch ce_robot_bootup ce_boot.launch.py 
+ros2 launch ce_robot_bootup ce_boot_launch.py 
 ```
 
 ทดสอบ node ที่รันว่า ros2 สามารถใช้งานได้หรือไม่โดยการ\
