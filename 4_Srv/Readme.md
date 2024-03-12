@@ -73,7 +73,7 @@ ros2 run ce_robot cal_rect_server
 
 เปิด terminal ใหม่ เข้า source ./bashrc แล้วใช้คำสั่ง ros2 echo เพื่อตรวจสอบตัวแปร msg
 ```bash
-ros2 service call /cal_rect ce_robot_interfaces/srv/CalRectangle "{length: 55.20, width: 33.12}
+ros2 service call /cal_rect ce_robot_interfaces/srv/CalRectangle "{length: 5.20, width: 3.12}"
 ```
 
 สร้าง Node Client เพื่อส่งค่าผ่าน srv ที่เราสร้างขึ้น\
