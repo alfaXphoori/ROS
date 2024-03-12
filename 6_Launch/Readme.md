@@ -30,7 +30,14 @@ chmod+x ce_robot_boot_launch.py
 cd ~/ros2_ws/src/ce_robot_bootup
 code .
 ```
-
+เพิ่ม code ใน package.xml
+- <exec_depend>ce_robot</exec_depend>
+เพิ่ม code ใน CMakeLists.txt
+- install(DIRECTORY\
+	launch\
+	DESTINATION share/${PROJECT_NAME}\
+    )
+    
 เมื่อเขียน Code เสร็จเรียบร้อยแล้วออกยังมายัง ros2_ws และทำการ colcon build 
  ```bash
 cd ~/ros2_ws
