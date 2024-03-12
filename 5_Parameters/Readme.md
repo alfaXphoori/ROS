@@ -51,7 +51,7 @@ ros2 param list
 "rb-ce" คือชื่อที่แก้ใน Parameter rb_name\
 1780 คือค่าที่แก้ใน Parameter rb_no\
 ```bash
-ros2 run ce_robot hw_para --ros-args -p rb_name:="rb-ce" -p rb-no:=1789
+ros2 run ce_robot hw_para --ros-args -p rb_name:="rb-ce" -p rb_no:=1789
 ```
 
 Directory Tree
