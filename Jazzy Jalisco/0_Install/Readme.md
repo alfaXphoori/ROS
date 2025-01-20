@@ -35,7 +35,7 @@ source /opt/ros/jazzy/setup.bash
 ```
 ทดสอบโดยเปิด Terminal ใหม่พร้อมใช้คำสั่ง
 ```bash
-ros2 --help
+ros2
 ```
 
 ยินดีด้วยติดตั้ง ROS2 สำเร็จแล้ว
@@ -58,7 +58,7 @@ cd /usr/share/colcon_argcomplete/hook/
 - source ~/ros2_ws/install/setup.bash
 
 ```bash
-gedit ~/.bashrc
+nano .bashrc
 ```
 เสร็จสิ้นการติดตั้ง Colcon ใน ROS2 สำหรับสร้าง package ใหม่
 
