@@ -36,8 +36,7 @@ nano .bashrc
 ```bash
 source /opt/ros/jazzy/setup.bash
 ```
-
-ืืทดสอบโดยเปิด Terminal ใหม่พร้อมใช้คำสั่ง
+ทดสอบโดยเปิด Terminal ใหม่พร้อมใช้คำสั่ง
 ```bash
 ros2 --help
 ```
