@@ -53,7 +53,7 @@ cd /usr/share/colcon_argcomplete/hook/
 ```
 จากนั้นทำการตั้งค่า ./bashrc โดยเพิ่ม 3 บรรทัดนี้เข้าไปยัง ท้ายสุดของ ไฟล์
 
-- source /opt/ros/iron/setup.bash
+- source /opt/ros/jazzy/setup.bash
 - source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
 - source ~/ros2_ws/install/setup.bash
 
