@@ -1,8 +1,5 @@
 # Project Title
-
-ROS2 Ubuntu 24_04
-
-We chose Ros2 Iron Irwini to use.
+ROS2 Jazzy Jalisco /Ubuntu 24_04
 ## Authors
 
 - [@alfaXphoori](https://www.github.com/alfaXphoori)
