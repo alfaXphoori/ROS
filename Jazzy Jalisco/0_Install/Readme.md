@@ -90,6 +90,7 @@ ros2 run demo_nodes_py listener
 ```
 คำสั่งในการ ตรวจสอบการทำงาน ต่างๆ 
 ```bash
+rqt_graph
 ros2 topic list
 ros2 topic info /chatter
 ros2 topic info / chatter --verbose
