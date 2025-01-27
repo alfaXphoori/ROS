@@ -78,7 +78,22 @@ nano .bashrc
 ```bash
 sudo apt install python3-pip
 ```
-
+## Demo Run
+ทดสอบ การ Run demo talker & demo listener
+เปิด Terminal และใช้คำสั่ง
+```bash
+ros2 run demo_nodes_py listener
+```
+เปิด Terminal ใหม่และใช้คำสั่ง
+```bash
+ros2 run demo_nodes_py listener
+```
+คำสั่งในการ ตรวจสอบการทำงาน ต่างๆ 
+```bash
+ros2 topic list
+ros2 topic info /chatter
+ros2 topic info / chatter --verbose
+```
 ## Create First Package
 เมื่อเราติดตั้ง ROS2 และ Tools ต่างๆจนครบ \
 เราจะพร้อมที่จะสร้าง Package เพื่อใช้งานแล้วตอนนี้ \
