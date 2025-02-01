@@ -1,100 +1,107 @@
-## Create Server / Client Node 
 
-การสร้าง Node Server เป็นการสร้าง Node เพื่อส่งข้อมูลออกไป\
-เปิด terminal ทำการเข้าไปยัง Folder ce_robot ของ package ce_robot  
+## 🚀 Create Server / Client Node in ROS 2
 
+Setting up a **Server Node** involves creating a node to handle requests, while a **Client Node** sends requests to the server.
+
+---
+
+## 🔗 Server / Client Node
+
+### ⚙️ Setting Up the Server Node
+Navigate to the `ce_robot` folder:
 ```bash
-cd ros2_ws/src/ce_robot/ce_robot
+cd ~/ros2_ws/src/ce_robot/ce_robot
 ```
 
-สร้าง file python ที่ชื่อว่า add_two_ints_server.py
+Create a Python file for the Server:
 ```bash
 touch add_two_ints_server.py
 chmod +x add_two_ints_server.py
 ```
 
-จากนั้นทำการเขียน Code ภาษา python เมื่อเสร็จแล้วทำการทดสอบ file โดยใช้คำสั่ง 
+Write the necessary Python code and test the file using:
 ```bash
 ./add_two_ints_server.py
 ```
 
-แก้ไข file package.xml โดยเพิ่ม code ส่วน library\
-เพิ่ม code ภายใต้ 'console_scripts': [ ] ของ file setup.py
-- "add_two_server = ce_robot.add_two_ints_server:main",
+---
 
-เมื่อ Code ไม่มี error แล้วต้องทำการ Colcon build เพื่อให้ Package \
-ที่เราสร้างขึ้นสามารถใช้งานผ่าน คำสั่ง ros2 run ได้
+### 🔄 Setting Up the Client Node
+Navigate to the `ce_robot` folder:
 ```bash
-cd ~/ros2_ws
-colcon build --packages-select ce_robot --symlink-install
+cd ~/ros2_ws/src/ce_robot/ce_robot
 ```
 
-เมื่อทำการ colcon build สำเร็จ ทำการทดสอบการ ทำงาน Package ที่สร้างขึ้นโดย \
-เปิด terminal เข้า source ./bashrc แล้วใช้คำสั่ง ros2 run package ที่สร้างขึ้น
-```bash
-source ~/.bashrc
-ros2 run ce_robot add_two_server
-```
-
-เปิดอีก terminal เข้า source ./bashrc แล้วใช้คำสั่ง ros2 service call เพื่อทดสอบ server\ แล้วจะได้ผลลัพธ์เป็นผล + ของตัวเลข 2 ตัว
-```bash
-source ~/.bashrc
-ros2 service call /add_two_ints example_interfaces/srv/AddTwoInts "{a: 4, b: 5}"
-```
-
-สร้าง Node Client เป็นการสร้าง Node เพื่อส่งค่าไปยัง Server Node\
-```bash
-cd ros2_ws/src/ce_robot/ce_robot
-```
-
-สร้าง file python ที่ชื่อว่า add_two_ints_client.py
+Create a Python file for the Client:
 ```bash
 touch add_two_ints_client.py
 chmod +x add_two_ints_client.py
 ```
 
-จากนั้นทำการเขียน Code ภาษา python เมื่อเสร็จแล้วทำการทดสอบ file โดยใช้คำสั่ง 
+Write the necessary Python code and test the file using:
 ```bash
 ./add_two_ints_client.py
 ```
 
-แก้ไข file package.xml โดยเพิ่ม code ส่วน library\
-เพิ่ม code ภายใต้ 'console_scripts': [ ] ของ file setup.py
-- "add_two_client = ce_robot.add_two_ints_client:main",
+---
 
-เมื่อ Code ไม่มี error แล้วต้องทำการ Colcon build เพื่อให้ Package \
-ที่เราสร้างขึ้นสามารถใช้งานผ่าน คำสั่ง ros2 run ได้
+### 📌 Updating `package.xml` & `setup.py`
+Modify the `package.xml` file to include necessary dependencies ✏️
+Then, update the `setup.py` file by adding the following lines under `console_scripts`:
+```python
+entry_points={
+    'console_scripts': [
+        "add_two_server = ce_robot.add_two_ints_server:main",
+        "add_two_client = ce_robot.add_two_ints_client:main",
+    ],
+},
+```
+
+---
+
+### 🔨 Building the Package with Colcon
+Once the code is error-free, compile the package using `colcon build`:
 ```bash
 cd ~/ros2_ws
 colcon build --packages-select ce_robot --symlink-install
 ```
 
-เมื่อทำการ colcon build สำเร็จ ทำการทดสอบการ ทำงาน Package ที่สร้างขึ้นโดย \
-เปิด terminal เข้า source ./bashrc แล้วใช้คำสั่ง ros2 run package ที่สร้างขึ้น
+---
+
+### 🚀 Running and Testing the Package
+
+Open a terminal and run the **Server**:
 ```bash
 source ~/.bashrc
-ros2 run ce_robot add_two_client 10 20 
+ros2 run ce_robot add_two_server
 ```
 
-เปิดอีก terminal เข้า source ./bashrc แล้วใช้คำสั่ง rqt_graph เพื่อดูการเชื่อมต่อของ Node
+Open another terminal and send a request using the **Client**:
+```bash
+source ~/.bashrc
+ros2 run ce_robot add_two_client 10 20
+```
+
+To visualize the node connections, open another terminal and run:
 ```bash
 source ~/.bashrc
 rqt_graph
 ```
 
-Directory Tree
+---
+
+### 🗂️ Directory Structure
+
 ```bash
 |--ros2_ws
    |--build
-   |--intstall
+   |--install
    |--log
    |--src
       |--ce_robot
          |--ce_robot
-            |--first_node.py
-            |--first_publisher.py
-            |--first_subscriber.py
             |--add_two_ints_server.py
             |--add_two_ints_client.py
-          
 ```
+
+✅ **Setup Complete!** 🚀✨
