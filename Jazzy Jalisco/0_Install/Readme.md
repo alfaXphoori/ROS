@@ -1,167 +1,162 @@
-# Project Title
-ROS2 Jazzy Jalisco /Ubuntu 24_04
-## Authors
+# **ROS2 Jazzy Jalisco / Ubuntu 24.04**
 
+## **📌 Project Title**
+ROS2 Jazzy Jalisco on Ubuntu 24.04
+
+## **👤 Authors**
 - [@alfaXphoori](https://www.github.com/alfaXphoori)
 
+## **🛠 Environment Setup**
+ROS 2 will be installed on a **Virtual Machine** using:
+- **VMware Workstation Pro**
+- **Ubuntu 24.04.3 LTS** as the operating system
 
-## Environment Variables
+## **🚀 ROS 2 Installation**
+### **Step 1: Install ROS 2 Jazzy**
+Follow the official installation guide:
+[ROS 2 Jazzy Installation](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html)
 
-Ros2 ที่จะใช้านจะทำงานบน Visual Machine โดยทำการติดตั้ง
-- VMware Workstation Pro
-Ros2 เลือกใช้การทำงานบนระบบปัฎิบัติการ Linux เลือกใช้งานเป็น Ubuntu
-- Install Ubuntu 24.04.3 LTS
-
-
-## Installation
-
-การติดดตั้ง ROS2 ตาม Link 
-
-https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debs.html
-
-ใช้คำสั่ง ls -a เพื่อค้นหาตำแหน่งของ .bashrc
+To locate `.bashrc`, use:
 ```bash
 ls -a
 ```
-
-เปิด .bashrc โดยโปรแกรม Nano
+Open `.bashrc` with Nano:
 ```bash
-nano .bashrc
+nano ~/.bashrc
 ```
-
-เพิ่มคำสั่งนีใน บรรทัดสุดท้าย
+Append this line to the end of the file:
 ```bash
 source /opt/ros/jazzy/setup.bash
 ```
-ทดสอบโดยเปิด Terminal ใหม่พร้อมใช้คำสั่ง
+Reload the terminal and verify the installation:
 ```bash
 ros2
 ```
+**✅ Congratulations! ROS 2 has been successfully installed.**
 
-ยินดีด้วยติดตั้ง ROS2 สำเร็จแล้ว
+---
 
-## Install Colcon
-เริ่มติดตั้ง Colcon
-เปิด terminal เข้า source ทดสอบว่าต้องติดตั้ง ROS2 เรียบร้อยแล้ว
-ติดตั้งโปรแกรม Colcon
-```bash
-sudo apt install python3-colcon-common-extensions
-```
-ทดสอบการติดตั้ง Colocon โดยเข้าไปที่ Path จะพบ ไฟล์ colcon-argcomplete.bash
-```bash
-cd /usr/share/colcon_argcomplete/hook/
-```
-จากนั้นทำการตั้งค่า ./bashrc โดยเพิ่ม 3 บรรทัดนี้เข้าไปยัง ท้ายสุดของ ไฟล์
+## **🛠 Install Colcon (ROS 2 Build System)**
+1. Verify ROS 2 installation:
+   ```bash
+   source /opt/ros/jazzy/setup.bash
+   ```
+2. Install Colcon:
+   ```bash
+   sudo apt install python3-colcon-common-extensions
+   ```
+3. Verify installation:
+   ```bash
+   cd /usr/share/colcon_argcomplete/hook/
+   ```
+4. Update `.bashrc` with:
+   ```bash
+   nano ~/.bashrc
+   ```
+   Add these lines at the end:
+   ```bash
+   source /opt/ros/jazzy/setup.bash
+   source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
+   source ~/ros2_ws/install/setup.bash
+   ```
 
-- source /opt/ros/jazzy/setup.bash
-- source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
-- source ~/ros2_ws/install/setup.bash
+---
 
-```bash
-nano .bashrc
-```
-เสร็จสิ้นการติดตั้ง Colcon ใน ROS2 สำหรับสร้าง package ใหม่
+## **🖥 Install Visual Studio Code (VS Code)**
+Install **VS Code** on Ubuntu for easier development.
 
-## Install Visual Studio Code
-ทำการติดตั้ง vscode ใน Ubuntu เพื่อให้เขียน Code ได้ง่ายขึ้น\
-หลังจากเข้ามา vscode ทำการติดตั้ง Extensions ที่ publish by Microsoft
-- c++
-- python
-- cmake
-- cmake tools
-- xml
-- xml tools
-- ros
+### **Recommended Extensions (Microsoft)**
+- C++
+- Python
+- CMake
+- CMake Tools
+- XML
+- XML Tools
+- ROS
 
-ติดตั้ง python3-pip สำหรับการ build package
-
+### **Install Python3-PIP for Package Building**
 ```bash
 sudo apt install python3-pip
 ```
-## Demo Run
-ทดสอบ การ Run demo talker & demo listener
-เปิด Terminal และใช้คำสั่ง
+
+---
+
+## **🎯 Demo Run: ROS 2 Talker & Listener**
+Run a simple talker-listener test.
+
+### **Start a Listener Node**
 ```bash
 ros2 run demo_nodes_py listener
 ```
-เปิด Terminal ใหม่และใช้คำสั่ง
+
+### **Start a Talker Node** (In a new terminal)
 ```bash
-ros2 run demo_nodes_py listener
+ros2 run demo_nodes_py talker
 ```
-คำสั่งในการ ตรวจสอบการทำงาน ต่างๆ 
+
+### **Monitor ROS 2 Topics**
 ```bash
 rqt_graph
 ros2 topic list
 ros2 topic info /chatter
-ros2 topic info / chatter --verbose
-```
-## Create First Package
-เมื่อเราติดตั้ง ROS2 และ Tools ต่างๆจนครบ \
-เราจะพร้อมที่จะสร้าง Package เพื่อใช้งานแล้วตอนนี้ \
-เริ่มต้นด้วยการเปิด terminal ขึ้นมา ทำการสร้าง Folder ros2_ws สำหรับ ROS2 
-
-```bash
-mkdir ros2_ws
-colcon build
-
-cd ros2_ws
-mkdir src
+ros2 topic info /chatter --verbose
 ```
 
-จากนั้นทำการสร้าง Package จากคำสั่ง Ros create โดยสร้างไว้ที่ Folder src\
-โดย Package ที่สร้างขึ้นมาจะมีชื่อว่า ce_robot
+---
 
-```bash
-cd src
-ros2 pkg create ce_robot --build-type ament_python --dependencies rclpy
-```
+## **📦 Create Your First ROS 2 Package**
+1. Create a workspace and build it:
+   ```bash
+   mkdir -p ~/ros2_ws/src
+   cd ~/ros2_ws
+   colcon build
+   ```
+2. Create a new package named `ce_robot`:
+   ```bash
+   cd src
+   ros2 pkg create ce_robot --build-type ament_python --dependencies rclpy
+   ```
+3. Navigate to the package directory:
+   ```bash
+   cd ce_robot/ce_robot
+   ```
+4. Create a Python node and make it executable:
+   ```bash
+   touch first_node.py
+   chmod +x first_node.py
+   ```
+5. Write the Python code for the node, then run it:
+   ```bash
+   ./first_node.py
+   ```
+6. Modify `package.xml` and `setup.py` to include the node:
+   - In `setup.py`, under `console_scripts`:
+     ```bash
+     'first_node = ce_robot.first_node:main',
+     ```
 
-จากนั้นเข้าไปยัง Folder ce_robot/ce_robot
+7. Build the package:
+   ```bash
+   cd ~/ros2_ws
+   colcon build
+   ```
+8. Run the ROS 2 node:
+   ```bash
+   ros2 run ce_robot first_node
+   ```
 
-```bash
-cd ce_robot/ce_robot
-```
-เมื่อได้ Package แล้วทำการสร้าง Node เพื่อทำงานใน Ros2
-สร้าง file python ที่มีชื่อว่า first_node.py พร้อมเปลี่ยน Permission file เป็น +x 
-```bash
-touch first_node.py
-chmod +x first_node.py
-```
+**✅ You have successfully created and executed your first ROS 2 package!**
 
-จากนั้นทำการเขียน Code ภาษา python เมื่อเสร็จแล้วทำการทดสอบ file โดยใช้คำสั่ง 
-```bash
-./first_node.py
-```
+---
 
-แก้ไข file package.xml โดยเพิ่ม code ส่วน library\
-เพิ่ม code ภายใต้ 'console_scripts': [ ] ของ file setup.py
-- "first_node = ce_robot.first_node:main",
-
-เมื่อ Code ไม่มี error แล้วต้องทำการ Colcon build เพื่อให้ Package \
-ที่เราสร้างขึ้นสามารถใช้งานผ่าน คำสั่ง ros2 run ได้
-```bash
-cd ~/ros2_ws
-colcon build 
-```
-
-เมื่อทำการ colcon build สำเร็จ ทำการทดสอบการ ทำงาน Package ที่สร้างขึ้นโดย \
-เปิด terminal เข้า source ./bashrc แล้วใช้คำสั่ง ros2 run package ที่สร้างขึ้น
-```bash
-source ~/.bashrc
-ros2 run ce_robot first_node
-```
-
-เสร็จสิ้นสำหรับการสร้าง Package แรก ใน ros2
-
-Directory Tree
+## **📂 Directory Structure**
 ```bash
 |--ros2_ws
    |--build
-   |--intstall
+   |--install
    |--log
    |--src
       |--ce_robot
          |--ce_robot
             |--first_node.py
-          
 ```

@@ -35,7 +35,7 @@ class AddTwoInts_Client(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = AddTwoInts_Client()
-    reponse = node.callback_add_two_ints_server(int(sys.argv[1]), int(sys.argv[2]))
+    response = node.callback_add_two_ints_server(int(sys.argv[1]), int(sys.argv[2]))
     rclpy.spin(node)
     rclpy.shutdown()
 
