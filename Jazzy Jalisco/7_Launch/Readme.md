@@ -82,7 +82,7 @@ ros2 topic echo /hw_parameter
 Verify the active services:
 ```bash
 ros2 service list
-ros2 service call /cal_rectangle ce_robot_interfaces/srv/CalRectangle "{length: 12.13, width: 4.9}"
+ros2 service call /boot_cal_rectangle ce_robot_interfaces/srv/CalRectangle "{length: 12.13, width: 4.9}"
 ```
 
 ---
