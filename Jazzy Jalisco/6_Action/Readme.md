@@ -17,8 +17,8 @@ mkdir action
 Create an action definition file:
 ```bash
 cd action
-touch MoveRobot.action
-code MoveRobot.action
+touch CountUntil.action
+code CountUntil.action
 ```
 
 Define the request, feedback, and response structure inside `MoveRobot.action`:
