@@ -1,26 +1,90 @@
-## 🚀 Create Parameter in ROS 2
+## 🚀 Create Action in ROS 2
 
-Using **parameters** in ROS 2 allows nodes to store and retrieve configurable values at runtime.
+Using **Actions** in ROS 2 allows nodes to perform long-running tasks asynchronously, such as robotic arm movements or navigation.
 
 ---
 
-## 📦 Creating a Parameterized Publisher Node
+## 📦 Creating an Action in `ce_robot_interfaces` Package
 
-### 🛠️ Creating the Parameter Node
+### 🛠️ Creating the `action` Directory
+
+```bash
+cd ~/ros2_ws/src/ce_robot_interfaces
+mkdir action
+```
+
+Create an action definition file:
+```bash
+cd action
+touch CountUntil.action
+code CountUntil.action
+```
+
+---
+
+### 📌 Updating `CMakeLists.txt`
+Modify `CMakeLists.txt` by adding:
+```cmake
+find_package(rosidl_default_generators REQUIRED)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "action/CountUntil.action"
+  DEPENDENCIES action_msgs
+)
+```
+
+---
+
+### 🔨 Building the Package with Colcon
+Compile the package:
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot_interfaces --symlink-install
+```
+
+Verify the custom action structure:
+```bash
+ros2 interface show ce_robot_interfaces/action/CountUntil
+```
+
+---
+
+## 🚀 Using Custom Action in a Server/Client
+
+### ⚙️ Creating the Action Server
 Navigate to the `ce_robot` package folder:
 ```bash
 cd ~/ros2_ws/src/ce_robot/ce_robot
 ```
 
-Create a Python file for the parameterized publisher:
+Create a Python file for the server:
 ```bash
-touch HwStatus_para_publish.py
-chmod +x HwStatus_para_publish.py
+touch count_until_server.py
+chmod +x count_until_server.py
 ```
 
 Write the necessary Python code and test the file using:
 ```bash
-./HwStatus_para_publish.py
+./count_until_server.py
+```
+
+---
+
+### 🔄 Creating the Action Client
+Navigate to the `ce_robot` package folder:
+```bash
+cd ~/ros2_ws/src/ce_robot/ce_robot
+```
+
+Create a Python file for the client:
+```bash
+touch count_until_client.py
+chmod +x count_until_client.py
+```
+
+Write the necessary Python code and test the file using:
+```bash
+./count_until_client.py
 ```
 
 ---
@@ -31,7 +95,8 @@ Update `setup.py` by adding the following under `console_scripts`:
 ```python
 entry_points={
     'console_scripts': [
-        "hw_para = ce_robot.HwStatus_para_publish:main",
+        "count_until_server = ce_robot.count_until_server:main",
+        "count_until_client = ce_robot.count_until_client:main",
     ],
 },
 ```
@@ -43,27 +108,31 @@ Compile the package:
 ```bash
 cd ~/ros2_ws
 colcon build --packages-select ce_robot --symlink-install
+source install/setup.bash
 ```
 
 ---
 
-### 🚀 Running and Testing the Parameterized Node
+### 🚀 Running and Testing the Action Server/Client
 
-Open a terminal and run the **Publisher with Parameters**:
+Open a terminal and run the **Action Server**:
 ```bash
-source ~/.bashrc
-ros2 run ce_robot hw_para
+ros2 run ce_robot count_until_server
 ```
 
-Open another terminal and check the available parameters:
+Open another terminal and send a request using the **Action Client**:
 ```bash
-source ~/.bashrc
-ros2 param list
+ros2 run ce_robot count_until_client 10 1.0
 ```
 
-To modify a parameter, first stop the running node, then restart it with new values:
+To verify action communication, list the available actions:
 ```bash
-ros2 run ce_robot hw_para --ros-args -p rb_name:="rb-ce" -p rb_no:=1789
+ros2 action list
+```
+
+Check feedback messages:
+```bash
+ros2 action info /count_until
 ```
 
 ---
@@ -77,13 +146,11 @@ ros2 run ce_robot hw_para --ros-args -p rb_name:="rb-ce" -p rb_no:=1789
    |--log
    |--src
       |--ce_robot_interfaces
-         |--msg
-            |--HardwareStatus.msg
-         |--srv
-            |--CalRectangle.srv
+         |--action
+            |--CountUntil.action
       |--ce_robot
-         |--ce_robot
-            |--HwStatus_para_publish.py
+         |--count_until_server.py
+         |--count_until_client.py
 ```
 
 ✅ **Setup Complete!** 🚀✨

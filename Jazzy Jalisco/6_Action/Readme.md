@@ -4,12 +4,11 @@ Using **Actions** in ROS 2 allows nodes to perform long-running tasks asynchrono
 
 ---
 
-## 📦 Creating an Action Package
+## 📦 Creating an Action in `ce_robot_interfaces` Package
 
-### 🛠️ Creating the `action` on ce_robot_interfaces Package
+### 🛠️ Creating the `action` Directory
 
 ```bash
-
 cd ~/ros2_ws/src/ce_robot_interfaces
 mkdir action
 ```
@@ -21,17 +20,17 @@ touch CountUntil.action
 code CountUntil.action
 ```
 
-Define the request, feedback, and response structure inside `MoveRobot.action`:
+Define the action structure in `CountUntil.action`:
 ```plaintext
 # Request
-float64 distance
-float64 speed
+int32 target_number
+float64 delay
 ---
 # Feedback
-float64 current_distance
+int32 current_number
 ---
 # Response
-bool success
+int32 reached_number
 ```
 
 ---
@@ -42,7 +41,7 @@ Modify `CMakeLists.txt` by adding:
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "action/MoveRobot.action"
+  "action/CountUntil.action"
   DEPENDENCIES action_msgs
 )
 ```
@@ -53,12 +52,13 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 Compile the package:
 ```bash
 cd ~/ros2_ws
-colcon build --packages-select ce_robot_actions --symlink-install
+colcon build --packages-select ce_robot_interfaces --symlink-install
+source install/setup.bash
 ```
 
 Verify the custom action structure:
 ```bash
-ros2 interface show ce_robot_actions/action/MoveRobot
+ros2 interface show ce_robot_interfaces/action/CountUntil
 ```
 
 ---
@@ -66,39 +66,39 @@ ros2 interface show ce_robot_actions/action/MoveRobot
 ## 🚀 Using Custom Action in a Server/Client
 
 ### ⚙️ Creating the Action Server
-Navigate to the `ce_robot_actions` package folder:
+Navigate to the `ce_robot` package folder:
 ```bash
-cd ~/ros2_ws/src/ce_robot_actions
+cd ~/ros2_ws/src/ce_robot/ce_robot
 ```
 
 Create a Python file for the server:
 ```bash
-touch move_robot_server.py
-chmod +x move_robot_server.py
+touch count_until_server.py
+chmod +x count_until_server.py
 ```
 
 Write the necessary Python code and test the file using:
 ```bash
-./move_robot_server.py
+./count_until_server.py
 ```
 
 ---
 
 ### 🔄 Creating the Action Client
-Navigate to the `ce_robot_actions` package folder:
+Navigate to the `ce_robot` package folder:
 ```bash
-cd ~/ros2_ws/src/ce_robot_actions
+cd ~/ros2_ws/src/ce_robot/ce_robot
 ```
 
 Create a Python file for the client:
 ```bash
-touch move_robot_client.py
-chmod +x move_robot_client.py
+touch count_until_client.py
+chmod +x count_until_client.py
 ```
 
 Write the necessary Python code and test the file using:
 ```bash
-./move_robot_client.py
+./count_until_client.py
 ```
 
 ---
@@ -109,8 +109,8 @@ Update `setup.py` by adding the following under `console_scripts`:
 ```python
 entry_points={
     'console_scripts': [
-        "move_robot_server = ce_robot_actions.move_robot_server:main",
-        "move_robot_client = ce_robot_actions.move_robot_client:main",
+        "count_until_server = ce_robot.count_until_server:main",
+        "count_until_client = ce_robot.count_until_client:main",
     ],
 },
 ```
@@ -121,7 +121,8 @@ entry_points={
 Compile the package:
 ```bash
 cd ~/ros2_ws
-colcon build --packages-select ce_robot_actions --symlink-install
+colcon build --packages-select ce_robot --symlink-install
+source install/setup.bash
 ```
 
 ---
@@ -130,19 +131,22 @@ colcon build --packages-select ce_robot_actions --symlink-install
 
 Open a terminal and run the **Action Server**:
 ```bash
-source ~/.bashrc
-ros2 run ce_robot_actions move_robot_server
+ros2 run ce_robot count_until_server
 ```
 
 Open another terminal and send a request using the **Action Client**:
 ```bash
-source ~/.bashrc
-ros2 run ce_robot_actions move_robot_client 5.0 1.0
+ros2 run ce_robot count_until_client 10 1.0
 ```
 
 To verify action communication, list the available actions:
 ```bash
 ros2 action list
+```
+
+Check feedback messages:
+```bash
+ros2 action info /count_until
 ```
 
 ---
@@ -155,11 +159,12 @@ ros2 action list
    |--install
    |--log
    |--src
-      |--ce_robot_actions
+      |--ce_robot_interfaces
          |--action
-            |--MoveRobot.action
-         |--move_robot_server.py
-         |--move_robot_client.py
+            |--CountUntil.action
+      |--ce_robot
+         |--count_until_server.py
+         |--count_until_client.py
 ```
 
 ✅ **Setup Complete!** 🚀✨
