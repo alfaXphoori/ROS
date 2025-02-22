@@ -1,49 +1,61 @@
-#### **`move_robot_client.py` Implementation**
+#!/usr/bin/env python3
+#!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
-from ce_robot_actions.action import MoveRobot
-import sys
+from rclpy.action.client import ClientGoalHandle, GoalStatus
+from ce_robot_interfaces.action import MoveRobot  # Ensure correct import
 
-class MoveRobotClient(Node):
+
+class MoveRobotClientNode(Node):
     def __init__(self):
-        super().__init__('move_robot_client')
-        self._action_client = ActionClient(self, MoveRobot, 'move_robot')
-
+        super().__init__("move_robot_client")
+        self.move_robot_client_ = ActionClient(self, MoveRobot, "move_robot")
+    
     def send_goal(self, distance, speed):
-        goal_msg = MoveRobot.Goal()
-        goal_msg.distance = distance
-        goal_msg.speed = speed
-        
-        self._action_client.wait_for_server()
-        self._send_goal_future = self._action_client.send_goal_async(goal_msg, feedback_callback=self.feedback_callback)
-        self._send_goal_future.add_done_callback(self.goal_response_callback)
+        self.move_robot_client_.wait_for_server()
+        goal = MoveRobot.Goal()
+        goal.distance = distance
+        goal.speed = speed
+        self.move_robot_client_.send_goal_async(
+            goal, feedback_callback=self.goal_feedback_callback
+        ).add_done_callback(self.goal_response_callback)
+    
+    def cancel_goal(self):
+        self.get_logger().info("Send a cancel goal request")
+        self.goal_handle_.cancel_goal_async()
     
     def goal_response_callback(self, future):
-        goal_handle = future.result()
-        if not goal_handle.accepted:
-            self.get_logger().info('Goal rejected')
-            return
-        self.get_logger().info('Goal accepted')
-        self._get_result_future = goal_handle.get_result_async()
-        self._get_result_future.add_done_callback(self.get_result_callback)
+        self.goal_handle_: ClientGoalHandle = future.result()
+        if self.goal_handle_.accepted:
+            self.get_logger().info("Goal got accepted")
+            self.goal_handle_.get_result_async().add_done_callback(self.goal_result_callback)
+        else:
+            self.get_logger().info("Goal got rejected")
     
-    def feedback_callback(self, feedback_msg):
-        self.get_logger().info(f'Feedback: Current Distance = {feedback_msg.feedback.current_distance}m')
-    
-    def get_result_callback(self, future):
+    def goal_result_callback(self, future):
+        status = future.result().status
         result = future.result().result
-        self.get_logger().info(f'Action completed: Success = {result.success}')
-        rclpy.shutdown()
-
+        if status == GoalStatus.STATUS_SUCCEEDED:
+            self.get_logger().info("Success")
+        elif status == GoalStatus.STATUS_ABORTED:
+            self.get_logger().error("Aborted")
+        elif status == GoalStatus.STATUS_CANCELED:
+            self.get_logger().warn("Canceled")
+        self.get_logger().info("Result: " + str(result.success))
+    
+    def goal_feedback_callback(self, feedback_msg):
+        current_distance = feedback_msg.feedback.current_distance
+        self.get_logger().info("Got feedback: " + str(current_distance))
+    
 
 def main(args=None):
-    rclpy.init()
-    action_client = MoveRobotClient()
-    distance = float(sys.argv[1]) if len(sys.argv) > 1 else 5.0
-    speed = float(sys.argv[2]) if len(sys.argv) > 2 else 1.0
-    action_client.send_goal(distance, speed)
-    rclpy.spin(action_client)
+    rclpy.init(args=args)
+    node = MoveRobotClientNode()
+    node.send_goal(5.0, 1.0)
+    rclpy.spin(node)
+    rclpy.shutdown()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
