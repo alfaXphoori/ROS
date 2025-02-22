@@ -1,9 +1,0 @@
-# Request
-float64 distance
-float64 speed
----
-# Feedback
-float64 current_distance
----
-# Response
-bool success
