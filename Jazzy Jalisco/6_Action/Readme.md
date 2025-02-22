@@ -20,19 +20,6 @@ touch CountUntil.action
 code CountUntil.action
 ```
 
-Define the action structure in `CountUntil.action`:
-```plaintext
-# Request
-int32 target_number
-float64 delay
----
-# Feedback
-int32 current_number
----
-# Response
-int32 reached_number
-```
-
 ---
 
 ### 📌 Updating `CMakeLists.txt`
@@ -53,7 +40,6 @@ Compile the package:
 ```bash
 cd ~/ros2_ws
 colcon build --packages-select ce_robot_interfaces --symlink-install
-source install/setup.bash
 ```
 
 Verify the custom action structure:
@@ -122,7 +108,6 @@ Compile the package:
 ```bash
 cd ~/ros2_ws
 colcon build --packages-select ce_robot --symlink-install
-source install/setup.bash
 ```
 
 ---
