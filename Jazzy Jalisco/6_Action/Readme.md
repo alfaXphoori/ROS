@@ -6,17 +6,11 @@ Using **Actions** in ROS 2 allows nodes to perform long-running tasks asynchrono
 
 ## 📦 Creating an Action Package
 
-### 🛠️ Creating the `ce_robot_actions` Package
-Navigate to the `src` folder and create a new package:
-```bash
-cd ~/ros2_ws/src
-ros2 pkg create ce_robot_actions --build-type ament_python --dependencies rclpy action_msgs
-```
+### 🛠️ Creating the `action` on ce_robot_interfaces Package
 
-Remove unnecessary directories and create an `action` folder:
 ```bash
-cd ce_robot_actions
-rm -rf include src
+
+cd ~/ros2_ws/src/ce_robot_interfaces
 mkdir action
 ```
 
