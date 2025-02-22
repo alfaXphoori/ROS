@@ -6,7 +6,7 @@ def generate_launch_description():
 
     remap_hw_pub_topic = ("hardware_status", "hw_status")
     remap_cal_rect_server_topic = ("cal_rect","cal_rectangle")
-    remap_hw_para_topic = ("hardware_status", "hw_parameter")
+    remap_hw_para_topic = ("hardware_status_para", "hw_parameter")
     HardwareStatus_pub_node = Node(
         package="ce_robot",
         executable="hw_status",
