@@ -1,9 +1,9 @@
-# Request: Input parameters for the action
-float64 distance  # Distance the robot should move
-float64 speed     # Speed at which the robot should move
+# Request
+float64 distance
+float64 speed
 ---
-# Feedback: Continuous update on progress
-float64 current_distance  # How far the robot has moved so far
+# Feedback
+float64 current_distance
 ---
-# Response: Final result of the action
-bool success  # Whether the action was completed successfully
+# Response
+bool success
