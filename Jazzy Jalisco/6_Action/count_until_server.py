@@ -12,10 +12,13 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 class CountUntilServerNode(Node):
     def __init__(self):
         super().__init__("count_until_server")
+        self.declare_parameter("topic_name","count_until")
+        self.topic_name_ = self.get_parameter("topic_name").get_parameter_value().string_value
+
         self.count_until_server_ = ActionServer(
             self,
             CountUntil,
-            "count_until",
+            self.topic_name_,
             goal_callback=self.goal_callback,
             cancel_callback=self.cancel_callback,
             execute_callback=self.execute_callback,
