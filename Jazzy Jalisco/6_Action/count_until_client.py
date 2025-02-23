@@ -6,12 +6,15 @@ from rclpy.action import ActionClient
 from rclpy.action.client import ClientGoalHandle, GoalStatus
 from ce_robot_interfaces.action import CountUntil
 
-
 class CountUntilClientNode(Node):
     def __init__(self):
         super().__init__("count_until_client")
-        self.count_until_client_ = ActionClient(self, CountUntil, "count_until")
+        self.declare_parameter("topic_name","count_until")
+
+        self.topic_name_ = self.get_parameter("topic_name").get_parameter_value().string_value
+        self.count_until_client_ = ActionClient(self, CountUntil, self.topic_name_)
     
+
     # Wait for action server, send a goal, and register a callback for the response
     # Also register another callback for the optional feedback
     def send_goal(self, target_number, delay):
