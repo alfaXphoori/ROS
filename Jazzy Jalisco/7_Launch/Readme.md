@@ -83,6 +83,7 @@ Verify the active services:
 ```bash
 ros2 service list
 ros2 service call /boot_cal_rectangle ce_robot_interfaces/srv/CalRectangle "{length: 12.13, width: 4.9}"
+ros2 run ce_robot count_until_client 10 1.0 --ros-args -p topic_name:="boot_count_until_act"
 ```
 
 ---

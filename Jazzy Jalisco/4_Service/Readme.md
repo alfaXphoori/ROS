@@ -123,13 +123,11 @@ colcon build --packages-select ce_robot --symlink-install
 
 Open a terminal and run the **Server**:
 ```bash
-source ~/.bashrc
 ros2 run ce_robot cal_rect_server
 ```
 
 Open another terminal and send a request using the **Client**:
 ```bash
-source ~/.bashrc
 ros2 run ce_robot cal_rect_client 22.22 33.34
 ```
 

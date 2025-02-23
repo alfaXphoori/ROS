@@ -1,10 +1,10 @@
-## 🚀 Create Action in ROS 2
+# 🚀 ROS 2 Action and Parameterized Client/Server
 
-Using **Actions** in ROS 2 allows nodes to perform long-running tasks asynchronously, such as robotic arm movements or navigation.
+This guide provides a comprehensive setup for using **ROS 2 Actions** with dynamic topic names and parameters. You will learn how to create, build, and run an action server and client that allow dynamic topic configuration using ROS 2 parameters.
 
 ---
 
-## 📦 Creating an Action in `ce_robot_interfaces` Package
+## 📦 Creating an Action in `ce_robot_interfaces`
 
 ### 🛠️ Creating the `action` Directory
 
@@ -18,6 +18,19 @@ Create an action definition file:
 cd action
 touch CountUntil.action
 code CountUntil.action
+```
+
+Define the action structure in `CountUntil.action`:
+```plaintext
+# Request
+int32 target_number
+float64 delay
+---
+# Feedback
+int32 current_number
+---
+# Response
+int32 reached_number
 ```
 
 ---
@@ -40,6 +53,7 @@ Compile the package:
 ```bash
 cd ~/ros2_ws
 colcon build --packages-select ce_robot_interfaces --symlink-install
+source install/setup.bash
 ```
 
 Verify the custom action structure:
@@ -49,32 +63,25 @@ ros2 interface show ce_robot_interfaces/action/CountUntil
 
 ---
 
-## 🚀 Using Custom Action in a Server/Client
+## 🚀 Using Custom Action in a Server/Client with Dynamic Topic Names
 
-### ⚙️ Creating the Action Server
-Navigate to the `ce_robot` package folder:
-```bash
-cd ~/ros2_ws/src/ce_robot/ce_robot
-```
+### ⚙️ Creating the Action Server with Dynamic Topic Name
 
 Create a Python file for the server:
 ```bash
+cd ~/ros2_ws/src/ce_robot/ce_robot
 touch count_until_server.py
 chmod +x count_until_server.py
 ```
 
-Write the necessary Python code and test the file using:
+#### **Running the Server with a Custom Topic Name**
 ```bash
-./count_until_server.py
+ros2 run ce_robot count_until_server --ros-args -p topic_name:="action_count_until"
 ```
 
 ---
 
-### 🔄 Creating the Action Client
-Navigate to the `ce_robot` package folder:
-```bash
-cd ~/ros2_ws/src/ce_robot/ce_robot
-```
+### 🔄 Creating the Action Client with Dynamic Topic Name
 
 Create a Python file for the client:
 ```bash
@@ -82,15 +89,15 @@ touch count_until_client.py
 chmod +x count_until_client.py
 ```
 
-Write the necessary Python code and test the file using:
+#### **Running the Client with a Custom Topic Name**
 ```bash
-./count_until_client.py
+ros2 run ce_robot count_until_client --ros-args -p topic_name:="action_count_until"
 ```
 
 ---
 
 ### 📌 Updating `package.xml` & `setup.py`
-Modify `package.xml` to include necessary dependencies ✏️
+Modify `package.xml` to include necessary dependencies ✏️  
 Update `setup.py` by adding the following under `console_scripts`:
 ```python
 entry_points={
@@ -108,30 +115,36 @@ Compile the package:
 ```bash
 cd ~/ros2_ws
 colcon build --packages-select ce_robot --symlink-install
+source install/setup.bash
 ```
 
 ---
 
 ### 🚀 Running and Testing the Action Server/Client
 
-Open a terminal and run the **Action Server**:
+Run the **server** with the default topic:
 ```bash
 ros2 run ce_robot count_until_server
 ```
 
-Open another terminal and send a request using the **Action Client**:
+Run the **server** with a custom topic:
+```bash
+ros2 run ce_robot count_until_server --ros-args -p topic_name:="action_count_until"
+```
+
+Run the **client** with the default topic:
 ```bash
 ros2 run ce_robot count_until_client 10 1.0
 ```
 
-To verify action communication, list the available actions:
+Run the **client** with a custom topic:
 ```bash
-ros2 action list
+ros2 run ce_robot count_until_client 10 1.0 --ros-args -p topic_name:="action_count_until"
 ```
 
-Check feedback messages:
+To verify parameters:
 ```bash
-ros2 action info /count_until
+ros2 param list
 ```
 
 ---
@@ -148,8 +161,9 @@ ros2 action info /count_until
          |--action
             |--CountUntil.action
       |--ce_robot
-         |--count_until_server.py
-         |--count_until_client.py
+         |--ce_robot
+            |--count_until_server.py
+            |--count_until_client.py
 ```
 
 ✅ **Setup Complete!** 🚀✨
