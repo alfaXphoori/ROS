@@ -61,6 +61,11 @@ source ~/.bashrc
 ros2 param list
 ```
 
+Open another terminal and check the publisher:
+```bash
+ros2 topic echo /hardware_status_para 
+```
+
 To modify a parameter, first stop the running node, then restart it with new values:
 ```bash
 ros2 run ce_robot hw_para --ros-args -p rb_name:="rb-ce" -p rb_no:=1789
