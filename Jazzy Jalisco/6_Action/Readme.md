@@ -21,17 +21,6 @@ code CountUntil.action
 ```
 
 Define the action structure in `CountUntil.action`:
-```plaintext
-# Request
-int32 target_number
-float64 delay
----
-# Feedback
-int32 current_number
----
-# Response
-int32 reached_number
-```
 
 ---
 
