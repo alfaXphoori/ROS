@@ -74,11 +74,6 @@ touch count_until_server.py
 chmod +x count_until_server.py
 ```
 
-#### **Running the Server with a Custom Topic Name**
-```bash
-ros2 run ce_robot count_until_server --ros-args -p topic_name:="action_count_until"
-```
-
 ---
 
 ### 🔄 Creating the Action Client with Dynamic Topic Name
@@ -87,11 +82,6 @@ Create a Python file for the client:
 ```bash
 touch count_until_client.py
 chmod +x count_until_client.py
-```
-
-#### **Running the Client with a Custom Topic Name**
-```bash
-ros2 run ce_robot count_until_client --ros-args -p topic_name:="action_count_until"
 ```
 
 ---
