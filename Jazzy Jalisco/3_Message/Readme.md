@@ -147,7 +147,7 @@ Open a terminal and run the **Publisher**:
 
 ```bash
 source ~/.bashrc
-ros2 run ce_robot HardwareStatus_publish
+ros2 run ce_robot hw_status
 ```
 
 Open a new terminal and echo the topic to verify message transmission:
