@@ -65,12 +65,6 @@ touch HardwareStatus.msg
 
 Define message variables inside `HardwareStatus.msg`, such as:
 
-```plaintext
-int32 temperature
-bool is_operational
-string message
-```
-
 ---
 
 ### 🔨 Building the Package with Colcon
