@@ -76,7 +76,7 @@ area = π * r^2
 🔍 ทดสอบ Service Server โดยใช้คำสั่ง  
 
 ```sh
-ros2 run ce_robot 
+ros2 run ce_robot cal_circle_cl 3.45
 ```
 📌 แสดงผลลัพธ์  
 - ![service](imgs/service.png)
