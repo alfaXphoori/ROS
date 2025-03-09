@@ -42,6 +42,8 @@ std_number = "รหัสนักศึกษา"
 ros2 topic echo /phoori_std
 ```
 
+- ![pub*msg](imgs/msg&pub.png)
+
 📌 แสดงผลลัพธ์ที่ได้รับจาก Topic
 
 ---
@@ -79,6 +81,8 @@ area = π * r^2
 ```sh
 ros2 run ce_robot 
 ```
+
+- ![service](imgs/service.png)
 
 📌 แสดงผลลัพธ์ที่ได้รับจาก Server  
 
@@ -129,19 +133,11 @@ int64 current_distance
 🔍 ทดสอบการทำงานของ Action Client โดยใช้คำสั่ง  
 
 ```sh
-rosrun <package_name> RobotRun_client.py
+ros2 run ce_robot 
 ```
 
-📌 แสดงผลลัพธ์ที่ได้รับจาก Server  
-
----
-
-## 📌 ข้อกำหนดเพิ่มเติม
-
-- 📜 นักศึกษาต้องเขียนโค้ดและ **บันทึกผลลัพธ์ที่ได้**  
-- ✏️ อธิบายโค้ดที่เขียน **อย่างสั้น ๆ**  
-- 📸 แนบภาพแสดงผลลัพธ์ที่ได้จากคำสั่งที่ใช้ในการทดสอบ  
-
+📌 แสดงผลลัพธ์  
+- ![action](imgs/action.png)
 ---
 
 ## ✅ จบข้อสอบ  
