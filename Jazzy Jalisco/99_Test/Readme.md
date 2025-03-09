@@ -124,10 +124,10 @@ int64 current_distance
 
 ### ✅ 3.4 การทดสอบ
 
-🔍 ทดสอบการทำงานของ Action Client โดยใช้คำสั่ง  
+🔍 ทดสอบการทำงานของ Action Sever & Action Client โดยใช้คำสั่ง  
 
 ```sh
-ros2 run ce_robot 
+ros2 run ce_robot robot_
 ```
 📌 แสดงผลลัพธ์  
 - ![action](imgs/action.png)
