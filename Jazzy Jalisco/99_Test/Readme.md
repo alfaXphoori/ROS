@@ -77,7 +77,7 @@ area = π * r^2
 🔍 ทดสอบ Service Server โดยใช้คำสั่ง  
 
 ```sh
-rosservice call /circle_area "radius: 5.0"
+ros2 run ce_robot 
 ```
 
 📌 แสดงผลลัพธ์ที่ได้รับจาก Server  
