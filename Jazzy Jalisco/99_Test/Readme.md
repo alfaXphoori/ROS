@@ -41,11 +41,8 @@ std_number = "รหัสนักศึกษา"
 ```sh
 ros2 topic echo /phoori_std
 ```
-
+📌 แสดงผลลัพธ์  
 - ![pub*msg](imgs/msg&pub.png)
-
-📌 แสดงผลลัพธ์ที่ได้รับจาก Topic
-
 ---
 
 ## 🔵 2. Service (พื้นที่วงกลม)
@@ -81,11 +78,8 @@ area = π * r^2
 ```sh
 ros2 run ce_robot 
 ```
-
+📌 แสดงผลลัพธ์  
 - ![service](imgs/service.png)
-
-📌 แสดงผลลัพธ์ที่ได้รับจาก Server  
-
 ---
 
 ## 🟠 3. Action (Robot Run)
@@ -135,7 +129,6 @@ int64 current_distance
 ```sh
 ros2 run ce_robot 
 ```
-
 📌 แสดงผลลัพธ์  
 - ![action](imgs/action.png)
 ---
