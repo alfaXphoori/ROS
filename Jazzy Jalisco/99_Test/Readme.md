@@ -125,9 +125,13 @@ int64 current_distance
 ### ✅ 3.4 การทดสอบ
 
 🔍 ทดสอบการทำงานของ Action Sever & Action Client โดยใช้คำสั่ง  
+*** 10 = target_distance
+*** 0.17 = speed
 
 ```sh
-ros2 run ce_robot robot_
+ros2 run ce_robot robot_run_sv
+
+ros2 run ce_robot robot_run_cl 10 0.17
 ```
 📌 แสดงผลลัพธ์  
 - ![action](imgs/action.png)
