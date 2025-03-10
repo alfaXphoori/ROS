@@ -23,7 +23,8 @@ int64 std_number
 
 ### 🏗 1.2 การสร้าง Publisher Node
 
-🖥 ให้เขียน Publisher Node ที่ทำหน้าที่ **ส่งข้อมูล HardwareStatus.msg** ออกทาง Topic โดย topic กำหนดเป็น ชื่อนักศึกษา_std ตัวอย่างเช่น phoori_std
+🖥 ให้เขียน Publisher Node ที่ทำหน้าที่ **ส่งข้อมูล HardwareStatus.msg** ออกทาง Topic โดย topic 
+📌 กำหนดเป็น ชื่อนักศึกษา_std ตัวอย่างเช่น phoori_std
 📌 กำหนดค่าเริ่มต้นของตัวแปรดังนี้  
 
 ```python
