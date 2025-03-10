@@ -6,7 +6,7 @@
 - 💻 สามารถใช้ภาษา **Python หรือ C++** ได้ตามต้องการ
 - 📜 ให้แนบ **โค้ดที่เขียนและผลลัพธ์ที่ได้** จากการทดสอบ
 - ✅ คะแนนเต็ม 20 คะแนน (ส่งไม่เกินวันที่ 10-03-2025 เวลา 16.30 น.)
-- 📋 ส่งคำตอบผ่าน Google Form: [คลิกที่นี่](https://forms.gle/94xceZg5aeBA96Lg8)
+- 📋 ส่งคำตอบผ่าน Google Form: [คลิกที่นี่]([https://forms.gle/94xceZg5aeBA96Lg8](https://docs.google.com/forms/d/e/1FAIpQLSe4PcBNkOPy40qMXWty7nBWoRO2yf75jcMww0ifxpzABgolCw/viewform?usp=dialog))
 ---
 
 ## 🟢 1. Publisher Node & Message (7 คะแนน)
