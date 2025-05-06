@@ -12,7 +12,7 @@ ROS2 Jazzy Jalisco on Ubuntu 24.04
 
 ROS 2 will be installed on a **Virtual Machine** using:
 
-- **VMware Workstation Pro**
+- **VMware Workstation Pro** - ([link](https://drive.google.com/file/d/1gKyvYCsdpCykjsVM_mE6bgzK_-YUUtp6/view?usp=drive_link))
 - **Ubuntu 24.04.3 LTS** as the operating system
 
 ## **🚀 ROS 2 Installation**
