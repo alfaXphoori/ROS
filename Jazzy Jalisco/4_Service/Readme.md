@@ -21,12 +21,6 @@ code .
 ```
 
 Define the request and response structure inside `CalRectangle.srv`:
-```plaintext
-float64 length
-float64 width
----
-float64 area
-```
 
 ---
 

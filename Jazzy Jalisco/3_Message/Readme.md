@@ -65,12 +65,6 @@ touch HardwareStatus.msg
 
 Define message variables inside `HardwareStatus.msg`, such as:
 
-```plaintext
-int32 temperature
-bool is_operational
-string message
-```
-
 ---
 
 ### 🔨 Building the Package with Colcon
@@ -147,7 +141,7 @@ Open a terminal and run the **Publisher**:
 
 ```bash
 source ~/.bashrc
-ros2 run ce_robot HardwareStatus_publish
+ros2 run ce_robot hw_status
 ```
 
 Open a new terminal and echo the topic to verify message transmission:

@@ -21,17 +21,6 @@ code CountUntil.action
 ```
 
 Define the action structure in `CountUntil.action`:
-```plaintext
-# Request
-int32 target_number
-float64 delay
----
-# Feedback
-int32 current_number
----
-# Response
-int32 reached_number
-```
 
 ---
 
@@ -74,11 +63,6 @@ touch count_until_server.py
 chmod +x count_until_server.py
 ```
 
-#### **Running the Server with a Custom Topic Name**
-```bash
-ros2 run ce_robot count_until_server --ros-args -p topic_name:="action_count_until"
-```
-
 ---
 
 ### 🔄 Creating the Action Client with Dynamic Topic Name
@@ -87,11 +71,6 @@ Create a Python file for the client:
 ```bash
 touch count_until_client.py
 chmod +x count_until_client.py
-```
-
-#### **Running the Client with a Custom Topic Name**
-```bash
-ros2 run ce_robot count_until_client --ros-args -p topic_name:="action_count_until"
 ```
 
 ---

@@ -5,7 +5,12 @@
 - ✅ ให้นักศึกษาดำเนินการเขียนโค้ดและทดสอบตามหัวข้อที่กำหนด
 - 💻 สามารถใช้ภาษา **Python หรือ C++** ได้ตามต้องการ
 - 📜 ให้แนบ **โค้ดที่เขียนและผลลัพธ์ที่ได้** จากการทดสอบ
+<<<<<<< HEAD
 - ✅ คะแนนเต็ม 20 คะแนน
+=======
+- ✅ คะแนนเต็ม 20 คะแนน (ส่งไม่เกินวันที่ 10-03-2025 เวลา 16.30 น.)
+- 📋 ส่งคำตอบผ่าน Google Form: [คลิกที่นี่](https://docs.google.com/forms/d/e/1FAIpQLSe4PcBNkOPy40qMXWty7nBWoRO2yf75jcMww0ifxpzABgolCw/viewform?usp=dialog)
+>>>>>>> ef73755c437d60993047ef4b09aa73bae92356c8
 ---
 
 ## 🟢 1. Publisher Node & Message (7 คะแนน)
@@ -23,8 +28,14 @@ int64 std_number
 
 ### 🏗 1.2 การสร้าง Publisher Node
 
+<<<<<<< HEAD
 🖥 ให้เขียน Publisher Node ที่ทำหน้าที่ **ส่งข้อมูล HardwareStatus.msg** ออกทาง Topic  
 📌 กำหนดค่าเริ่มต้นของตัวแปรดังนี้  
+=======
+- 🖥 ให้เขียน Publisher Node ที่ทำหน้าที่ **ส่งข้อมูล HardwareStatus.msg** ออกทาง Topic โดย topic 
+- 📌 กำหนดเป็น ชื่อนักศึกษา_std ตัวอย่างเช่น phoori_std
+- 📌 กำหนดค่าเริ่มต้นของตัวแปรดังนี้  
+>>>>>>> ef73755c437d60993047ef4b09aa73bae92356c8
 
 ```python
 std_name = "ชื่อของนักศึกษา"
@@ -35,8 +46,13 @@ std_number = "รหัสนักศึกษา"
 
 ### ✅ 1.3 การทดสอบ
 
+<<<<<<< HEAD
 🔍 ทดสอบ Publisher Node ที่สร้างขึ้นด้วยคำสั่ง  
 *** phoori_std คืือ topic
+=======
+- 🔍 ทดสอบ Publisher Node ที่สร้างขึ้นด้วยคำสั่ง
+- 📌 phoori_std คือ topic ของ publisher node ทีสร้างขึ้น
+>>>>>>> ef73755c437d60993047ef4b09aa73bae92356c8
 
 ```sh
 ros2 topic echo /phoori_std
