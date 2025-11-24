@@ -12,8 +12,8 @@ ROS2 Jazzy Jalisco on Ubuntu 24.04
 
 ROS 2 will be installed on a **Virtual Machine** using:
 
-- **VMware Workstation Pro** - ([⬇️ Link](https://drive.google.com/file/d/1gKyvYCsdpCykjsVM_mE6bgzK_-YUUtp6/view?usp=drive_link))
-- **Ubuntu 24.04 LTS** ([⬇️ Link](https://ubuntu.com/download/desktop/thank-you?version=24.04.2&architecture=amd64&lts=true))
+- **VirtualBox** - ([⬇️ Link](https://www.virtualbox.org/wiki/Downloads))
+- **Ubuntu 24.04 LTS** ([⬇️ Link](https://ubuntu.com/download/desktop))
 
 ## **🚀 ROS 2 Installation**
 
@@ -90,6 +90,18 @@ ros2
 
 Install **VS Code** on Ubuntu for easier development.
 
+### **Installation Methods**
+
+```bash
+sudo snap install --classic code
+```
+
+Launch VS Code:
+
+```bash
+code
+```
+
 ### **Recommended Extensions (Microsoft)**
 
 - C++
@@ -99,6 +111,35 @@ Install **VS Code** on Ubuntu for easier development.
 - XML
 - XML Tools
 - ROS
+- Robot Developer Extensions for ROS 2
+
+---
+
+## **📟 Install Terminator (Advanced Terminal Emulator)**
+
+Install **Terminator** for better terminal management with split panes:
+
+```bash
+sudo apt update
+sudo apt install terminator
+```
+
+Launch Terminator:
+
+```bash
+terminator
+```
+
+---
+
+## **💻 Essential Development Tools**
+
+Install commonly used development tools and utilities:
+
+```bash
+sudo apt update
+sudo apt install build-essential git curl wget vim
+```
 
 ### **Install Python3-PIP for Package Building**
 
