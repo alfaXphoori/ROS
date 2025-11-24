@@ -48,6 +48,8 @@ ros2
 
 **✅ Congratulations! ROS 2 has been successfully installed.**
 
+![ROS2 Installation Complete](imgs/Complete_ROS2.png)
+
 ---
 
 ## **🛠 Install Colcon (ROS 2 Build System)**
@@ -67,7 +69,7 @@ ros2
 3. Verify installation:
 
    ```bash
-   cd /usr/share/colcon_argcomplete/hook/
+   cd /usr/share/colcon_argcomplete/hook/ && ls
    ```
 
 4. Update `.bashrc` with:
@@ -83,6 +85,14 @@ ros2
    source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash
    source ~/ros2_ws/install/setup.bash
    ```
+
+   ![Bashrc Configuration](imgs/Bashrc.png)
+
+   ![Setup Source](imgs/Setup_Source.png)
+
+   ![Update Setup](imgs/Update_Setup.png)
+
+   ![Colcon Complete](imgs/Complete_Colcon.png)
 
 ---
 
@@ -104,14 +114,16 @@ code
 
 ### **Recommended Extensions (Microsoft)**
 
-- C++
+- C/C++
+- C/C++ Extension Pack
 - Python
 - CMake
 - CMake Tools
 - XML
 - XML Tools
-- ROS
 - Robot Developer Extensions for ROS 2
+
+![VS Code Extensions](imgs/Install_Extentions_VScode.png)
 
 ---
 
@@ -129,6 +141,8 @@ Launch Terminator:
 ```bash
 terminator
 ```
+
+![Terminator Terminal](imgs/Terminator.png)
 
 ---
 
@@ -174,6 +188,10 @@ ros2 topic info /chatter
 ros2 topic info /chatter --verbose
 ```
 
+![Demo Talker Listener](imgs/Demo_talker_listener.png)
+
+![RQT Graph](imgs/rqt_graph.png)
+
 ---
 
 ## **📦 Create Your First ROS 2 Package**
@@ -186,12 +204,16 @@ ros2 topic info /chatter --verbose
    colcon build
    ```
 
+   ![Create Workspace](imgs/Create_ws.png)
+
 2. Create a new package named `ce_robot`:
 
    ```bash
    cd src
    ros2 pkg create ce_robot --build-type ament_python --dependencies rclpy
    ```
+
+   ![Create Package](imgs/Create_package.png)
 
 3. Navigate to the package directory:
 
@@ -206,11 +228,16 @@ ros2 topic info /chatter --verbose
    chmod +x first_node.py
    ```
 
+   ![Create Node](imgs/Create_Node.png)
+
 5. Write the Python code for the node, then run it:
 
    ```bash
-   ./first_node.py
+   cd ~/ros2_ws
+   code .
    ```
+
+   ![First Node Code](imgs/First_Node.png)
 
 6. Modify `package.xml` and `setup.py` to include the node:
    - In `setup.py`, under `console_scripts`:
@@ -229,8 +256,11 @@ ros2 topic info /chatter --verbose
 8. Run the ROS 2 node:
 
    ```bash
+   source ~/.bashrc
    ros2 run ce_robot first_node
    ```
+
+   ![Run First Node](imgs/Run_First_Node.png)
 
 **✅ You have successfully created and executed your first ROS 2 package!**
 
