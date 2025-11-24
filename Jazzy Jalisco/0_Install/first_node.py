@@ -8,7 +8,7 @@ class MyNode(Node):
         self.counter = 0
         self.create_timer(1.0, self.timer_callback)
     def timer_callback(self):
-        self.get_logger().info("Hi First CE6541 " + str(self.counter))
+        self.get_logger().info("Hi First CE_Robot " + str(self.counter))
         self.counter += 1
 
 def main(args=None):
