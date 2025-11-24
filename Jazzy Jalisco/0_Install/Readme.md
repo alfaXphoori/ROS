@@ -28,6 +28,8 @@ To locate `.bashrc`, use:
 ls -a
 ```
 
+![Bashrc Configuration](imgs/Bashrc.png)
+
 Open `.bashrc` with Nano:
 
 ```bash
@@ -66,6 +68,8 @@ ros2
    sudo apt install python3-colcon-common-extensions
    ```
 
+   ![Colcon Complete](imgs/Complete_Colcon.png)
+
 3. Verify installation:
 
    ```bash
@@ -86,13 +90,8 @@ ros2
    source ~/ros2_ws/install/setup.bash
    ```
 
-   ![Bashrc Configuration](imgs/Bashrc.png)
-
    ![Setup Source](imgs/Setup_Source.png)
 
-   ![Update Setup](imgs/Update_Setup.png)
-
-   ![Colcon Complete](imgs/Complete_Colcon.png)
 
 ---
 
@@ -246,6 +245,8 @@ ros2 topic info /chatter --verbose
      'first_node = ce_robot.first_node:main',
      ```
 
+   ![Update Setup](imgs/Update_Setup.png)
+
 7. Build the package:
 
    ```bash
@@ -268,13 +269,23 @@ ros2 topic info /chatter --verbose
 
 ## **📂 Directory Structure**
 
-```bash
-|--ros2_ws
-   |--build
-   |--install
-   |--log
-   |--src
-      |--ce_robot
-         |--ce_robot
-            |--first_node.py
+```
+📁 ros2_ws/
+├── 📁 build/
+├── 📁 install/
+├── 📁 log/
+└── 📁 src/
+    └── 📁 ce_robot/
+        ├── 📄 package.xml
+        ├── 📄 setup.py
+        ├── 📄 setup.cfg
+        ├── 📁 resource/
+        │   └── 📄 ce_robot
+        ├── 📁 test/
+        │   ├── 📄 test_copyright.py
+        │   ├── 📄 test_flake8.py
+        │   └── 📄 test_pep257.py
+        └── 📁 ce_robot/
+            ├── 📄 __init__.py
+            └── 🐍 first_node.py
 ```
