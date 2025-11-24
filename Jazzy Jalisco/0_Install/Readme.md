@@ -270,22 +270,21 @@ ros2 topic info /chatter --verbose
 ## **📂 Directory Structure**
 
 ```
-📁 ros2_ws/
+📁 ROS2_WS/
+├── 📁 .vscode/
 ├── 📁 build/
 ├── 📁 install/
 ├── 📁 log/
 └── 📁 src/
+    ├── 📁 .vscode/
     └── 📁 ce_robot/
-        ├── 📄 package.xml
-        ├── 📄 setup.py
-        ├── 📄 setup.cfg
+        ├── 📁 ce_robot/
+        │   ├── 📄 __init__.py
+        │   └── 🐍 first_node.py
         ├── 📁 resource/
         │   └── 📄 ce_robot
         ├── 📁 test/
-        │   ├── 📄 test_copyright.py
-        │   ├── 📄 test_flake8.py
-        │   └── 📄 test_pep257.py
-        └── 📁 ce_robot/
-            ├── 📄 __init__.py
-            └── 🐍 first_node.py
+        ├── 📄 package.xml
+        ├── 📄 setup.cfg
+        └── 📄 setup.py
 ```
