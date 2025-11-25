@@ -20,7 +20,7 @@ ROS 2 will be installed on a **Virtual Machine** using:
 1. **Create a New Virtual Machine**
 
    Open VirtualBox and click on **New** to create a new virtual machine.
-   ![Create New](imgs/New_VM.png)
+   ![Create New Virtual Box](imgs/New_VM.png)
 
 2. **Configure Virtual Machine Name and OS**
 
