@@ -15,6 +15,53 @@ ROS 2 will be installed on a **Virtual Machine** using:
 - **VirtualBox** - ([⬇️ Link](https://www.virtualbox.org/wiki/Downloads))
 - **Ubuntu 24.04 LTS** ([⬇️ Link](https://ubuntu.com/download/desktop))
 
+### **VirtualBox Configuration**
+
+1. **Create a New Virtual Machine**
+
+   Open VirtualBox and click on **New** to create a new virtual machine.
+
+2. **Configure Virtual Machine Name and OS**
+
+   - Set the VM Name (e.g., `ROS`)
+   - Select the Ubuntu ISO image
+   - Choose OS: Linux, Distribution: Ubuntu (64-bit)
+   - Check "Proceed with Unattended Installation"
+
+   ![VM Name and OS Setup](imgs/Screenshot%202568-11-24%20at%2014.24.18.png)
+
+3. **Set Up Unattended Installation**
+
+   - User Name: `admin`
+   - Password: Set your password
+   - Hostname: `ROS`
+   - Domain Name: `myguest.virtualbox.org`
+   - Install Guest Additions (recommended)
+
+   ![Unattended Installation Setup](imgs/Screenshot%202568-11-24%20at%2014.24.18.png)
+
+4. **Specify Virtual Hardware**
+
+   - Base Memory: 8192 MB (recommended)
+   - Number of CPUs: 10 (adjust based on your system)
+   - Enable EFI (optional)
+
+   ![Virtual Hardware Configuration](imgs/Screenshot%202568-11-24%20at%2014.24.18.png)
+
+5. **Specify Virtual Hard Disk**
+
+   - Create a New Virtual Hard Disk
+   - Disk Size: 50 GB (recommended minimum)
+   - Hard Disk File Type: VDI (VirtualBox Disk Image)
+
+   ![Virtual Hard Disk Setup](imgs/Screenshot%202568-11-24%20at%2014.24.18.png)
+
+6. **Finish and Start**
+
+   Click **Finish** to create the virtual machine, then click **Start** to begin the Ubuntu installation.
+
+---
+
 ## **🚀 ROS 2 Installation**
 
 ### **Step 1: Install ROS 2 Jazzy**
