@@ -92,7 +92,6 @@ if __name__ == '__main__':
     main()
 ```
 
-![Server Implementation](imgs/2_server.png)
 
 ---
 
@@ -224,6 +223,8 @@ You should see:
 ```
 [INFO] [add_two_ints_client]: Result of add_two_ints: 30
 ```
+
+![Server Implementation](imgs/2_server.png)
 
 ### **Step 3: Monitor Service Calls**
 
