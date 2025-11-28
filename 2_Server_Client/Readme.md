@@ -92,6 +92,8 @@ if __name__ == '__main__':
     main()
 ```
 
+![Server Implementation](imgs/2_server.png)
+
 ---
 
 ## **🔄 Setting Up the Client Node**
@@ -335,6 +337,52 @@ future.add_done_callback(lambda future: ...)
 if response is None:
     self.get_logger().error('Service call failed')
 ```
+
+---
+
+## **⚠️ Troubleshooting**
+
+### **Issue: Service not available**
+**Solution:** Make sure the server is running in another terminal
+```bash
+ros2 run ce_robot add_two_server
+```
+
+### **Issue: Client hangs waiting for service**
+**Solution:** Check if server is running and listening
+```bash
+ros2 service list
+ros2 service type /add_two_ints
+```
+
+### **Issue: ImportError for example_interfaces**
+**Solution:** Install the required package
+```bash
+sudo apt install ros-jazzy-example-interfaces
+```
+
+---
+
+## **📚 Resources**
+
+- [ROS 2 Services Documentation](https://docs.ros.org/en/jazzy/Concepts/Intermediate/About-Services.html)
+- [ROS 2 Service Client Libraries](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries.html)
+- [ROS 2 Custom Interfaces](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Custom-data-types.html)
+
+---
+
+## **✅ Verification Checklist**
+
+- [ ] Server node created and executable
+- [ ] Client node created and executable
+- [ ] package.xml dependencies added
+- [ ] setup.py entry points configured
+- [ ] Package built successfully with colcon
+- [ ] Server starts without errors
+- [ ] Client sends requests successfully
+- [ ] Service responses received correctly
+- [ ] rqt_graph shows connection
+- [ ] Command line service calls work
 
 ---
 
