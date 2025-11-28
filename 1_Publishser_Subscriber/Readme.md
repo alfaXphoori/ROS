@@ -30,6 +30,7 @@ chmod +x first_publisher.py
 ```
 ![Publisher File](imgs/1_pub.png)
 ![Publisher Code](imgs/1_pub_code.png)
+
 Write the necessary Python code and test the file using:
 
 ```bash
