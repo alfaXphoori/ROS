@@ -289,14 +289,6 @@ def main(args=None):
 if __name__ == '__main__':
     main()
 ```
-
-**How to Run:**
-
-```bash
-# Terminal 1: Run the counter publisher
-cd ~/ros2_ws/src/ce_robot/ce_robot
-chmod +x counter_publisher.py
-./counter_publisher.py
 ```
 
 **Expected Output:**
@@ -428,19 +420,6 @@ if __name__ == '__main__':
     main()
 ```
 
-**How to Run:**
-
-```bash
-# Terminal 1: Run the counter publisher
-./counter_publisher.py
-
-# Terminal 2: Run counter processor
-chmod +x counter_processor.py
-./counter_processor.py
-
-# Terminal 3: Run counter logger
-chmod +x counter_logger.py
-./counter_logger.py
 ```
 
 **Expected Output (Counter Processor):**
@@ -868,22 +847,6 @@ if __name__ == '__main__':
     main()
 ```
 
-**How to Run All Together:**
-
-```bash
-# Terminal 1: Temperature Publisher
-./temperature_publisher.py
-
-# Terminal 2: Humidity Publisher
-./humidity_publisher.py
-
-# Terminal 3: Pressure Publisher
-./pressure_publisher.py
-
-# Terminal 4: Sensor Monitor
-./sensor_monitor.py
-```
-
 **Expected Output (Sensor Monitor):**
 
 ```
@@ -908,78 +871,6 @@ if __name__ == '__main__':
 - Timer for periodic updates
 
 ---
-
-### **Exercise 7: Data Filtering (Advanced)**
-
-**Objective:** Filter and transform published data
-
-**Tasks:**
-1. Create `temperature_filter.py`
-2. Subscribe to temperature topic
-3. Only publish alerts when temperature > 28°C or < 18°C
-4. Publish to `temperature_alert` topic
-
-**Expected Output (when alert triggered):**
-```
-[WARN] [temperature_filter]: ALERT! Temperature too high: 29.5°C
-```
-
----
-
-### **Exercise 8: Rate-Limited Publisher (Advanced)**
-
-**Objective:** Implement dynamic rate control
-
-**Tasks:**
-1. Create `variable_rate_publisher.py`
-2. Publish data at variable rate (1Hz, 2Hz, 5Hz)
-3. Change rate every 10 seconds
-4. Measure and display actual publish rate
-
-**Expected Output:**
-```
-[INFO] [variable_rate_publisher]: Publishing at 1 Hz
-[INFO] [variable_rate_publisher]: Publishing at 2 Hz
-[INFO] [variable_rate_publisher]: Publishing at 5 Hz
-```
-
----
-
-### **Exercise 9: Custom Message Type (Advanced)**
-
-**Objective:** Create and use custom message types
-
-**Tasks:**
-1. Create `RobotStatus.msg` with:
-   - battery_level (float)
-   - temperature (float)
-   - is_moving (bool)
-
-2. Create `robot_status_publisher.py` that publishes this message
-3. Create `robot_status_subscriber.py` that processes it
-4. Display all fields in the subscriber
-
-**RobotStatus.msg:**
-```
-float32 battery_level
-float32 temperature
-bool is_moving
-```
-
----
-
-### **Exercise 10: Debugging with ROS 2 Tools (Advanced)**
-
-**Objective:** Master debugging and monitoring commands
-
-**Tasks:**
-1. Run publisher and subscriber from Exercise 1
-2. Use `ros2 topic list` to list all topics
-3. Use `ros2 topic echo` to view messages in real-time
-4. Use `rqt_graph` to visualize the graph
-5. Use `ros2 topic info -v` to get detailed topic info
-6. Use `ros2 topic bw` to measure bandwidth
-7. Document all commands and outputs
 
 **Commands to Practice:**
 ```bash
@@ -1007,44 +898,6 @@ ros2 node list
 
 ---
 
-## **📊 Challenge Exercises**
-
-### **Challenge 1: System Monitor Dashboard**
-
-**Objective:** Create a real-time system monitoring application
-
-**Requirements:**
-- Subscribe to CPU, memory, and disk topics
-- Display data in terminal with formatting
-- Update every 1 second
-- Show warnings when thresholds exceeded
-
----
-
-### **Challenge 2: Data Logger with Playback**
-
-**Objective:** Log published data and replay it
-
-**Requirements:**
-- Subscribe to all topics and log to file
-- Implement playback functionality
-- Use ROS 2 bag files (if available)
-- Compare live vs playback data
-
----
-
-### **Challenge 3: Multi-Topic Synchronizer**
-
-**Objective:** Synchronize data from multiple topics
-
-**Requirements:**
-- Subscribe to 3 sensor topics
-- Ensure data is from same time window
-- Combine data and publish synchronized output
-- Handle timing misalignment
-
----
-
 ## **✅ Completion Checklist**
 
 - [ ] Exercise 1: Basic Publisher completed
@@ -1053,14 +906,6 @@ ros2 node list
 - [ ] Exercise 4: Multiple Subscribers completed
 - [ ] Exercise 5: Temperature Sensor completed
 - [ ] Exercise 6: Data Aggregation completed
-- [ ] Exercise 7: Data Filtering completed
-- [ ] Exercise 8: Rate-Limited Publisher completed
-- [ ] Exercise 9: Custom Message Type completed
-- [ ] Exercise 10: Debugging Tools mastered
-- [ ] Challenge 1 attempted
-- [ ] Challenge 2 attempted
-- [ ] Challenge 3 attempted
-
 ---
 
 ## **💡 Tips & Tricks**
@@ -1096,12 +941,5 @@ ros2 node list
    ```
 
 ---
-
-## **🔗 Related Resources**
-
-- [ROS 2 Official Tutorials](https://docs.ros.org/en/jazzy/Tutorials.html)
-- [ROS 2 Pub/Sub Documentation](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Publisher-And-Subscriber.html)
-- [ROS 2 Message Types](https://docs.ros.org/en/jazzy/Concepts/Basic/About-Interfaces.html)
-- [ROS 2 Topic Naming Convention](https://design.ros2.org/articles/topic_and_service_names.html)
 
 **🎓 Congratulations! You've completed the ROS 2 Publisher & Subscriber Lab!** 🚀✨
