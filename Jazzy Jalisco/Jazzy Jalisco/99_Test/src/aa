@@ -1,9 +1,0 @@
-# Goal
-int64 target_distance
-float64 speed
----
-# Result
-float64 robot_time
----
-# Feedback
-int64 current_distance
