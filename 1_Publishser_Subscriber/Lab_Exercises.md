@@ -90,15 +90,6 @@ if __name__ == '__main__':
     main()
 ```
 
-**How to Run:**
-
-```bash
-# Terminal 1: Run the publisher
-cd ~/ros2_ws/src/ce_robot/ce_robot
-chmod +x simple_publisher.py
-./simple_publisher.py
-```
-
 **Expected Output:**
 
 ```
@@ -176,19 +167,6 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-```
-
-**How to Run:**
-
-```bash
-# Terminal 1: Run the publisher
-cd ~/ros2_ws/src/ce_robot/ce_robot
-./simple_publisher.py
-
-# Terminal 2: Run the subscriber
-cd ~/ros2_ws/src/ce_robot/ce_robot
-chmod +x simple_subscriber.py
-./simple_subscriber.py
 ```
 
 **Expected Output (Publisher):**
@@ -601,18 +579,6 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-```
-
-**How to Run:**
-
-```bash
-# Terminal 1: Run the temperature publisher
-chmod +x temperature_publisher.py
-./temperature_publisher.py
-
-# Terminal 2: Run the temperature subscriber
-chmod +x temperature_subscriber.py
-./temperature_subscriber.py
 ```
 
 **Expected Output (Publisher):**
