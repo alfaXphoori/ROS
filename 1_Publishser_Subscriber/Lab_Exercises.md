@@ -267,7 +267,6 @@ def main(args=None):
 if __name__ == '__main__':
     main()
 ```
-```
 
 **Expected Output:**
 
@@ -396,8 +395,6 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-```
-
 ```
 
 **Expected Output (Counter Processor):**
@@ -872,6 +869,7 @@ ros2 node list
 - [ ] Exercise 4: Multiple Subscribers completed
 - [ ] Exercise 5: Temperature Sensor completed
 - [ ] Exercise 6: Data Aggregation completed
+
 ---
 
 ## **💡 Tips & Tricks**
@@ -909,3 +907,36 @@ ros2 node list
 ---
 
 **🎓 Congratulations! You've completed the ROS 2 Publisher & Subscriber Lab!** 🚀✨
+
+---
+
+## **🔗 Related Resources**
+
+- [ROS 2 Official Tutorials](https://docs.ros.org/en/jazzy/Tutorials.html)
+- [ROS 2 Pub/Sub Documentation](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Publisher-And-Subscriber.html)
+- [ROS 2 Message Types](https://docs.ros.org/en/jazzy/Concepts/Basic/About-Interfaces.html)
+- [ROS 2 Topic Naming Convention](https://design.ros2.org/articles/topic_and_service_names.html)
+
+---
+
+## **📞 Support & Troubleshooting**
+
+**Common Issues:**
+
+1. **Topic not found**
+   - Ensure publisher is running before subscriber
+   - Verify topic name matches exactly (case-sensitive)
+   - Use `ros2 topic list` to debug
+
+2. **Import errors**
+   - Check Python path and ROS 2 installation
+   - Source setup.bash: `source ~/.bashrc`
+
+3. **No messages received**
+   - Check QoS (Quality of Service) settings
+   - Verify publishers and subscribers on same topic
+   - Use `rqt_graph` to visualize connections
+
+---
+
+**Happy Learning! 🎉**
