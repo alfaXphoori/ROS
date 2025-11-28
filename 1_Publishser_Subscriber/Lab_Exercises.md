@@ -35,157 +35,294 @@ By completing this lab, you will be able to:
 3. Implement a publisher that sends "Hello from Publisher" every 1 second
 4. Run and verify output
 
-**Expected Output:**
-```
-[INFO] [simple_publisher]: Publishing: "Hello from Publisher"
-```
+**File: simple_publisher.py**
 
-**Hints:**
-```python
-# Create publisher with String message type
-# Use create_timer() for periodic publishing
-# Use create_publisher() with topic name and queue size
-```
-
-**Solution:**
 ```python
 #!/usr/bin/env python3
+"""
+Exercise 1: Basic Publisher
+Sends "Hello from Publisher" message every 1 second
+"""
+
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
 
+
 class SimplePublisher(Node):
     def __init__(self):
         super().__init__('simple_publisher')
+        # Create publisher with String message type
+        # Topic name: 'hello_topic'
+        # Queue size: 10
         self.pub = self.create_publisher(String, 'hello_topic', 10)
+        
+        # Create timer to publish every 1 second
         self.timer = self.create_timer(1.0, self.timer_callback)
+        self.get_logger().info('Simple Publisher started')
 
     def timer_callback(self):
+        # Create message
         msg = String()
         msg.data = "Hello from Publisher"
+        
+        # Publish message
         self.pub.publish(msg)
+        
+        # Log the published message
         self.get_logger().info(f'Publishing: "{msg.data}"')
+
 
 def main(args=None):
     rclpy.init(args=args)
     node = SimplePublisher()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
 ```
 
+**How to Run:**
+
+```bash
+# Terminal 1: Run the publisher
+cd ~/ros2_ws/src/ce_robot/ce_robot
+chmod +x simple_publisher.py
+./simple_publisher.py
+```
+
+**Expected Output:**
+
+```
+[INFO] [simple_publisher]: Simple Publisher started
+[INFO] [simple_publisher]: Publishing: "Hello from Publisher"
+[INFO] [simple_publisher]: Publishing: "Hello from Publisher"
+[INFO] [simple_publisher]: Publishing: "Hello from Publisher"
+...
+```
+
+**Key Concepts:**
+- `create_publisher()` - Creates a publisher on a topic
+- `create_timer()` - Calls a callback function at regular intervals
+- `publish()` - Sends the message to subscribers
+- Queue size (10) - Maximum messages to keep in queue
+
 ---
 
 ### **Exercise 2: Basic Subscriber (Beginner)**
 
-**Objective:** Create a simple subscriber that listens to messages
+**Objective:** Create a simple subscriber that listens to messages with timestamps
 
 **Tasks:**
 1. Create `simple_subscriber.py`
 2. Subscribe to the topic from Exercise 1
 3. Print received messages with a timestamp
 
-**Expected Output:**
-```
-[INFO] [simple_subscriber]: Received: "Hello from Publisher"
-```
+**File: simple_subscriber.py**
 
-**Hints:**
-```python
-# Use create_subscription() to listen to a topic
-# Implement a callback function for processing messages
-```
-
-**Solution:**
 ```python
 #!/usr/bin/env python3
+"""
+Exercise 2: Basic Subscriber
+Listens to messages from simple_publisher and prints them with timestamp
+"""
+
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
 from datetime import datetime
 
+
 class SimpleSubscriber(Node):
     def __init__(self):
         super().__init__('simple_subscriber')
-        self.sub = self.create_subscription(String, 'hello_topic', self.callback, 10)
+        # Subscribe to the same topic as the publisher
+        self.sub = self.create_subscription(
+            String,              # Message type
+            'hello_topic',       # Topic name
+            self.callback,       # Callback function
+            10                   # Queue size
+        )
+        self.get_logger().info('Simple Subscriber started - waiting for messages...')
 
     def callback(self, msg):
+        # Get current time
         timestamp = datetime.now().strftime('%H:%M:%S')
+        
+        # Log received message with timestamp
         self.get_logger().info(f'[{timestamp}] Received: "{msg.data}"')
+
 
 def main(args=None):
     rclpy.init(args=args)
     node = SimpleSubscriber()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
 ```
 
+**How to Run:**
+
+```bash
+# Terminal 1: Run the publisher
+cd ~/ros2_ws/src/ce_robot/ce_robot
+./simple_publisher.py
+
+# Terminal 2: Run the subscriber
+cd ~/ros2_ws/src/ce_robot/ce_robot
+chmod +x simple_subscriber.py
+./simple_subscriber.py
+```
+
+**Expected Output (Publisher):**
+
+```
+[INFO] [simple_publisher]: Simple Publisher started
+[INFO] [simple_publisher]: Publishing: "Hello from Publisher"
+[INFO] [simple_publisher]: Publishing: "Hello from Publisher"
+...
+```
+
+**Expected Output (Subscriber):**
+
+```
+[INFO] [simple_subscriber]: Simple Subscriber started - waiting for messages...
+[INFO] [simple_subscriber]: [14:23:45] Received: "Hello from Publisher"
+[INFO] [simple_subscriber]: [14:23:46] Received: "Hello from Publisher"
+[INFO] [simple_subscriber]: [14:23:47] Received: "Hello from Publisher"
+...
+```
+
+**Key Concepts:**
+- `create_subscription()` - Subscribes to a topic
+- Callback function - Executed when message arrives
+- Topic matching - Publisher and subscriber must use same topic name
+
 ---
 
 ### **Exercise 3: Counter Publisher (Beginner)**
 
-**Objective:** Create a publisher that sends incrementing counter values
+**Objective:** Create a publisher that sends incrementing counter values (0-100)
 
 **Tasks:**
 1. Create `counter_publisher.py`
 2. Publish integer counter that increments every 500ms
 3. Stop after reaching 100
 
-**Expected Output:**
-```
-[INFO] [counter_publisher]: Counter: 0
-[INFO] [counter_publisher]: Counter: 1
-...
-[INFO] [counter_publisher]: Counter: 100 - Finished!
-```
+**File: counter_publisher.py**
 
-**Solution:**
 ```python
 #!/usr/bin/env python3
+"""
+Exercise 3: Counter Publisher
+Publishes incrementing counter from 0 to 100 every 500ms
+"""
+
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Int32
 
+
 class CounterPublisher(Node):
     def __init__(self):
         super().__init__('counter_publisher')
+        # Create publisher with Int32 message type
         self.pub = self.create_publisher(Int32, 'counter_topic', 10)
+        
+        # Create timer to publish every 500ms (0.5 seconds)
         self.timer = self.create_timer(0.5, self.timer_callback)
+        
+        # Initialize counter
         self.counter = 0
+        self.get_logger().info('Counter Publisher started')
 
     def timer_callback(self):
+        # Create Int32 message
         msg = Int32()
         msg.data = self.counter
+        
+        # Publish message
         self.pub.publish(msg)
+        
+        # Log counter value
         self.get_logger().info(f'Counter: {self.counter}')
+        
+        # Increment counter
         self.counter += 1
         
+        # Stop after reaching 100
         if self.counter > 100:
-            self.get_logger().info('Finished!')
+            self.get_logger().info('Finished! Counter reached 100')
             exit()
+
 
 def main(args=None):
     rclpy.init(args=args)
     node = CounterPublisher()
-    rclpy.spin(node)
-    rclpy.shutdown()
+    
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
 ```
 
+**How to Run:**
+
+```bash
+# Terminal 1: Run the counter publisher
+cd ~/ros2_ws/src/ce_robot/ce_robot
+chmod +x counter_publisher.py
+./counter_publisher.py
+```
+
+**Expected Output:**
+
+```
+[INFO] [counter_publisher]: Counter Publisher started
+[INFO] [counter_publisher]: Counter: 0
+[INFO] [counter_publisher]: Counter: 1
+[INFO] [counter_publisher]: Counter: 2
+[INFO] [counter_publisher]: Counter: 3
+...
+[INFO] [counter_publisher]: Counter: 99
+[INFO] [counter_publisher]: Counter: 100
+[INFO] [counter_publisher]: Finished! Counter reached 100
+```
+
+**Key Concepts:**
+- Int32 message type for integer data
+- Timer interval of 0.5 seconds
+- Loop control and exit condition
+
 ---
 
 ### **Exercise 4: Multiple Subscribers (Intermediate)**
 
-**Objective:** Create multiple subscribers listening to the same topic
+**Objective:** Create two different subscribers that filter counter data
 
 **Tasks:**
 1. Create `counter_processor.py` - filters even numbers
@@ -193,25 +330,156 @@ if __name__ == '__main__':
 3. Run both with the counter_publisher from Exercise 3
 4. Verify both receive data correctly
 
-**Expected Output (counter_processor):**
+**File 1: counter_processor.py (filters even numbers)**
+
+```python
+#!/usr/bin/env python3
+"""
+Exercise 4a: Counter Processor
+Subscribes to counter and only processes even numbers
+"""
+
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import Int32
+
+
+class CounterProcessor(Node):
+    def __init__(self):
+        super().__init__('counter_processor')
+        # Subscribe to counter topic
+        self.sub = self.create_subscription(
+            Int32,
+            'counter_topic',
+            self.callback,
+            10
+        )
+        self.get_logger().info('Counter Processor started - filtering even numbers')
+
+    def callback(self, msg):
+        # Check if number is even
+        if msg.data % 2 == 0:
+            self.get_logger().info(f'Even: {msg.data}')
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = CounterProcessor()
+    
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
 ```
+
+**File 2: counter_logger.py (filters odd numbers)**
+
+```python
+#!/usr/bin/env python3
+"""
+Exercise 4b: Counter Logger
+Subscribes to counter and only processes odd numbers
+"""
+
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import Int32
+
+
+class CounterLogger(Node):
+    def __init__(self):
+        super().__init__('counter_logger')
+        # Subscribe to counter topic
+        self.sub = self.create_subscription(
+            Int32,
+            'counter_topic',
+            self.callback,
+            10
+        )
+        self.get_logger().info('Counter Logger started - filtering odd numbers')
+
+    def callback(self, msg):
+        # Check if number is odd
+        if msg.data % 2 != 0:
+            self.get_logger().info(f'Odd: {msg.data}')
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = CounterLogger()
+    
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+**How to Run:**
+
+```bash
+# Terminal 1: Run the counter publisher
+./counter_publisher.py
+
+# Terminal 2: Run counter processor
+chmod +x counter_processor.py
+./counter_processor.py
+
+# Terminal 3: Run counter logger
+chmod +x counter_logger.py
+./counter_logger.py
+```
+
+**Expected Output (Counter Processor):**
+
+```
+[INFO] [counter_processor]: Counter Processor started - filtering even numbers
 [INFO] [counter_processor]: Even: 0
 [INFO] [counter_processor]: Even: 2
 [INFO] [counter_processor]: Even: 4
+[INFO] [counter_processor]: Even: 6
+...
+[INFO] [counter_processor]: Even: 98
+[INFO] [counter_processor]: Even: 100
 ```
 
-**Expected Output (counter_logger):**
+**Expected Output (Counter Logger):**
+
 ```
+[INFO] [counter_logger]: Counter Logger started - filtering odd numbers
 [INFO] [counter_logger]: Odd: 1
 [INFO] [counter_logger]: Odd: 3
 [INFO] [counter_logger]: Odd: 5
+[INFO] [counter_logger]: Odd: 7
+...
+[INFO] [counter_logger]: Odd: 97
+[INFO] [counter_logger]: Odd: 99
 ```
+
+**Key Concepts:**
+- Multiple subscribers on same topic
+- Each subscriber processes independently
+- Data filtering logic in callbacks
+- Decoupled architecture
 
 ---
 
 ### **Exercise 5: Temperature Sensor Simulation (Intermediate)**
 
-**Objective:** Simulate a temperature sensor with realistic data
+**Objective:** Simulate a temperature sensor with realistic data and random variation
 
 **Tasks:**
 1. Create `temperature_publisher.py`
@@ -219,43 +487,183 @@ if __name__ == '__main__':
 3. Publish every 2 seconds
 4. Range: 20-30°C
 
-**Expected Output:**
-```
-[INFO] [temperature_publisher]: Temperature: 24.53°C
-[INFO] [temperature_publisher]: Temperature: 24.67°C
-```
+**File: temperature_publisher.py**
 
-**Solution:**
 ```python
 #!/usr/bin/env python3
+"""
+Exercise 5: Temperature Sensor Simulation
+Publishes simulated temperature data with random variation
+Temperature range: 20-30°C
+Publish rate: Every 2 seconds
+"""
+
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float32
 import random
 
+
 class TemperaturePublisher(Node):
     def __init__(self):
         super().__init__('temperature_publisher')
+        # Create publisher with Float32 message type
         self.pub = self.create_publisher(Float32, 'temperature', 10)
+        
+        # Create timer to publish every 2 seconds
         self.timer = self.create_timer(2.0, self.timer_callback)
+        
+        # Base temperature (center point)
         self.base_temp = 25.0
+        
+        # Counter for display
+        self.count = 0
+        
+        self.get_logger().info('Temperature Publisher started')
+        self.get_logger().info('Publishing temperature data every 2 seconds...')
 
     def timer_callback(self):
-        temp = self.base_temp + random.uniform(-1, 1)
+        # Generate temperature with random variation
+        # Range: base_temp ± 1°C = 24-26°C around base
+        # Overall range: 20-30°C
+        temperature = self.base_temp + random.uniform(-1, 1)
+        
+        # Clamp temperature to valid range
+        temperature = max(20.0, min(30.0, temperature))
+        
+        # Create Float32 message
         msg = Float32()
-        msg.data = temp
+        msg.data = temperature
+        
+        # Publish message
         self.pub.publish(msg)
-        self.get_logger().info(f'Temperature: {temp:.2f}°C')
+        
+        # Log with formatted output
+        self.count += 1
+        self.get_logger().info(
+            f'[#{self.count}] Temperature: {temperature:.2f}°C'
+        )
+
 
 def main(args=None):
     rclpy.init(args=args)
     node = TemperaturePublisher()
-    rclpy.spin(node)
-    rclpy.shutdown()
+    
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
 ```
+
+**File: temperature_subscriber.py (to view the data)**
+
+```python
+#!/usr/bin/env python3
+"""
+Temperature Subscriber - View published temperature data
+"""
+
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import Float32
+
+
+class TemperatureSubscriber(Node):
+    def __init__(self):
+        super().__init__('temperature_subscriber')
+        # Subscribe to temperature topic
+        self.sub = self.create_subscription(
+            Float32,
+            'temperature',
+            self.callback,
+            10
+        )
+        self.min_temp = 30.0
+        self.max_temp = 20.0
+        self.count = 0
+        self.get_logger().info('Temperature Subscriber started')
+
+    def callback(self, msg):
+        temp = msg.data
+        self.count += 1
+        
+        # Track min and max
+        if temp < self.min_temp:
+            self.min_temp = temp
+        if temp > self.max_temp:
+            self.max_temp = temp
+        
+        # Display temperature
+        self.get_logger().info(
+            f'Received #{self.count}: {temp:.2f}°C '
+            f'(Min: {self.min_temp:.2f}°C, Max: {self.max_temp:.2f}°C)'
+        )
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = TemperatureSubscriber()
+    
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+**How to Run:**
+
+```bash
+# Terminal 1: Run the temperature publisher
+chmod +x temperature_publisher.py
+./temperature_publisher.py
+
+# Terminal 2: Run the temperature subscriber
+chmod +x temperature_subscriber.py
+./temperature_subscriber.py
+```
+
+**Expected Output (Publisher):**
+
+```
+[INFO] [temperature_publisher]: Temperature Publisher started
+[INFO] [temperature_publisher]: Publishing temperature data every 2 seconds...
+[INFO] [temperature_publisher]: [#1] Temperature: 24.53°C
+[INFO] [temperature_publisher]: [#2] Temperature: 25.12°C
+[INFO] [temperature_publisher]: [#3] Temperature: 23.98°C
+[INFO] [temperature_publisher]: [#4] Temperature: 26.34°C
+[INFO] [temperature_publisher]: [#5] Temperature: 24.67°C
+```
+
+**Expected Output (Subscriber):**
+
+```
+[INFO] [temperature_subscriber]: Temperature Subscriber started
+[INFO] [temperature_subscriber]: Received #1: 24.53°C (Min: 24.53°C, Max: 24.53°C)
+[INFO] [temperature_subscriber]: Received #2: 25.12°C (Min: 24.53°C, Max: 25.12°C)
+[INFO] [temperature_subscriber]: Received #3: 23.98°C (Min: 23.98°C, Max: 25.12°C)
+[INFO] [temperature_subscriber]: Received #4: 26.34°C (Min: 23.98°C, Max: 26.34°C)
+[INFO] [temperature_subscriber]: Received #5: 24.67°C (Min: 23.98°C, Max: 26.34°C)
+```
+
+**Key Concepts:**
+- Float32 message type for decimal numbers
+- `random.uniform()` for random variation
+- Min/max tracking in subscriber
+- Formatted output with `.2f` for 2 decimal places
 
 ---
 
@@ -269,11 +677,235 @@ if __name__ == '__main__':
 3. Display average of all three readings every 5 seconds
 4. Log statistics (min, max, avg)
 
-**Expected Output:**
+**File: sensor_monitor.py**
+
+```python
+#!/usr/bin/env python3
+"""
+Exercise 6: Sensor Monitor - Data Aggregation
+Subscribes to temperature, humidity, and pressure topics
+Aggregates and displays statistics every 5 seconds
+"""
+
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import Float32
+from collections import deque
+
+
+class SensorMonitor(Node):
+    def __init__(self):
+        super().__init__('sensor_monitor')
+        
+        # Subscribe to three sensor topics
+        self.temp_sub = self.create_subscription(
+            Float32, 'temperature', self.temp_callback, 10
+        )
+        self.humidity_sub = self.create_subscription(
+            Float32, 'humidity', self.humidity_callback, 10
+        )
+        self.pressure_sub = self.create_subscription(
+            Float32, 'pressure', self.pressure_callback, 10
+        )
+        
+        # Store latest readings
+        self.latest_temp = 0.0
+        self.latest_humidity = 0.0
+        self.latest_pressure = 0.0
+        
+        # Keep history for statistics
+        self.temp_history = deque(maxlen=10)
+        self.humidity_history = deque(maxlen=10)
+        self.pressure_history = deque(maxlen=10)
+        
+        # Timer to display statistics every 5 seconds
+        self.timer = self.create_timer(5.0, self.display_stats)
+        
+        self.get_logger().info('Sensor Monitor started')
+
+    def temp_callback(self, msg):
+        self.latest_temp = msg.data
+        self.temp_history.append(msg.data)
+        self.get_logger().info(f'Temperature: {msg.data:.2f}°C')
+
+    def humidity_callback(self, msg):
+        self.latest_humidity = msg.data
+        self.humidity_history.append(msg.data)
+        self.get_logger().info(f'Humidity: {msg.data:.2f}%')
+
+    def pressure_callback(self, msg):
+        self.latest_pressure = msg.data
+        self.pressure_history.append(msg.data)
+        self.get_logger().info(f'Pressure: {msg.data:.2f} hPa')
+
+    def display_stats(self):
+        # Calculate statistics for each sensor
+        if self.temp_history:
+            temp_avg = sum(self.temp_history) / len(self.temp_history)
+            temp_min = min(self.temp_history)
+            temp_max = max(self.temp_history)
+            self.get_logger().info(
+                f'Temperature - Avg: {temp_avg:.2f}°C, '
+                f'Min: {temp_min:.2f}°C, Max: {temp_max:.2f}°C'
+            )
+
+        if self.humidity_history:
+            humid_avg = sum(self.humidity_history) / len(self.humidity_history)
+            humid_min = min(self.humidity_history)
+            humid_max = max(self.humidity_history)
+            self.get_logger().info(
+                f'Humidity - Avg: {humid_avg:.2f}%, '
+                f'Min: {humid_min:.2f}%, Max: {humid_max:.2f}%'
+            )
+
+        if self.pressure_history:
+            press_avg = sum(self.pressure_history) / len(self.pressure_history)
+            press_min = min(self.pressure_history)
+            press_max = max(self.pressure_history)
+            self.get_logger().info(
+                f'Pressure - Avg: {press_avg:.2f} hPa, '
+                f'Min: {press_min:.2f} hPa, Max: {press_max:.2f} hPa'
+            )
+
+        # Display overall statistics
+        if self.temp_history and self.humidity_history and self.pressure_history:
+            overall_avg = (
+                (sum(self.temp_history) / len(self.temp_history)) +
+                (sum(self.humidity_history) / len(self.humidity_history)) +
+                (sum(self.pressure_history) / len(self.pressure_history))
+            ) / 3
+            self.get_logger().info(f'Overall Average: {overall_avg:.2f}')
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = SensorMonitor()
+    
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
 ```
-[INFO] [sensor_monitor]: Average: 24.67
-[INFO] [sensor_monitor]: Min: 23.45, Max: 25.89
+
+**Test Publisher Files:**
+
+Create these publishers to test the sensor monitor:
+
+**File: humidity_publisher.py**
+
+```python
+#!/usr/bin/env python3
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import Float32
+import random
+
+class HumidityPublisher(Node):
+    def __init__(self):
+        super().__init__('humidity_publisher')
+        self.pub = self.create_publisher(Float32, 'humidity', 10)
+        self.timer = self.create_timer(2.0, self.timer_callback)
+        self.base_humid = 50.0
+        self.count = 0
+
+    def timer_callback(self):
+        humidity = self.base_humid + random.uniform(-5, 5)
+        humidity = max(30.0, min(80.0, humidity))
+        msg = Float32()
+        msg.data = humidity
+        self.pub.publish(msg)
+        self.count += 1
+        self.get_logger().info(f'[#{self.count}] Humidity: {humidity:.2f}%')
+
+def main(args=None):
+    rclpy.init(args=args)
+    rclpy.spin(HumidityPublisher())
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
 ```
+
+**File: pressure_publisher.py**
+
+```python
+#!/usr/bin/env python3
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import Float32
+import random
+
+class PressurePublisher(Node):
+    def __init__(self):
+        super().__init__('pressure_publisher')
+        self.pub = self.create_publisher(Float32, 'pressure', 10)
+        self.timer = self.create_timer(2.0, self.timer_callback)
+        self.base_press = 1013.0
+        self.count = 0
+
+    def timer_callback(self):
+        pressure = self.base_press + random.uniform(-10, 10)
+        pressure = max(950.0, min(1050.0, pressure))
+        msg = Float32()
+        msg.data = pressure
+        self.pub.publish(msg)
+        self.count += 1
+        self.get_logger().info(f'[#{self.count}] Pressure: {pressure:.2f} hPa')
+
+def main(args=None):
+    rclpy.init(args=args)
+    rclpy.spin(PressurePublisher())
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+```
+
+**How to Run All Together:**
+
+```bash
+# Terminal 1: Temperature Publisher
+./temperature_publisher.py
+
+# Terminal 2: Humidity Publisher
+./humidity_publisher.py
+
+# Terminal 3: Pressure Publisher
+./pressure_publisher.py
+
+# Terminal 4: Sensor Monitor
+./sensor_monitor.py
+```
+
+**Expected Output (Sensor Monitor):**
+
+```
+[INFO] [sensor_monitor]: Sensor Monitor started
+[INFO] [sensor_monitor]: Temperature: 24.53°C
+[INFO] [sensor_monitor]: Humidity: 52.34%
+[INFO] [sensor_monitor]: Pressure: 1008.45 hPa
+[INFO] [sensor_monitor]: Temperature: 25.12°C
+[INFO] [sensor_monitor]: Humidity: 48.67%
+[INFO] [sensor_monitor]: Pressure: 1015.23 hPa
+[INFO] [sensor_monitor]: Temperature - Avg: 24.83°C, Min: 24.53°C, Max: 25.12°C
+[INFO] [sensor_monitor]: Humidity - Avg: 50.51%, Min: 48.67%, Max: 52.34%
+[INFO] [sensor_monitor]: Pressure - Avg: 1011.84 hPa, Min: 1008.45 hPa, Max: 1015.23 hPa
+[INFO] [sensor_monitor]: Overall Average: 666.08
+```
+
+**Key Concepts:**
+- Multiple subscriptions in one node
+- Data aggregation from different sources
+- Statistics calculation (min, max, average)
+- Using deque for rolling window history
+- Timer for periodic updates
 
 ---
 
