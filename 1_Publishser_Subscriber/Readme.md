@@ -28,12 +28,15 @@ Create a Python file for the Publisher:
 touch first_publisher.py
 chmod +x first_publisher.py
 ```
-
+![Publisher File](imgs/1_pub.png)
+![Publisher Code](imgs/1_pub_code.png)
 Write the necessary Python code and test the file using:
 
 ```bash
 ./first_publisher.py
 ```
+
+![Publisher Running](imgs/1_pub_run.png)
 
 ---
 
@@ -57,7 +60,7 @@ Write the necessary Python code and test the file using:
 ```bash
 ./first_subscriber.py
 ```
-
+![Subscriber Running](imgs/1_sub_run.png)
 ---
 
 ## **📌 Updating `package.xml` & `setup.py`**
@@ -86,6 +89,8 @@ cd ~/ros2_ws
 colcon build --packages-select ce_robot --symlink-install
 ```
 
+![Colcon Build](imgs/1_build.png)
+
 ---
 
 ## **🚀 Running and Testing the Package**
@@ -98,6 +103,7 @@ Open a terminal and run:
 ros2 run ce_robot first_pub
 ```
 
+
 ### **Start the Subscriber Node**
 
 Open another terminal and run:
@@ -105,6 +111,8 @@ Open another terminal and run:
 ```bash
 ros2 run ce_robot first_sub
 ```
+
+![Publisher & Subscriber Running](imgs/1_run_pub_sub.png)
 
 ### **Monitor Node Connections**
 
@@ -115,6 +123,9 @@ rqt_graph
 ros2 topic list
 ros2 topic info /topic_name
 ```
+
+![RQT Graph](imgs/1_rqt_graph.png)
+
 
 ---
 
