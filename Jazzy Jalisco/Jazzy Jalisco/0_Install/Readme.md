@@ -12,7 +12,7 @@ ROS2 Jazzy Jalisco on Ubuntu 24.04
 
 ROS 2 will be installed on a **Virtual Machine** using:
 
-- **VirtualBox** ([⬇️ Link](https://www.virtualbox.org/wiki/Downloads))
+- **VirtualBox** - ([⬇️ Link](https://www.virtualbox.org/wiki/Downloads))
 - **Ubuntu 24.04 LTS** ([⬇️ Link](https://ubuntu.com/download/desktop))
 
 ### **VirtualBox Configuration**
@@ -20,7 +20,6 @@ ROS 2 will be installed on a **Virtual Machine** using:
 1. **Create a New Virtual Machine**
 
    Open VirtualBox and click on **New** to create a new virtual machine.
-   ![Create New Virtual Box](imgs/New_VM.png)
 
 2. **Configure Virtual Machine Name and OS**
 
@@ -29,7 +28,7 @@ ROS 2 will be installed on a **Virtual Machine** using:
    - Choose OS: Linux, Distribution: Ubuntu (64-bit)
    - Check "Proceed with Unattended Installation"
 
-   ![VM Name and OS Setup](imgs/Add_OS.png)
+   ![VM Name and OS Setup](imgs/Screenshot%202568-11-24%20at%2014.24.18.png)
 
 3. **Set Up Unattended Installation**
 
@@ -39,7 +38,7 @@ ROS 2 will be installed on a **Virtual Machine** using:
    - Domain Name: `myguest.virtualbox.org`
    - Install Guest Additions (recommended)
 
-   ![Unattended Installation Setup](imgs/Modify_User.png)
+   ![Unattended Installation Setup](imgs/Screenshot%202568-11-24%20at%2014.24.18.png)
 
 4. **Specify Virtual Hardware**
 
@@ -47,7 +46,7 @@ ROS 2 will be installed on a **Virtual Machine** using:
    - Number of CPUs: 10 (adjust based on your system)
    - Enable EFI (optional)
 
-   ![Virtual Hardware Configuration](imgs/Modify_CPU.png)
+   ![Virtual Hardware Configuration](imgs/Screenshot%202568-11-24%20at%2014.24.18.png)
 
 5. **Specify Virtual Hard Disk**
 
@@ -55,7 +54,7 @@ ROS 2 will be installed on a **Virtual Machine** using:
    - Disk Size: 50 GB (recommended minimum)
    - Hard Disk File Type: VDI (VirtualBox Disk Image)
 
-   ![Virtual Hard Disk Setup](imgs/Modify_HDD.png)
+   ![Virtual Hard Disk Setup](imgs/Screenshot%202568-11-24%20at%2014.24.18.png)
 
 6. **Finish and Start**
 
