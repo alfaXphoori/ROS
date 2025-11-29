@@ -28,17 +28,16 @@ This lab provides hands-on exercises to master custom message creation and usage
 
 By completing this lab, you will be able to:
 
-✅ Create custom message packages following ROS 2 conventions
-✅ Define message types with appropriate fields and types
-✅ Build and generate message interfaces with `colcon`
-✅ Publish and subscribe to custom messages in Python
-✅ Aggregate data from multiple messages for analysis
-✅ Implement message validation and error handling
-✅ Use logging levels appropriately (INFO, WARN, ERROR)
-✅ Track reliability metrics and success rates
-✅ Write defensive code that handles invalid data
-✅ Debug and monitor custom message communication
-
+- ✅ Create custom message packages following ROS 2 conventions
+- ✅ Define message types with appropriate fields and types
+- ✅ Build and generate message interfaces with `colcon`
+- ✅ Publish and subscribe to custom messages in Python
+- ✅ Aggregate data from multiple messages for analysis
+- ✅ Implement message validation and error handling
+- ✅ Use logging levels appropriately (INFO, WARN, ERROR)
+- ✅ Track reliability metrics and success rates
+- ✅ Write defensive code that handles invalid data
+- ✅ Debug and monitor custom message communication
 ---
 
 ## **📊 Lab Architecture**
