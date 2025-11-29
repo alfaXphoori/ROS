@@ -591,6 +591,13 @@ get_result_callback()       # Final result
 
 After mastering actions, you're ready for the next advanced topics:
 
+### **📊 Current Progress in Learning Path**
+
+```
+Parameters → Actions → Launch Files → Simulation
+             (✓ Completed!)  (→ Next!)   (Advanced)
+```
+
 ### **Option 1: Launch Files (7_Launch) - Recommended Next**
 **Automate launching multiple nodes with parameters**
 - 🚀 Launch complex systems with one command
@@ -615,7 +622,7 @@ After mastering actions, you're ready for the next advanced topics:
 ### **Recommended Learning Path:**
 ```
 Parameters → Actions → Launch Files → Simulation → Advanced Patterns
-             (You are here!)  (Next)    (Then)     (Advanced)
+             (Complete!)  (Next!)     (Then)     (Advanced)
 ```
 
 ---
