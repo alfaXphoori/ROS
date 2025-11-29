@@ -1,19 +1,50 @@
-## 🚀 Create Custom Message (Msg) in ROS 2
+# **ROS 2 Custom Messages (Msg)**
 
-Setting up a **custom message** allows communication between nodes using user-defined data structures. This guide walks you through creating and using the `HardwareStatus` custom message type.
+## **📌 Project Title**
 
-### 📚 Learning Objectives
+Create Custom Message Types in ROS 2 for Structured Data Communication
 
-- Understand ROS 2 message definition syntax
-- Create a custom message package with proper configuration
-- Use custom messages in publisher/subscriber applications
-- Build and verify custom interfaces using `colcon`
-- Integrate custom messages into ROS 2 packages
+## **👤 Authors**
+
+- [@alfaXphoori](https://www.github.com/alfaXphoori)
+
+## **🛠 Overview**
+
+This guide demonstrates **custom message creation and usage** in ROS 2:
+- **Message Package** - Dedicated package for message definitions
+- **Custom Types** - User-defined data structures for specialized communication
+- **Publisher/Subscriber** - Asynchronous communication using custom messages
+- **Data Aggregation** - Collecting and analyzing multi-field messages
+- **Validation** - Error handling and input validation
 
 ---
-## Understanding Message Types 📖
 
-ROS 2 provides a variety of built-in message types through standard packages like `std_msgs`, `geometry_msgs`, and `sensor_msgs`. These messages cover common data structures such as strings, integers, floating-point numbers, and geometric data.
+## **📊 Architecture**
+
+```
+┌──────────────────────────────────────────────────────┐
+│         Message Definition (HardwareStatus.msg)       │
+│  - name_robot: string                                │
+│  - number_robot: int64                               │
+│  - temperature: int64                                │
+│  - motor_ready: bool                                 │
+│  - debug_message: string                             │
+└──────────────────┬───────────────────────────────────┘
+                   │
+        ┌──────────┴──────────┐
+        │                     │
+        ▼                     ▼
+┌────────────────┐    ┌────────────────┐
+│ Publisher Node │    │ Subscriber Node│
+│  (Sends Data)  │───▶│  (Receives)    │
+└────────────────┘    └────────────────┘
+```
+
+---
+
+## **Exercise 1: Understanding Message Types 📖**
+
+ROS 2 provides built-in message types through standard packages like `std_msgs`, `geometry_msgs`, and `sensor_msgs`. These cover common data structures such as strings, integers, floats, and geometric data.
 
 ### 📝 Task
 1. List all available built-in messages:
@@ -46,9 +77,9 @@ Comparison of Message Types:
 - diagnostic_msgs/DiagnosticStatus: System diagnostics (use for health monitoring)
 ```
 
-## 📦 Creating a Custom Msg Package
+---
 
-### 🛠️ Creating the `ce_robot_interfaces` Package
+## **⚙️ Creating the Message Package**
 
 Navigate to the `src` folder and create a new package:
 
@@ -96,23 +127,23 @@ rosidl_generate_interfaces(${PROJECT_NAME}
 
 ---
 
-## 📝 Defining the Custom Message
+## **📝 Defining the Custom Message**
 
 Navigate to the `msg` folder and create a new message file:
 
 ```bash
-cd msg
+cd ~/ros2_ws/src/ce_robot_interfaces/msg
 touch HardwareStatus.msg
 ```
 
-Define message variables inside `HardwareStatus.msg`, such as:
+Define message variables inside `HardwareStatus.msg`:
 
 ```msg
-uint8 temperature      # Temperature in Celsius (0-255)
-uint8 humidity         # Humidity percentage (0-100)
-uint8 battery_level    # Battery percentage (0-100)
-bool motor_status      # True if motor is running
-uint32 uptime          # Uptime in seconds
+string name_robot          # Robot identifier/name
+int64 number_robot         # Robot ID number (1-1000)
+int64 temperature          # Temperature in Celsius (0-100)
+bool motor_ready           # Motor operational status
+string debug_message       # Status message for debugging
 ```
 
 **Key Points:**
@@ -124,16 +155,17 @@ uint32 uptime          # Uptime in seconds
 
 ---
 
-### 🔨 Building the Package with Colcon
+## **🔨 Building the Package with Colcon**
 
-Compile the custom message package:
+Once the package is configured, compile it:
 
 ```bash
 cd ~/ros2_ws
 colcon build --packages-select ce_robot_interfaces
+source install/setup.bash
 ```
 
-Verify the custom message structure:
+Verify the message structure:
 
 ```bash
 ros2 interface show ce_robot_interfaces/msg/HardwareStatus
@@ -141,9 +173,9 @@ ros2 interface show ce_robot_interfaces/msg/HardwareStatus
 
 ---
 
-## 🚀 Using Custom Message in a Publisher
+## **🚀 Using Custom Messages in Publisher/Subscriber**
 
-### 📡 Creating the Publisher Node
+## **🔄 Publisher Implementation**
 
 Navigate to the `ce_robot` package folder:
 
@@ -151,50 +183,46 @@ Navigate to the `ce_robot` package folder:
 cd ~/ros2_ws/src/ce_robot/ce_robot
 ```
 
-Create a Python file for the publisher:
+Create the publisher file `HardwareStatus_publish.py`:
 
 ```bash
-touch HardwareStatus_publish.py
 chmod +x HardwareStatus_publish.py
-```
-
-Write the necessary Python code and test the file using:
-
-```bash
-./HardwareStatus_publish.py
 ```
 
 ---
 
-### 📌 Updating `package.xml` & `setup.py`
+## **📌 Updating `package.xml` & `setup.py`**
 
-Modify `package.xml` to include necessary dependencies:
+### **1. Modify `package.xml`**
+
+Add the required dependencies:
 
 ```xml
+<depend>ce_robot_interfaces</depend>
 <build_depend>rosidl_default_generators</build_depend>
 <exec_depend>rosidl_default_runtime</exec_depend>
-<depend>ce_robot_interfaces</depend>
 ```
 
-Update `setup.py` by adding the following under `console_scripts`:
+### **2. Update `setup.py`**
+
+Add the following lines under `console_scripts`:
 
 ```python
 entry_points={
     'console_scripts': [
         "hw_status = ce_robot.HardwareStatus_publish:main",
+        "hw_subscribe = ce_robot.HardwareStatus_subscribe:main",
+        "hw_agg = ce_robot.HardwareStatus_aggregate:main",
+        "hw_validated = ce_robot.HardwareStatus_validated:main",
+        "hw_validated_sub = ce_robot.HardwareStatus_validated_sub:main",
     ],
 },
-```
-
-Also ensure `ce_robot_interfaces` is added to `install_requires`:
-
-```python
 install_requires=['setuptools', 'ce_robot_interfaces'],
 ```
 
 ---
 
-### 🔨 Building the Package with Colcon
+## **🔨 Building the Package with Colcon**
 
 Compile the package:
 
@@ -205,142 +233,209 @@ colcon build --packages-select ce_robot --symlink-install
 
 ---
 
-### 🚀 Running and Testing the Publisher
+## **🚀 Running and Testing**
 
-Open a terminal and run the **Publisher**:
+### **Step 1: Terminal 1 - Start Publisher**
 
 ```bash
 source ~/.bashrc
 ros2 run ce_robot hw_status
 ```
 
-Open a new terminal and echo the topic to verify message transmission:
+You should see:
+```
+[INFO] [hardware_status_publisher]: Published: Robot=Robot-1, Temp=45°C, Motor=True, Message=Status check #0: All systems nominal
+```
 
+### **Step 2: Terminal 2 - Start Subscriber**
+
+```bash
+source ~/.bashrc
+ros2 run ce_robot hw_subscribe
+```
+
+### **Step 3: Terminal 3 - Monitor Topic**
+
+```bash
+ros2 topic echo /hardware_status
+```
+
+You should see messages displayed:
+```
+name_robot: Robot-1
+number_robot: 1
+temperature: 45
+motor_ready: true
+debug_message: Status check #0: All systems nominal
+---
+```
+
+### **Step 4: Advanced - Run Aggregator**
+
+Terminal 2 alternative - Run aggregator instead:
+```bash
+ros2 run ce_robot hw_agg
+```
+
+You should see periodic statistics output.
+
+---
+
+## **📂 Directory Structure**
+
+```
+📁 ROS2_WS/
+├── 📁 src/
+│   ├── 📁 ce_robot_interfaces/
+│   │   ├── 📁 msg/
+│   │   │   └── 📄 HardwareStatus.msg
+│   │   ├── 📄 package.xml
+│   │   └── 📄 CMakeLists.txt
+│   └── 📁 ce_robot/
+│       ├── 📁 ce_robot/
+│       │   ├── 📄 __init__.py
+│       │   ├── 🐍 HardwareStatus_publish.py
+│       │   ├── 🐍 HardwareStatus_subscribe.py
+│       │   ├── 🐍 HardwareStatus_aggregate.py
+│       │   ├── 🐍 HardwareStatus_validated.py
+│       │   └── 🐍 HardwareStatus_validated_sub.py
+│       ├── 📄 package.xml
+│       ├── 📄 setup.cfg
+│       └── 📄 setup.py
+└── 📁 install/
+```
+
+---
+
+## **🔍 Message Inspection Commands**
+
+### **List All Messages**
+```bash
+ros2 interface list | grep "ce_robot"
+```
+
+### **Show Message Structure**
+```bash
+ros2 interface show ce_robot_interfaces/msg/HardwareStatus
+```
+
+### **Check Active Topics**
+```bash
+ros2 topic list
+```
+
+### **View Topic Type**
+```bash
+ros2 topic type /hardware_status
+```
+
+### **Echo Topic Messages**
 ```bash
 ros2 topic echo /hardware_status
 ```
 
 ---
 
-### 🗂️ Directory Structure
+## **🎯 Key Concepts**
 
+### **Message Architecture**
+- **Message Definition** (`.msg` files): Declarative schema for data structures
+- **Package Organization**: Custom messages in dedicated `*_interfaces` packages
+- **Type System**: Primitive types (int, float, bool, string) and collections
+- **Field Naming**: snake_case for clarity and consistency
+
+### **Communication Pattern**
+- **Asynchronous**: Publisher and subscriber operate independently
+- **One-to-Many**: Single publisher, multiple subscribers
+- **Many-to-One**: Multiple publishers, single subscriber (aggregation)
+- **Quality of Service (QoS)**: Message queue depth, reliability settings
+
+### **Advantages**
+- ✅ Structured data communication
+- ✅ Type-safe message passing
+- ✅ Decoupled, asynchronous communication
+- ✅ Flexible data aggregation
+- ✅ Built-in validation support
+
+### **Disadvantages**
+- ❌ Requires message package compilation
+- ❌ Schema changes require rebuild
+- ❌ Fixed message structure
+- ❌ Slightly higher overhead than built-in types
+
+---
+
+## **⚠️ Troubleshooting**
+
+### **Issue: Cannot find module ce_robot_interfaces**
+**Solution:** Build and source the message package
 ```bash
-|--ros2_ws
-   |--build
-   |--install
-   |--log
-   |--src
-      |--ce_robot_interfaces
-         |--msg
-            |--HardwareStatus.msg
-      |--ce_robot
-         |--ce_robot
-            |--HardwareStatus_publish.py
+colcon build --packages-select ce_robot_interfaces
+source ~/ros2_ws/install/setup.bash
 ```
 
-✅ **Setup Complete!** 🚀✨
-
----
-
-## 🔑 Key Concepts
-
-### Message Packages
-- Custom messages must be in dedicated packages (not application packages)
-- Naming convention: `*_interfaces` (e.g., `ce_robot_interfaces`)
-- Provides clear separation between message definitions and implementations
-
-### Type System
-| Type | Size | Range | Example |
-|------|------|-------|---------|
-| `uint8` | 1 byte | 0-255 | Battery level (%) |
-| `uint16` | 2 bytes | 0-65,535 | Sensor reading |
-| `int32` | 4 bytes | -2.1B to 2.1B | Temperature (×100) |
-| `float32` | 4 bytes | IEEE 754 | Precise measurements |
-| `string` | Variable | Any text | Device name |
-| `bool` | 1 byte | true/false | Status flags |
-
-### Build Process
-1. **Message Definition** → Define `.msg` files with field types
-2. **CMake Configuration** → Specify messages to generate interfaces
-3. **Code Generation** → `colcon build` auto-generates Python/C++ classes
-4. **Integration** → Import generated message classes in publishers/subscribers
-
----
-
-## 🛠️ Common Troubleshooting
-
-### Issue: "Cannot find module ce_robot_interfaces"
-**Solution:**
-1. Ensure `ce_robot_interfaces` package was built: `colcon build --packages-select ce_robot_interfaces`
-2. Source the setup file: `source ~/ros2_ws/install/setup.bash`
-3. Verify message generated: `ros2 interface show ce_robot_interfaces/msg/HardwareStatus`
-
-### Issue: "colcon build" fails with CMakeLists.txt error
-**Solution:**
-1. Check package name in `CMakeLists.txt` matches `package.xml`
-2. Verify message file path is correct: `msg/HardwareStatus.msg`
-3. Ensure all dependencies listed in `package.xml` are installed
-
-### Issue: "No module named 'ce_robot_interfaces'" at runtime
-**Solution:**
-1. Check if package is built: `ls ~/ros2_ws/install/ce_robot_interfaces/`
-2. Source install directory: `source ~/ros2_ws/install/setup.bash`
-3. Add dependency in consumer package's `setup.py`
-
-### Issue: Message fields not recognized in publisher
-**Solution:**
-1. Rebuild consumer package: `colcon build --packages-select ce_robot --symlink-install`
-2. Verify message structure: `ros2 interface show ce_robot_interfaces/msg/HardwareStatus`
-3. Check import statement: `from ce_robot_interfaces.msg import HardwareStatus`
-
----
-
-## 📚 Additional Resources
-
-### Official ROS 2 Documentation
-- [Creating Custom Messages](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Custom-ROS2-Interfaces.html)
-- [Interface Definition Language (IDL)](https://docs.ros.org/en/jazzy/Concepts/About-ROS-Interfaces.html)
-- [Message Type Reference](https://docs.ros.org/en/jazzy/Concepts/About-ROS-Interfaces.html#builtin-types)
-
-### ROS 2 Command Reference
-```bash
-# List all available messages
-ros2 interface list
-
-# Show specific message structure
-ros2 interface show package_name/msg/MessageName
-
-# Find message files in filesystem
-find ~/ros2_ws -name "*.msg"
-
-# Check message generation status
-colcon build --packages-select package_name --cmake-args -DCMAKE_BUILD_TYPE=Debug
+### **Issue: CMake Error: rosidl_generate_interfaces not found**
+**Solution:** Ensure `package.xml` has proper dependencies
+```xml
+<build_depend>rosidl_default_generators</build_depend>
 ```
 
-### Message Type Best Practices
-- Use appropriate data types to minimize message size
-- Include units in field comments (e.g., "temperature in Celsius")
-- Avoid nesting messages for beginners (advanced feature)
-- Use descriptive field names (avoid abbreviations when possible)
-- Add version comments for future compatibility: `# v1.0`
+### **Issue: No module named 'ce_robot_interfaces'**
+**Solution:** Verify package is built and dependencies are set
+```bash
+ls ~/ros2_ws/install/ce_robot_interfaces/
+```
+
+### **Issue: Subscriber doesn't receive messages**
+**Solution:** Check topic name and QoS settings
+```bash
+ros2 topic list
+ros2 topic info /hardware_status
+```
 
 ---
 
-## ✅ Completion Checklist
+## **📚 Resources**
 
-- [ ] Created `ce_robot_interfaces` package
-- [ ] Defined `HardwareStatus.msg` with appropriate fields
-- [ ] Updated `package.xml` with build dependencies
-- [ ] Updated `CMakeLists.txt` with `rosidl_generate_interfaces()`
-- [ ] Built interfaces: `colcon build --packages-select ce_robot_interfaces`
-- [ ] Verified message structure: `ros2 interface show ce_robot_interfaces/msg/HardwareStatus`
-- [ ] Created publisher node: `HardwareStatus_publish.py`
-- [ ] Updated consumer package's `package.xml` with dependency
-- [ ] Updated consumer package's `setup.py` with dependency and entry point
-- [ ] Built consumer package: `colcon build --packages-select ce_robot`
-- [ ] Ran publisher: `ros2 run ce_robot hw_status`
-- [ ] Verified message in terminal: `ros2 topic echo /hardware_status`
+- [ROS 2 Custom Interfaces Tutorial](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Custom-ROS2-Interfaces.html)
+- [ROS 2 Message Types Documentation](https://docs.ros.org/en/jazzy/Concepts/About-ROS-Interfaces.html)
+- [ROS 2 Message Type Reference](https://docs.ros.org/en/jazzy/Concepts/About-ROS-Interfaces.html#builtin-types)
+- [ROS 2 Publishers and Subscribers](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Publisher-And-Subscriber.html)
 
 ---
+
+## **✅ Verification Checklist**
+
+- [ ] Message package created (`ce_robot_interfaces`)
+- [ ] HardwareStatus.msg defined with 5 fields
+- [ ] package.xml configured with rosidl dependencies
+- [ ] CMakeLists.txt configured with message generation
+- [ ] Message package built successfully
+- [ ] Message structure verified with `ros2 interface show`
+- [ ] Publisher node created and executable
+- [ ] Subscriber node created and executable
+- [ ] Aggregator node created and executable
+- [ ] Validated publisher/subscriber created
+- [ ] All entry points added to setup.py
+- [ ] Package built successfully with colcon
+- [ ] Publisher sends messages without errors
+- [ ] Subscriber receives messages correctly
+- [ ] Topics visible with `ros2 topic list`
+- [ ] Message structure correct with `ros2 topic echo`
+
+---
+
+## **🔗 Related Topics**
+
+- Publishers & Subscribers (asynchronous communication)
+- Services (synchronous request-reply)
+- Actions (long-running tasks with feedback)
+- Parameter Server
+- ROS 2 Launch Files
+- Message Quality of Service (QoS)
+
+---
+
+**✅ Custom Message Setup Complete!** 🚀✨
 
 
