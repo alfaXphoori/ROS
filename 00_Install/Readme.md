@@ -236,8 +236,9 @@ Launch VS Code:
 code
 ```
 
-### **Recommended Extensions (Microsoft)**
+### **Recommended Extensions**
 
+**Microsoft & Official Extensions:**
 - C/C++
 - C/C++ Extension Pack
 - Python
@@ -247,7 +248,26 @@ code
 - XML Tools
 - Robot Developer Extensions for ROS 2
 
+**AI & Development Tools:**
+- Windsurf (Codeium) - Advanced AI-powered code assistant with AI Composer for multi-file editing
+- GitHub Copilot - Intelligent code completion and generation
+
 ![VS Code Extensions](imgs/Install_Extentions_VScode.png)
+
+### **Installing Windsurf Extension**
+
+1. Open VS Code and go to **Extensions** (Ctrl+Shift+X / Cmd+Shift+X)
+2. Search for **"Windsurf"** or **"Codeium"**
+3. Click **Install** on the Windsurf extension
+4. Sign in with your Codeium account (free tier available)
+5. Verify installation by checking the Windsurf icon in the activity bar
+
+**Windsurf Features:**
+- AI Composer for multi-file code generation
+- Intelligent code suggestions and completions
+- Context-aware refactoring assistance
+- Multi-file editing capabilities
+- Perfect for accelerating ROS 2 development with AI support
 
 ---
 
