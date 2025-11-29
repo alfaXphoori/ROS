@@ -440,6 +440,8 @@ if __name__ == '__main__':
 2. Simulate temperature data with slight random variation
 3. Publish every 2 seconds
 4. Range: 20-30°C
+5. Create `temperature_subscriber.py` to view data
+6. Track min/max temperatures received
 
 **File: temperature_publisher.py**
 
