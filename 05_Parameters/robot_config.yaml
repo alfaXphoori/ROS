@@ -1,0 +1,7 @@
+hw_status_validated_pub:
+  ros__parameters:
+    robot_name: "robot_warehouse"
+    robot_number: 100
+    publish_rate: 2.0
+    temperature_min: 20
+    temperature_max: 35
