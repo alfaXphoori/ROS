@@ -620,6 +620,7 @@ if __name__ == '__main__':
 2. Subscribe to temperature, humidity, and pressure topics
 3. Display average of all three readings every 5 seconds
 4. Log statistics (min, max, avg)
+5. Create `humidity_publisher.py` and `pressure_publisher.py` to test
 
 **File: sensor_monitor.py**
 
