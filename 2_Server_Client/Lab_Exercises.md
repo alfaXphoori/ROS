@@ -25,184 +25,7 @@ By completing this lab, you will be able to:
 
 ## **📋 Lab Exercises**
 
-### **Exercise 1: Basic Calculator Service (Beginner)**
-
-**Objective:** Create a simple service that adds two integers
-
-**Tasks:**
-1. Navigate to your ce_robot package
-2. Create `calculator_server.py` that adds two numbers
-3. Create `calculator_client.py` that requests the addition
-4. Run and verify both nodes work together
-
-**File: calculator_server.py**
-
-```python
-#!/usr/bin/env python3
-"""
-Exercise 1: Basic Calculator Server
-Provides a simple addition service
-Service type: AddTwoInts (from example_interfaces)
-"""
-
-import rclpy
-from rclpy.node import Node
-from example_interfaces.srv import AddTwoInts
-
-
-class CalculatorServer(Node):
-    def __init__(self):
-        super().__init__('calculator_server')
-        
-        # Create service with AddTwoInts type
-        # Service name: 'add_numbers'
-        # Callback function: add_callback
-        self.srv = self.create_service(
-            AddTwoInts,
-            'add_numbers',
-            self.add_callback
-        )
-        
-        self.get_logger().info('Calculator Server started')
-        self.get_logger().info('Service: /add_numbers')
-
-    def add_callback(self, request, response):
-        """Handle incoming service requests"""
-        # Log the request
-        self.get_logger().info(
-            f'Incoming request: a={request.a}, b={request.b}'
-        )
-        
-        # Calculate sum
-        response.sum = request.a + request.b
-        
-        # Log the response
-        self.get_logger().info(
-            f'Sending response: {request.a} + {request.b} = {response.sum}'
-        )
-        
-        return response
-
-
-def main(args=None):
-    rclpy.init(args=args)
-    node = CalculatorServer()
-    
-    try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        node.destroy_node()
-        rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()
-```
-
-**File: calculator_client.py**
-
-```python
-#!/usr/bin/env python3
-"""
-Exercise 1: Basic Calculator Client
-Requests addition from calculator server
-"""
-
-import sys
-import rclpy
-from rclpy.node import Node
-from example_interfaces.srv import AddTwoInts
-
-
-class CalculatorClient(Node):
-    def __init__(self):
-        super().__init__('calculator_client')
-
-    def send_request(self, a, b):
-        """Send request to server and wait for response"""
-        
-        # Create client for the service
-        client = self.create_client(AddTwoInts, 'add_numbers')
-        
-        # Wait for service to be available
-        while not client.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('Service not available, waiting...')
-        
-        # Create request
-        request = AddTwoInts.Request()
-        request.a = a
-        request.b = b
-        
-        # Send request and wait for response
-        self.get_logger().info(f'Sending request: {a} + {b}')
-        future = client.call_async(request)
-        
-        # Block until response is received
-        rclpy.spin_until_future_complete(self, future)
-        
-        # Get result
-        result = future.result()
-        return result
-
-
-def main(args=None):
-    rclpy.init(args=args)
-    
-    # Get arguments from command line
-    if len(sys.argv) != 3:
-        print('Usage: calculator_client <a> <b>')
-        sys.exit(1)
-    
-    a = int(sys.argv[1])
-    b = int(sys.argv[2])
-    
-    # Create node and send request
-    node = CalculatorClient()
-    response = node.send_request(a, b)
-    
-    # Display result
-    node.get_logger().info(
-        f'Result: {a} + {b} = {response.sum}'
-    )
-    
-    node.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()
-```
-
-**Expected Output (Server):**
-
-```
-[INFO] [calculator_server]: Calculator Server started
-[INFO] [calculator_server]: Service: /add_numbers
-[INFO] [calculator_server]: Incoming request: a=10, b=20
-[INFO] [calculator_server]: Sending response: 10 + 20 = 30
-[INFO] [calculator_server]: Incoming request: a=5, b=3
-[INFO] [calculator_server]: Sending response: 5 + 3 = 8
-```
-
-**Expected Output (Client - running `ros2 run ce_robot calculator_client 10 20`):**
-
-```
-[INFO] [calculator_client]: Sending request: 10 + 20
-[INFO] [calculator_client]: Result: 10 + 20 = 30
-```
-
-**Key Concepts:**
-- `create_service()` - Creates a service on the server side
-- `create_client()` - Creates a client to call a service
-- `wait_for_service()` - Waits until service becomes available
-- `call_async()` - Sends request asynchronously
-- Request-response pattern - Synchronous communication
-
----
-
-### **Exercise 2: Temperature Conversion Service (Beginner)**
+### **Exercise 1: Temperature Conversion Service (Beginner)**
 
 **Objective:** Create a service that converts temperature between units
 
@@ -217,7 +40,7 @@ if __name__ == '__main__':
 ```python
 #!/usr/bin/env python3
 """
-Exercise 2: Temperature Conversion Server
+Exercise 1: Temperature Conversion Server
 Converts temperature between Celsius, Fahrenheit, and Kelvin
 Service type: AddTwoInts (reused for simplicity - a=temp, b=unit)
 Note: In real scenario, would create custom .srv file
@@ -316,7 +139,7 @@ if __name__ == '__main__':
 ```python
 #!/usr/bin/env python3
 """
-Exercise 2: Temperature Conversion Client
+Exercise 1: Temperature Conversion Client
 Converts temperature using the server
 Usage: ros2 run ce_robot temp_converter_client <temp> <unit>
 Units: 1=Celsius, 2=Fahrenheit, 3=Kelvin
@@ -410,7 +233,7 @@ if __name__ == '__main__':
 
 ---
 
-### **Exercise 3: String Processing Service (Beginner)**
+### **Exercise 2: String Processing Service (Beginner)**
 
 **Objective:** Create a service that processes text strings with multiple operations
 
@@ -425,7 +248,7 @@ if __name__ == '__main__':
 ```python
 #!/usr/bin/env python3
 """
-Exercise 3: String Processing Server
+Exercise 2: String Processing Server
 Processes strings with various operations
 Operation codes: 1=reverse, 2=uppercase, 3=lowercase, 4=word_count, 5=char_count
 """
@@ -498,7 +321,7 @@ int32 status  # 0=success, -1=error
 ```python
 #!/usr/bin/env python3
 """
-Exercise 3: String Processing Server (with Custom Service)
+Exercise 2: String Processing Server (with Custom Service)
 """
 
 import rclpy
@@ -585,7 +408,7 @@ if __name__ == '__main__':
 ```python
 #!/usr/bin/env python3
 """
-Exercise 3: String Processor Client
+Exercise 2: String Processor Client
 Operations: 1=reverse, 2=upper, 3=lower, 4=word_count, 5=char_count
 Usage: ros2 run ce_robot string_processor_client "hello world" 1
 """
@@ -672,7 +495,7 @@ if __name__ == '__main__':
 
 ---
 
-### **Exercise 4: Database Query Service (Intermediate)**
+### **Exercise 3: Database Query Service (Intermediate)**
 
 **Objective:** Create a service that queries a database of records
 
@@ -687,7 +510,7 @@ if __name__ == '__main__':
 ```python
 #!/usr/bin/env python3
 """
-Exercise 4: Database Query Server
+Exercise 3: Database Query Server
 Maintains a student database and handles queries
 """
 
@@ -766,7 +589,7 @@ if __name__ == '__main__':
 ```python
 #!/usr/bin/env python3
 """
-Exercise 4: Database Client
+Exercise 3: Database Client
 Queries the student database
 Usage: ros2 run ce_robot database_client <query_type> [id]
 query_type: 0=all, 1=by_id
@@ -854,7 +677,7 @@ if __name__ == '__main__':
 
 ---
 
-### **Exercise 5: Multi-Service Robot Controller (Intermediate)**
+### **Exercise 4: Multi-Service Robot Controller (Intermediate)**
 
 **Objective:** Create a robot controller with multiple related services
 
@@ -871,7 +694,7 @@ if __name__ == '__main__':
 ```python
 #!/usr/bin/env python3
 """
-Exercise 5: Robot Controller Server
+Exercise 4: Robot Controller Server
 Manages multiple robot control services
 """
 
@@ -977,7 +800,7 @@ if __name__ == '__main__':
 ```python
 #!/usr/bin/env python3
 """
-Exercise 5: Robot Controller Client
+Exercise 4: Robot Controller Client
 Coordinates multiple service calls to control robot
 """
 
@@ -1145,11 +968,10 @@ ros2 node info /calculator_server
 
 ## **✅ Completion Checklist**
 
-- [ ] Exercise 1: Basic Calculator Service completed
-- [ ] Exercise 2: Temperature Conversion Service completed
-- [ ] Exercise 3: String Processing Service completed
-- [ ] Exercise 4: Database Query Service completed
-- [ ] Exercise 5: Multi-Service Robot Controller completed
+- [ ] Exercise 1: Temperature Conversion Service completed
+- [ ] Exercise 2: String Processing Service completed
+- [ ] Exercise 3: Database Query Service completed
+- [ ] Exercise 4: Multi-Service Robot Controller completed
 - [ ] All servers start without errors
 - [ ] All clients connect and receive responses
 - [ ] Command-line service calls work
