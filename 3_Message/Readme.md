@@ -42,7 +42,7 @@ This guide demonstrates **custom message creation and usage** in ROS 2:
 
 ---
 
-## **Exercise 1: Understanding Message Types 📖**
+## **Understanding Message Types 📖**
 
 ROS 2 provides built-in message types through standard packages like `std_msgs`, `geometry_msgs`, and `sensor_msgs`. These cover common data structures such as strings, integers, floats, and geometric data.
 

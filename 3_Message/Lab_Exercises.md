@@ -1,10 +1,20 @@
-# 🚀 Custom Messages Lab Exercises
+# **🚀 Custom Messages Lab Exercises**
 
 Master custom message creation and usage in ROS 2 through progressive hands-on exercises.
 
 ---
 
-## 📚 Lab Overview
+## **📌 Project Title**
+
+Create and Use Custom Message Types in ROS 2
+
+## **👤 Authors**
+
+- [@alfaXphoori](https://www.github.com/alfaXphoori)
+
+---
+
+## **🛠 Lab Overview**
 
 This lab provides hands-on exercises to master custom message creation and usage in ROS 2. Each exercise builds upon the previous one, progressing from basic message definition through production-quality validation and error handling.
 
@@ -12,7 +22,9 @@ This lab provides hands-on exercises to master custom message creation and usage
 **Level:** Beginner to Intermediate
 **Prerequisites:** ROS 2 Jazzy installed, Publisher/Subscriber lab completed
 
-## 🎯 Learning Objectives
+---
+
+## **🎯 Learning Objectives**
 
 By completing this lab, you will be able to:
 
@@ -29,10 +41,47 @@ By completing this lab, you will be able to:
 
 ---
 
-## 📚 Learning Path Overview
+## **📊 Lab Architecture**
 
-### 🎯 Objective
-Create the `ce_robot_interfaces` package and define the `HardwareStatus` custom message.
+```
+┌─────────────────────────────────────────────┐
+│ Exercise 1: Message Package Creation        │
+│ (Create ce_robot_interfaces package)        │
+└──────────────┬──────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────┐
+│ Exercise 2: Publisher Implementation        │
+│ (Send HardwareStatus messages)              │
+└──────────────┬──────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────┐
+│ Exercise 3: Data Aggregation                │
+│ (Collect & analyze multiple messages)       │
+└──────────────┬──────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────┐
+│ Exercise 4: Validation & Error Handling     │
+│ (Production-quality implementation)         │
+└─────────────────────────────────────────────┘
+```
+
+---
+
+## **📚 Learning Path Overview**
+
+| Exercise | Title | Level | Duration |
+|----------|-------|-------|----------|
+| 1 | Message Package Creation | Beginner | 20 min |
+| 2 | Publisher Implementation | Beginner | 20 min |
+| 3 | Data Aggregation | Intermediate | 25 min |
+| 4 | Validation & Error Handling | Advanced | 25 min |
+
+---
+
+## **Exercise 1: Creating Custom Message Package 🔧**
 
 ### 📝 Task
 
