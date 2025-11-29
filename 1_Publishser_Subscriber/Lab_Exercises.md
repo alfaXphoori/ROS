@@ -8,6 +8,10 @@ This lab provides hands-on exercises to master Publisher & Subscriber patterns i
 **Level:** Beginner to Intermediate  
 **Prerequisites:** ROS 2 Jazzy installed and first_node completed
 
+**Complete Lab Visualization:**
+
+![All Exercises Node Graph](imgs/Lab_all_rqt.png)
+
 ---
 
 ## **🎯 Learning Objectives**
@@ -106,6 +110,11 @@ if __name__ == '__main__':
 - `publish()` - Sends the message to subscribers
 - Queue size (10) - Maximum messages to keep in queue
 
+**Exercise 1 Screenshot:**
+
+![Exercise 1: Basic Publisher Running](imgs/Lab_1_2_run.png)
+![Exercise 1: Publisher Node Graph](imgs/Lab_1_2_rqt.png)
+
 ---
 
 ### **Exercise 2: Basic Subscriber (Beginner)**
@@ -192,6 +201,11 @@ if __name__ == '__main__':
 - `create_subscription()` - Subscribes to a topic
 - Callback function - Executed when message arrives
 - Topic matching - Publisher and subscriber must use same topic name
+
+**Exercise 2 Screenshot:**
+
+![Exercise 2: Publisher & Subscriber Running](imgs/Lab_1_2_run.png)
+![Exercise 2: Node Graph - Publisher to Subscriber](imgs/Lab_1_2_rqt.png)
 
 ---
 
@@ -286,6 +300,11 @@ if __name__ == '__main__':
 - Int32 message type for integer data
 - Timer interval of 0.5 seconds
 - Loop control and exit condition
+
+**Exercise 3 Screenshot:**
+
+![Exercise 3: Counter Publisher Running](imgs/Lab_3_4_run.png)
+![Exercise 3: Counter Publisher Node Graph](imgs/Lab_3_4_rqt.png)
 
 ---
 
@@ -428,6 +447,11 @@ if __name__ == '__main__':
 - Each subscriber processes independently
 - Data filtering logic in callbacks
 - Decoupled architecture
+
+**Exercise 4 Screenshot:**
+
+![Exercise 4: Multiple Subscribers Running](imgs/Lab_3_4_run.png)
+![Exercise 4: Multiple Subscribers Node Graph](imgs/Lab_3_4_rqt.png)
 
 ---
 
@@ -608,6 +632,11 @@ if __name__ == '__main__':
 - `random.uniform()` for random variation
 - Min/max tracking in subscriber
 - Formatted output with `.2f` for 2 decimal places
+
+**Exercise 5 Screenshot:**
+
+![Exercise 5: Temperature Sensor Publisher & Subscriber Running](imgs/Lab_5_run.png)
+![Exercise 5: Temperature Sensor Node Graph](imgs/Lab_5_rqt.png)
 
 ---
 
@@ -835,6 +864,11 @@ if __name__ == '__main__':
 - Statistics calculation (min, max, average)
 - Using deque for rolling window history
 - Timer for periodic updates
+
+**Exercise 6 Screenshot:**
+
+![Exercise 6: Data Aggregation Running](imgs/Lab_6_run.png)
+![Exercise 6: Multi-Publisher Node Graph](imgs/Lab_6_rqt.png)
 
 ---
 
