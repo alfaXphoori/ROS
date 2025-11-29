@@ -42,21 +42,21 @@ This foundation enables progression through all subsequent ROS 2 learning module
 │         Ubuntu 24.04 LTS (Virtual Machine)          │
 ├─────────────────────────────────────────────────────┤
 │  ┌──────────────────────────────────────────────┐   │
-│  │    ROS 2 Jazzy Middleware (DDS-based)       │   │
-│  │  ┌───────────────────────────────────────┐  │   │
-│  │  │  Node 1       Node 2       Node 3     │  │   │
-│  │  │ (Publisher) (Subscriber)  (Service)  │  │   │
-│  │  └───────────────────────────────────────┘  │   │
-│  │  ┌───────────────────────────────────────┐  │   │
-│  │  │  Topics, Services, Actions, Params   │  │   │
-│  │  └───────────────────────────────────────┘  │   │
+│  │    ROS 2 Jazzy Middleware (DDS-based)        │   │
+│  │  ┌───────────────────────────────────────┐   │   │
+│  │  │  Node 1       Node 2       Node 3     │   │   │
+│  │  │ (Publisher) (Subscriber)  (Service)   │   │   │
+│  │  └───────────────────────────────────────┘   │   │
+│  │  ┌───────────────────────────────────────┐   │   │
+│  │  │  Topics, Services, Actions, Params    │   │   │
+│  │  └───────────────────────────────────────┘   │   │
 │  └──────────────────────────────────────────────┘   │
 ├─────────────────────────────────────────────────────┤
-│  Build System: Colcon                              │
-│  Package Format: ament_python                      │
-│  Communication: DDS (Default Middleware)           │
+│  Build System: Colcon                               │
+│  Package Format: ament_python                       │
+│  Communication: DDS (Default Middleware)            │
 ├─────────────────────────────────────────────────────┤
-│  Development Tools: VS Code, Terminator, Git      │
+│  Development Tools: VS Code, Terminator, Git        │
 └─────────────────────────────────────────────────────┘
 ```
 
