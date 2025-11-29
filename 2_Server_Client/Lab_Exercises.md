@@ -16,7 +16,7 @@ By completing this lab, you will be able to:
 - ✅ Create basic Server nodes with service handlers
 - ✅ Create basic Client nodes that make requests
 - ✅ Understand synchronous request-reply communication
-- ✅ Work with built-in and custom service types
+- ✅ Work with built-in service types
 - ✅ Implement error handling and validation
 - ✅ Debug and monitor services
 - ✅ Handle multiple services in one node
@@ -233,269 +233,7 @@ if __name__ == '__main__':
 
 ---
 
-### **Exercise 2: String Processing Service (Beginner)**
-
-**Objective:** Create a service that processes text strings with multiple operations
-
-**Tasks:**
-1. Create `string_processor_server.py`
-2. Support operations: reverse, uppercase, lowercase, count words, count chars
-3. Create `string_processor_client.py`
-4. Implement operation selection
-
-**File: string_processor_server.py**
-
-```python
-#!/usr/bin/env python3
-"""
-Exercise 2: String Processing Server
-Processes strings with various operations
-Operation codes: 1=reverse, 2=uppercase, 3=lowercase, 4=word_count, 5=char_count
-"""
-
-import rclpy
-from rclpy.node import Node
-from example_interfaces.srv import AddTwoInts
-
-
-class StringProcessorServer(Node):
-    def __init__(self):
-        super().__init__('string_processor_server')
-        
-        self.srv = self.create_service(
-            AddTwoInts,
-            'process_string',
-            self.process_callback
-        )
-        
-        self.get_logger().info('String Processor Server started')
-
-    def process_callback(self, request, response):
-        """
-        Process string operations
-        Note: Using AddTwoInts as placeholder (would use custom .srv in production)
-        """
-        # For this exercise, we'll use a simple approach
-        # In real scenario, create custom .srv file with string fields
-        
-        self.get_logger().info('Service called')
-        response.sum = 42  # Placeholder
-        
-        return response
-
-
-def main(args=None):
-    rclpy.init(args=args)
-    node = StringProcessorServer()
-    
-    try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        node.destroy_node()
-        rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()
-```
-
-**Alternative: Using Custom Service Type (.srv file)**
-
-For better implementation, create a custom service type. First, create `StringProcess.srv` file:
-
-```
-# StringProcess.srv
-# Request
-string text
-int32 operation  # 1=reverse, 2=upper, 3=lower, 4=word_count, 5=char_count
----
-# Response
-string result
-int32 status  # 0=success, -1=error
-```
-
-**Updated server_processor_server.py (with custom .srv):**
-
-```python
-#!/usr/bin/env python3
-"""
-Exercise 2: String Processing Server (with Custom Service)
-"""
-
-import rclpy
-from rclpy.node import Node
-from ce_robot.srv import StringProcess
-
-
-class StringProcessorServer(Node):
-    def __init__(self):
-        super().__init__('string_processor_server')
-        
-        self.srv = self.create_service(
-            StringProcess,
-            'process_string',
-            self.process_callback
-        )
-        
-        self.get_logger().info('String Processor Server started')
-
-    def process_callback(self, request, response):
-        """Process string operations"""
-        
-        text = request.text
-        operation = request.operation
-        
-        try:
-            if operation == 1:  # Reverse
-                response.result = text[::-1]
-                self.get_logger().info(f'Reversed: {text} → {response.result}')
-            
-            elif operation == 2:  # Uppercase
-                response.result = text.upper()
-                self.get_logger().info(f'Uppercase: {text} → {response.result}')
-            
-            elif operation == 3:  # Lowercase
-                response.result = text.lower()
-                self.get_logger().info(f'Lowercase: {text} → {response.result}')
-            
-            elif operation == 4:  # Word count
-                word_count = len(text.split())
-                response.result = f'Word count: {word_count}'
-                self.get_logger().info(f'Words in "{text}": {word_count}')
-            
-            elif operation == 5:  # Character count
-                char_count = len(text)
-                response.result = f'Char count: {char_count}'
-                self.get_logger().info(f'Characters in "{text}": {char_count}')
-            
-            else:
-                response.result = 'Invalid operation'
-                response.status = -1
-                self.get_logger().error('Invalid operation code')
-                return response
-            
-            response.status = 0  # Success
-        
-        except Exception as e:
-            response.result = f'Error: {str(e)}'
-            response.status = -1
-            self.get_logger().error(f'Processing failed: {str(e)}')
-        
-        return response
-
-
-def main(args=None):
-    rclpy.init(args=args)
-    node = StringProcessorServer()
-    
-    try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        node.destroy_node()
-        rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()
-```
-
-**File: string_processor_client.py**
-
-```python
-#!/usr/bin/env python3
-"""
-Exercise 2: String Processor Client
-Operations: 1=reverse, 2=upper, 3=lower, 4=word_count, 5=char_count
-Usage: ros2 run ce_robot string_processor_client "hello world" 1
-"""
-
-import sys
-import rclpy
-from rclpy.node import Node
-from ce_robot.srv import StringProcess
-
-
-class StringProcessorClient(Node):
-    def __init__(self):
-        super().__init__('string_processor_client')
-
-    def process(self, text, operation):
-        """Request string processing"""
-        
-        client = self.create_client(StringProcess, 'process_string')
-        
-        while not client.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('Service not available, waiting...')
-        
-        request = StringProcess.Request()
-        request.text = text
-        request.operation = operation
-        
-        self.get_logger().info(f'Processing: "{text}" (op={operation})')
-        future = client.call_async(request)
-        
-        rclpy.spin_until_future_complete(self, future)
-        
-        return future.result()
-
-
-def main(args=None):
-    rclpy.init(args=args)
-    
-    if len(sys.argv) != 3:
-        print('Usage: string_processor_client "text" <operation>')
-        print('Operations: 1=reverse, 2=upper, 3=lower, 4=word_count, 5=char_count')
-        sys.exit(1)
-    
-    text = sys.argv[1]
-    operation = int(sys.argv[2])
-    
-    node = StringProcessorClient()
-    response = node.process(text, operation)
-    
-    if response.status == 0:
-        node.get_logger().info(f'Result: {response.result}')
-    else:
-        node.get_logger().error(f'Failed: {response.result}')
-    
-    node.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()
-```
-
-**Expected Output (Server):**
-
-```
-[INFO] [string_processor_server]: String Processor Server started
-[INFO] [string_processor_server]: Reversed: hello world → dlrow olleh
-[INFO] [string_processor_server]: Uppercase: hello world → HELLO WORLD
-[INFO] [string_processor_server]: Words in "hello world": 2
-```
-
-**Expected Output (Client):**
-
-```
-[INFO] [string_processor_client]: Processing: "hello world" (op=1)
-[INFO] [string_processor_client]: Result: dlrow olleh
-```
-
-**Key Concepts:**
-- Creating custom `.srv` files
-- String manipulation methods (reverse, upper, lower)
-- String methods (split, len)
-- Status codes for error handling
-- Operation selection with integer codes
-
----
-
-### **Exercise 3: Database Query Service (Intermediate)**
+### **Exercise 2: Database Query Service (Intermediate)**
 
 **Objective:** Create a service that queries a database of records
 
@@ -510,7 +248,7 @@ if __name__ == '__main__':
 ```python
 #!/usr/bin/env python3
 """
-Exercise 3: Database Query Server
+Exercise 2: Database Query Server
 Maintains a student database and handles queries
 """
 
@@ -589,7 +327,7 @@ if __name__ == '__main__':
 ```python
 #!/usr/bin/env python3
 """
-Exercise 3: Database Client
+Exercise 2: Database Client
 Queries the student database
 Usage: ros2 run ce_robot database_client <query_type> [id]
 query_type: 0=all, 1=by_id
@@ -677,7 +415,7 @@ if __name__ == '__main__':
 
 ---
 
-### **Exercise 4: Multi-Service Robot Controller (Intermediate)**
+### **Exercise 3: Multi-Service Robot Controller (Intermediate)**
 
 **Objective:** Create a robot controller with multiple related services
 
@@ -694,7 +432,7 @@ if __name__ == '__main__':
 ```python
 #!/usr/bin/env python3
 """
-Exercise 4: Robot Controller Server
+Exercise 3: Robot Controller Server
 Manages multiple robot control services
 """
 
@@ -800,7 +538,7 @@ if __name__ == '__main__':
 ```python
 #!/usr/bin/env python3
 """
-Exercise 4: Robot Controller Client
+Exercise 3: Robot Controller Client
 Coordinates multiple service calls to control robot
 """
 
@@ -969,9 +707,8 @@ ros2 node info /calculator_server
 ## **✅ Completion Checklist**
 
 - [ ] Exercise 1: Temperature Conversion Service completed
-- [ ] Exercise 2: String Processing Service completed
-- [ ] Exercise 3: Database Query Service completed
-- [ ] Exercise 4: Multi-Service Robot Controller completed
+- [ ] Exercise 2: Database Query Service completed
+- [ ] Exercise 3: Multi-Service Robot Controller completed
 - [ ] All servers start without errors
 - [ ] All clients connect and receive responses
 - [ ] Command-line service calls work
