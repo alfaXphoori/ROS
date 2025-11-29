@@ -1,0 +1,20 @@
+# System-wide parameter configuration
+hw_publisher_ex2:
+  ros__parameters:
+    robot_name: "robot_lab2"
+    robot_number: 200
+    publish_rate: 2.0
+    debug_mode: false
+
+hw_subscriber_ex2:
+  ros__parameters:
+    robot_name: "hw_monitor"
+    robot_number: 0
+    publish_rate: 2.0
+    debug_mode: true
+    temperature_offset: 5
+
+rect_server_ex2:
+  ros__parameters:
+    max_dimension: 1000.0
+    min_dimension: 0.1
