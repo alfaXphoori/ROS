@@ -31,17 +31,6 @@ By completing this lab, you will be able to:
 
 ## 📚 Learning Path Overview
 
-| Exercise | Level | Topic | Time |
-|----------|-------|-------|------|
-| 1 | Beginner | Creating Custom Message Package | 20 min |
-| 2 | Intermediate | Publisher with Custom Messages | 20 min |
-| 3 | Intermediate | Multi-Field Message Aggregation | 25 min |
-| 4 | Advanced | Message Validation & Error Handling | 25 min |
-
----
-
-## Exercise 1: Creating Custom Message Package 🔧
-
 ### 🎯 Objective
 Create the `ce_robot_interfaces` package and define the `HardwareStatus` custom message.
 
@@ -77,7 +66,7 @@ Update `package.xml`:
   <name>ce_robot_interfaces</name>
   <version>0.0.0</version>
   <description>Custom ROS 2 message definitions for CE Robot</description>
-  <maintainer email="student@ksu.edu">Student</maintainer>
+  <maintainer email="student@ksu.ac.th">Student</maintainer>
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
