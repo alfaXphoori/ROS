@@ -23,7 +23,7 @@ This guide demonstrates **Topic-based communication** in ROS 2:
 ```
 ┌──────────────────────────────────────┐
 │      Publisher Node                  │
-│   (Publishes Data to Topic)           │
+│   (Publishes Data to Topic)          │
 └────────────┬─────────────────────────┘
              │
         Topic: /chatter

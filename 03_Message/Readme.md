@@ -23,7 +23,7 @@ This guide demonstrates **custom message creation and usage** in ROS 2:
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│         Message Definition (HardwareStatus.msg)       │
+│         Message Definition (HardwareStatus.msg)      │
 │  - name_robot: string                                │
 │  - number_robot: int64                               │
 │  - temperature: int64                                │

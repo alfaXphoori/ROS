@@ -47,33 +47,33 @@ Parameters:  Configuration values (persistent)
 │                    Action Architecture                   │
 ├──────────────────────────────────────────────────────────┤
 │                                                          │
-│  ┌─────────────────┐              ┌─────────────────┐   │
-│  │  Action Client  │              │ Action Server   │   │
-│  │   (Behavior)    │              │  (Executor)     │   │
-│  └────────┬────────┘              └────────┬────────┘   │
-│           │                                │            │
-│      1. Send Goal                          │            │
-│      (goal_handle)     ────────────────────>            │
+│  ┌─────────────────┐              ┌─────────────────┐    │
+│  │  Action Client  │              │ Action Server   │    │
+│  │   (Behavior)    │              │  (Executor)     │    │
+│  └────────┬────────┘              └────────┬────────┘    │
+│           │                                │             │
+│      1. Send Goal                          │             │
+│      (goal_handle)     ────────────────────>             │
 │           │                          2. Start execution  │
-│           │            Feedback                         │
-│      3. Receive <───────────────────────                │
-│      (progress%)       3. Receive Feedback              │
-│           │                          4. Execute task    │
-│           │                          5. Send Result     │
-│      4. Get Result  <─────────────────────              │
-│           │            (result_data)                    │
-│           ▼                                             │
-│       Process                                           │
-│       Result                                            │
+│           │            Feedback                          │
+│      3. Receive <───────────────────────                 │
+│      (progress%)       3. Receive Feedback               │
+│           │                          4. Execute task     │
+│           │                          5. Send Result      │
+│      4. Get Result  <─────────────────────               │
+│           │            (result_data)                     │
+│           ▼                                              │
+│       Process                                            │
+│       Result                                             │
 │                                                          │
-│  ┌─────────────────┐              ┌─────────────────┐   │
-│  │  .action File   │              │   Topics Used   │   │
-│  ├─────────────────┤              ├─────────────────┤   │
-│  │ - Goal type     │              │ - /goal         │   │
-│  │ - Result type   │              │ - /feedback     │   │
-│  │ - Feedback type │              │ - /status       │   │
-│  └─────────────────┘              │ - /result       │   │
-│                                    └─────────────────┘   │
+│  ┌─────────────────┐              ┌─────────────────┐    │
+│  │  .action File   │              │   Topics Used   │    │
+│  ├─────────────────┤              ├─────────────────┤    │
+│  │ - Goal type     │              │ - /goal         │    │
+│  │ - Result type   │              │ - /feedback     │    │
+│  │ - Feedback type │              │ - /status       │    │
+│  └─────────────────┘              │ - /result       │    │
+│                                   └─────────────────┘   │
 │                                                          │
 └──────────────────────────────────────────────────────────┘
 ```
