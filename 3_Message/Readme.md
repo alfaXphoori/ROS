@@ -11,6 +11,40 @@ Setting up a **custom message** allows communication between nodes using user-de
 - Integrate custom messages into ROS 2 packages
 
 ---
+## Understanding Message Types 📖
+
+ROS 2 provides a variety of built-in message types through standard packages like `std_msgs`, `geometry_msgs`, and `sensor_msgs`. These messages cover common data structures such as strings, integers, floating-point numbers, and geometric data.
+
+### 📝 Task
+1. List all available built-in messages:
+```bash
+ros2 interface list | grep "std_msgs"
+```
+
+2. Examine message structures:
+```bash
+ros2 interface show std_msgs/msg/String
+ros2 interface show std_msgs/msg/Int32
+ros2 interface show geometry_msgs/msg/Point
+```
+
+3. Create a comparison document listing 5 built-in message types with their use cases
+
+### 💡 Key Concepts
+- **Built-in messages** provided by standard ROS 2 packages
+- **Message types**: basic types (int, float, bool), collections, and specialized types
+- **When to use custom messages**: when built-in types don't match your data structure
+- **Naming conventions**: PascalCase for message names (e.g., `HardwareStatus`)
+
+### 🔍 Expected Output
+```
+Comparison of Message Types:
+- std_msgs/String: Simple text data (use for logging, notifications)
+- std_msgs/Int32: 32-bit integer (use for counters, IDs)
+- geometry_msgs/Point: 3D point with x, y, z (use for positions, coordinates)
+- sensor_msgs/Temperature: Temperature reading with timestamp (use for sensor data)
+- diagnostic_msgs/DiagnosticStatus: System diagnostics (use for health monitoring)
+```
 
 ## 📦 Creating a Custom Msg Package
 
@@ -306,5 +340,7 @@ colcon build --packages-select package_name --cmake-args -DCMAKE_BUILD_TYPE=Debu
 - [ ] Built consumer package: `colcon build --packages-select ce_robot`
 - [ ] Ran publisher: `ros2 run ce_robot hw_status`
 - [ ] Verified message in terminal: `ros2 topic echo /hardware_status`
+
+---
 
 

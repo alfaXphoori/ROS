@@ -8,59 +8,14 @@ Master custom message creation and usage in ROS 2 through progressive hands-on e
 
 | Exercise | Level | Topic | Time |
 |----------|-------|-------|------|
-| 1 | Beginner | Understanding Message Types | 15 min |
-| 2 | Beginner | Creating Custom Message Package | 20 min |
-| 3 | Intermediate | Publisher with Custom Messages | 20 min |
-| 4 | Intermediate | Multi-Field Message Aggregation | 25 min |
-| 5 | Advanced | Message Validation & Error Handling | 25 min |
+| 1 | Beginner | Creating Custom Message Package | 20 min |
+| 2 | Intermediate | Publisher with Custom Messages | 20 min |
+| 3 | Intermediate | Multi-Field Message Aggregation | 25 min |
+| 4 | Advanced | Message Validation & Error Handling | 25 min |
 
 ---
 
-## Exercise 1: Understanding Message Types 📖
-
-### 🎯 Objective
-Explore ROS 2 built-in message types and understand when to use custom messages.
-
-### 📝 Task
-1. List all available built-in messages:
-```bash
-ros2 interface list | grep "std_msgs"
-```
-
-2. Examine message structures:
-```bash
-ros2 interface show std_msgs/msg/String
-ros2 interface show std_msgs/msg/Int32
-ros2 interface show geometry_msgs/msg/Point
-```
-
-3. Create a comparison document listing 5 built-in message types with their use cases
-
-### 💡 Key Concepts
-- **Built-in messages** provided by standard ROS 2 packages
-- **Message types**: basic types (int, float, bool), collections, and specialized types
-- **When to use custom messages**: when built-in types don't match your data structure
-- **Naming conventions**: PascalCase for message names (e.g., `HardwareStatus`)
-
-### 🔍 Expected Output
-```
-Comparison of Message Types:
-- std_msgs/String: Simple text data (use for logging, notifications)
-- std_msgs/Int32: 32-bit integer (use for counters, IDs)
-- geometry_msgs/Point: 3D point with x, y, z (use for positions, coordinates)
-- sensor_msgs/Temperature: Temperature reading with timestamp (use for sensor data)
-- diagnostic_msgs/DiagnosticStatus: System diagnostics (use for health monitoring)
-```
-
-### ✅ Completion Criteria
-- [ ] Listed all std_msgs message types
-- [ ] Examined at least 5 different message structures
-- [ ] Documented 5 message types with use cases
-- [ ] Understood the need for custom messages
-
----
-
-## Exercise 2: Creating Custom Message Package 🔧
+## Exercise 1: Creating Custom Message Package 🔧
 
 ### 🎯 Objective
 Create the `ce_robot_interfaces` package and define the `HardwareStatus` custom message.
@@ -156,7 +111,7 @@ string debug_message
 
 ---
 
-## Exercise 3: Publisher with Custom Messages 📡
+## Exercise 2: Publisher with Custom Messages 📡
 
 ### 🎯 Objective
 Create a publisher node that sends `HardwareStatus` messages with realistic robot data.
@@ -278,7 +233,7 @@ debug_message: Status check #0: All systems nominal
 
 ---
 
-## Exercise 4: Multi-Field Message Aggregation 🔄
+## Exercise 3: Multi-Field Message Aggregation 🔄
 
 ### 🎯 Objective
 Create subscriber that collects and analyzes `HardwareStatus` messages, aggregating multiple field values.
@@ -405,7 +360,7 @@ Motor Status - On: 5/10
 
 ---
 
-## Exercise 5: Message Validation & Error Handling ⚠️
+## Exercise 4: Message Validation & Error Handling ⚠️
 
 ### 🎯 Objective
 Implement robust message validation and error handling for production-quality code.
@@ -717,34 +672,28 @@ ros2 topic type /topic_name
 
 ## ✅ Lab Completion Checklist
 
-### Exercise 1: Message Types
-- [ ] Listed std_msgs message types
-- [ ] Examined built-in message structures
-- [ ] Documented use cases for 5+ message types
-- [ ] Understood custom message requirements
-
-### Exercise 2: Message Package
+### Exercise 1: Message Package
 - [ ] Created `ce_robot_interfaces` package
 - [ ] Defined `HardwareStatus.msg` with 5 fields
 - [ ] Updated `package.xml` and `CMakeLists.txt`
 - [ ] Built package without errors
 - [ ] Verified message with `ros2 interface show`
 
-### Exercise 3: Publisher
+### Exercise 2: Publisher
 - [ ] Created `HardwareStatus_publish.py`
 - [ ] Updated package dependencies
 - [ ] Built and ran publisher successfully
 - [ ] Messages visible with `ros2 topic echo`
 - [ ] All fields populated correctly
 
-### Exercise 4: Aggregation
+### Exercise 3: Aggregation
 - [ ] Created subscriber with aggregation logic
 - [ ] Implemented deque-based history tracking
 - [ ] Calculated statistics (avg, min, max)
 - [ ] Publisher and subscriber run together
 - [ ] Statistics output displays correctly
 
-### Exercise 5: Validation
+### Exercise 4: Validation
 - [ ] Created validated publisher with checks
 - [ ] Implemented error handling in publisher
 - [ ] Created validated subscriber with error handling
@@ -753,7 +702,7 @@ ros2 topic type /topic_name
 - [ ] No crashes on invalid data
 
 ### Overall Completion
-- [ ] All 5 exercises completed
+- [ ] All 4 exercises completed
 - [ ] All Python files created and tested
 - [ ] Custom message package working
 - [ ] Publisher/subscriber communication verified
