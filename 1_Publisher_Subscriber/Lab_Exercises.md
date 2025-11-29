@@ -1,35 +1,103 @@
-# **ROS 2 Publisher & Subscriber Lab Exercises**
+# **📡 ROS 2 Publisher & Subscriber Lab Exercises**
 
-## **📚 Lab Overview**
+Master topic-based asynchronous communication in ROS 2 through progressive hands-on exercises.
+
+---
+
+## **📌 Project Title**
+
+Create and Use Publisher & Subscriber Nodes in ROS 2
+
+## **👤 Authors**
+
+- [@alfaXphoori](https://www.github.com/alfaXphoori)
+
+---
+
+## **🛠 Lab Overview**
 
 This lab provides hands-on exercises to master Publisher & Subscriber patterns in ROS 2. Each exercise builds upon the previous one, progressing from basic to advanced concepts.
 
-**Duration:** 2-3 hours  
-**Level:** Beginner to Intermediate  
+**Duration:** 2-3 hours
+**Level:** Beginner to Intermediate
 **Prerequisites:** ROS 2 Jazzy installed and first_node completed
-
-**Complete Lab Visualization:**
-
-![All Exercises Node Graph](imgs/Lab_all_rqt.png)
 
 ---
 
 ## **🎯 Learning Objectives**
 
 By completing this lab, you will be able to:
+
 - ✅ Create basic Publisher nodes
 - ✅ Create basic Subscriber nodes
-- ✅ Understand topic-based communication
-- ✅ Work with different message types
-- ✅ Debug and monitor topics
+- ✅ Understand topic-based asynchronous communication
+- ✅ Work with different message types (String, Int32, Float32)
+- ✅ Implement timer-based periodic publishing
+- ✅ Implement callback-based message processing
+- ✅ Debug and monitor topics with ROS 2 tools
 - ✅ Implement advanced pub/sub patterns
 - ✅ Handle multiple publishers and subscribers
+- ✅ Aggregate data from multiple topics
 
 ---
 
-## **📋 Lab Exercises**
+## **📊 Lab Architecture**
 
-### **Exercise 1: Basic Publisher (Beginner)**
+```
+┌─────────────────────────────────────────────┐
+│ Exercise 1: Basic Publisher                 │
+│ (Create simple string publisher)            │
+└──────────────┬──────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────┐
+│ Exercise 2: Basic Subscriber                │
+│ (Create simple subscriber with timestamp)   │
+└──────────────┬──────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────┐
+│ Exercise 3: Counter Publisher               │
+│ (Publish incrementing integer counter)      │
+└──────────────┬──────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────┐
+│ Exercise 4: Multiple Subscribers            │
+│ (Multiple filters on same topic)            │
+└──────────────┬──────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────┐
+│ Exercise 5: Temperature Simulation          │
+│ (Float32 with random variation)             │
+└──────────────┬──────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────┐
+│ Exercise 6: Data Aggregation                │
+│ (Multi-topic statistics collection)         │
+└─────────────────────────────────────────────┘
+```
+
+---
+
+## **📚 Learning Path Overview**
+
+| Exercise | Title | Level | Duration |
+|----------|-------|-------|----------|
+| 1 | Basic Publisher | Beginner | 20 min |
+| 2 | Basic Subscriber | Beginner | 20 min |
+| 3 | Counter Publisher | Beginner | 15 min |
+| 4 | Multiple Subscribers | Beginner | 20 min |
+| 5 | Temperature Simulation | Intermediate | 25 min |
+| 6 | Data Aggregation | Intermediate | 30 min |
+
+---
+
+## **Exercise 1: Basic Publisher 📤**
+
+## **Exercise 1: Basic Publisher (Beginner) 📤**
 
 **Objective:** Create a simple publisher that sends string messages
 
@@ -117,7 +185,7 @@ if __name__ == '__main__':
 
 ---
 
-### **Exercise 2: Basic Subscriber (Beginner)**
+## **Exercise 2: Basic Subscriber (Beginner) 📥**
 
 **Objective:** Create a simple subscriber that listens to messages with timestamps
 
@@ -209,7 +277,7 @@ if __name__ == '__main__':
 
 ---
 
-### **Exercise 3: Counter Publisher (Beginner)**
+## **Exercise 3: Counter Publisher (Beginner) 🔢**
 
 **Objective:** Create a publisher that sends incrementing counter values (0-100)
 
@@ -308,7 +376,7 @@ if __name__ == '__main__':
 
 ---
 
-### **Exercise 4: Multiple Subscribers (Intermediate)**
+## **Exercise 4: Multiple Subscribers (Intermediate) 🔀**
 
 **Objective:** Create two different subscribers that filter counter data
 
@@ -455,7 +523,7 @@ if __name__ == '__main__':
 
 ---
 
-### **Exercise 5: Temperature Sensor Simulation (Intermediate)**
+## **Exercise 5: Temperature Sensor Simulation (Intermediate) 🌡️**
 
 **Objective:** Simulate a temperature sensor with realistic data and random variation
 
@@ -640,7 +708,7 @@ if __name__ == '__main__':
 
 ---
 
-### **Exercise 6: Data Aggregation (Intermediate)**
+## **Exercise 6: Data Aggregation (Intermediate) 📊**
 
 **Objective:** Subscribe to multiple topics and aggregate data
 

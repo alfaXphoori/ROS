@@ -1,11 +1,25 @@
-# **ROS 2 Server & Client Lab Exercises**
+# **🔌 ROS 2 Server & Client Lab Exercises**
 
-## **📚 Lab Overview**
+Master synchronous request-reply communication patterns in ROS 2 through progressive hands-on exercises.
+
+---
+
+## **📌 Project Title**
+
+Create and Use Server & Client Nodes in ROS 2
+
+## **👤 Authors**
+
+- [@alfaXphoori](https://www.github.com/alfaXphoori)
+
+---
+
+## **🛠 Lab Overview**
 
 This lab provides hands-on exercises to master Service-based (request-reply) communication patterns in ROS 2. Each exercise builds upon the previous one, progressing from basic to advanced concepts.
 
-**Duration:** 2-3 hours  
-**Level:** Beginner to Intermediate  
+**Duration:** 2-3 hours
+**Level:** Beginner to Intermediate
 **Prerequisites:** ROS 2 Jazzy installed, Publisher/Subscriber lab completed
 
 ---
@@ -13,19 +27,54 @@ This lab provides hands-on exercises to master Service-based (request-reply) com
 ## **🎯 Learning Objectives**
 
 By completing this lab, you will be able to:
+
 - ✅ Create basic Server nodes with service handlers
 - ✅ Create basic Client nodes that make requests
-- ✅ Understand synchronous request-reply communication
-- ✅ Work with built-in service types
+- ✅ Understand synchronous request-reply communication patterns
+- ✅ Work with built-in and custom service types
 - ✅ Implement error handling and validation
-- ✅ Debug and monitor services
+- ✅ Debug and monitor services with ROS 2 tools
 - ✅ Handle multiple services in one node
+- ✅ Implement state management across service calls
+- ✅ Coordinate multi-service workflows
+- ✅ Apply defensive programming practices in services
 
 ---
 
-## **📋 Lab Exercises**
+## **📊 Lab Architecture**
 
-### **Exercise 1: Temperature Conversion Service (Beginner)**
+```
+┌─────────────────────────────────────────────┐
+│ Exercise 1: Temperature Conversion          │
+│ (Basic service with unit conversion)        │
+└──────────────┬──────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────┐
+│ Exercise 2: Database Query Service          │
+│ (Query & filter multiple records)           │
+└──────────────┬──────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────┐
+│ Exercise 3: Multi-Service Robot Controller  │
+│ (Coordinate multiple service calls)         │
+└─────────────────────────────────────────────┘
+```
+
+---
+
+## **📚 Learning Path Overview**
+
+| Exercise | Title | Level | Duration |
+|----------|-------|-------|----------|
+| 1 | Temperature Conversion Service | Beginner | 25 min |
+| 2 | Database Query Service | Intermediate | 30 min |
+| 3 | Multi-Service Robot Controller | Advanced | 35 min |
+
+---
+
+## **Exercise 1: Temperature Conversion Service (Beginner) 🌡️**
 
 **Objective:** Create a service that converts temperature between units
 
@@ -233,7 +282,7 @@ if __name__ == '__main__':
 
 ---
 
-### **Exercise 2: Database Query Service (Intermediate)**
+## **Exercise 2: Database Query Service (Intermediate) 🗄️**
 
 **Objective:** Create a service that queries a database of records
 
@@ -415,7 +464,7 @@ if __name__ == '__main__':
 
 ---
 
-### **Exercise 3: Multi-Service Robot Controller (Intermediate)**
+## **Exercise 3: Multi-Service Robot Controller (Intermediate) 🤖**
 
 **Objective:** Create a robot controller with multiple related services
 
