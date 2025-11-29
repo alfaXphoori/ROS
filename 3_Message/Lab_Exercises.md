@@ -4,6 +4,75 @@ Master custom message creation and usage in ROS 2 through progressive hands-on e
 
 ---
 
+## 📋 Lab Overview
+
+This laboratory provides a comprehensive introduction to creating and using custom ROS 2 message types. You'll progress from understanding message fundamentals through building production-quality applications with validation and error handling.
+
+**What You'll Learn:**
+- How ROS 2 messages work and when to create custom types
+- Structuring message packages and defining message schemas
+- Publishing and subscribing to custom messages
+- Aggregating data from multiple messages for analysis
+- Validating messages and implementing robust error handling
+
+**What You'll Build:**
+- A custom message package (`ce_robot_interfaces`) containing the `HardwareStatus` message type
+- Publisher nodes that broadcast robot hardware status information
+- Subscriber nodes that process and aggregate hardware status data
+- Validated publisher/subscriber pairs with error handling and monitoring
+
+**Duration:** ~90 minutes total (4 exercises, 15-25 minutes each)
+
+**Prerequisites:**
+- Completed "Publisher & Subscriber" and "Server & Client" labs
+- ROS 2 Jazzy Jalisco installed and configured
+- Basic Python and ROS 2 node development knowledge
+- Familiarity with `colcon` build system
+
+---
+
+## 🎓 Learning Objectives
+
+By completing this lab, you will be able to:
+
+**Message Definition & Structure**
+- Define custom message types using ROS 2 message syntax
+- Understand primitive types (int, float, bool, string) and when to use each
+- Organize fields with clear naming conventions and documentation
+- Validate message field ranges and constraints
+
+**Package Organization**
+- Create message interface packages following ROS 2 conventions
+- Configure `package.xml` and `CMakeLists.txt` for message generation
+- Build custom message packages with `colcon`
+- Verify generated message interfaces with ROS 2 CLI tools
+
+**Message Communication**
+- Import and instantiate custom messages in Python nodes
+- Publish custom messages with appropriate data types
+- Subscribe to custom messages and process received data
+- Coordinate multiple publishers and subscribers on the same topic
+
+**Data Aggregation & Analysis**
+- Collect message data over time using efficient data structures
+- Calculate statistics (average, min, max) from multiple messages
+- Implement rolling-window history using deques
+- Display periodic reports from aggregated data
+
+**Error Handling & Validation**
+- Implement pre-publication validation for message fields
+- Handle exceptions gracefully in message callbacks
+- Use appropriate logging levels (INFO, WARN, ERROR)
+- Track and report reliability metrics and success rates
+
+**Production Practices**
+- Write defensive code that handles invalid data
+- Implement try-catch blocks for robustness
+- Test edge cases and boundary conditions
+- Document code with clear docstrings and comments
+
+---
+
 ## 📚 Learning Path Overview
 
 | Exercise | Level | Topic | Time |
