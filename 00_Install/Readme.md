@@ -1,6 +1,6 @@
 # 💻 **ROS 2 Jazzy Jalisco Installation & Setup**
 
-## **📌 Project Title**
+## **📌 Project TitleS**
 
 Complete ROS 2 Jazzy Jalisco Development Environment Setup on Ubuntu 24.04 LTS
 
