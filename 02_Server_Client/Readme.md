@@ -175,8 +175,8 @@ Add the following lines under `console_scripts`:
 ```python
 entry_points={
     'console_scripts': [
-        "add_two_server = ce_robot.add_two_ints_server:main",
-        "add_two_client = ce_robot.add_two_ints_client:main",
+        "02_add_two_server = ce_robot.add_two_ints_server:main",
+        "02_add_two_client = ce_robot.add_two_ints_client:main",
     ],
 },
 ```
@@ -202,7 +202,7 @@ Open a terminal and run:
 
 ```bash
 source ~/.bashrc
-ros2 run ce_robot add_two_server
+ros2 run ce_robot 02_add_two_server
 ```
 
 You should see:
@@ -216,7 +216,7 @@ Open another terminal and run:
 
 ```bash
 source ~/.bashrc
-ros2 run ce_robot add_two_client 10 20
+ros2 run ce_robot 02_add_two_client 10 20
 ```
 
 You should see:
