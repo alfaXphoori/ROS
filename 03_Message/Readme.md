@@ -189,6 +189,59 @@ Create the publisher file `HardwareStatus_publish.py`:
 chmod +x HardwareStatus_publish.py
 ```
 
+**File: HardwareStatus_publish.py**
+
+```python
+#!/usr/bin/env python3
+"""
+Hardware Status Publisher
+Publishes custom HardwareStatus messages at regular intervals
+"""
+
+import rclpy
+from rclpy.node import Node
+from ce_robot_interfaces.msg import HardwareStatus
+
+
+class HwStatusNode(Node):
+    def __init__(self):
+        super().__init__("hardwarestatus_publish")
+        self.robot_name_ = "CE-RO"
+        self.robot_number_ = 9981
+        self.hw_status_publish_ = self.create_publisher(
+            HardwareStatus, "hardware_status", 10
+        )
+        self.timer_ = self.create_timer(1.0, self.publish_hw_status)
+        self.get_logger().info("Hw_Status_Publish_Node Start Now!")
+
+    def publish_hw_status(self):
+        """Publish hardware status message"""
+        msg = HardwareStatus()
+        msg.name_robot = self.robot_name_
+        msg.number_robot = self.robot_number_
+        msg.temperature = 50
+        msg.motor_ready = True
+        msg.debug_message = "Motor 1"
+        self.hw_status_publish_.publish(msg)
+        self.get_logger().info(
+            f"Published: Robot={msg.name_robot}, "
+            f"Temp={msg.temperature}°C, "
+            f"Motor={msg.motor_ready}, "
+            f"Message={msg.debug_message}"
+        )
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = HwStatusNode()
+    rclpy.spin(node)
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+
 ---
 
 ## **📌 Updating `package.xml` & `setup.py`**
