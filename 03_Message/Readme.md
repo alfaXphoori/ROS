@@ -105,7 +105,7 @@ mkdir msg
 code .
 ```
 
-![Package Creation](./imgs/01_Create_Pkg  .png)
+![Package Creation](./imgs/01_Create_Pkg.png)
 
 ---
 
