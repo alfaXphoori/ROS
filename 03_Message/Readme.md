@@ -105,7 +105,7 @@ mkdir msg
 code .
 ```
 
-![Package Creation](./imgs/package_creation.png)
+![Package Creation](./imgs/01_Create_Pkg  .png)
 
 ---
 
@@ -157,6 +157,7 @@ string debug_message       # Status message for debugging
 - Common types: `uint8`, `uint16`, `uint32`, `int32`, `float32`, `float64`, `string`, `bool`
 - Arrays: use `type[size]` syntax (e.g., `uint8[3]` for 3-byte array)
 
+
 ---
 
 ## **🔨 Building the Package with Colcon**
@@ -175,7 +176,7 @@ Verify the message structure:
 ros2 interface show ce_robot_interfaces/msg/HardwareStatus
 ```
 
-![Message Definition Verification](./imgs/message_verification.png)
+![Package Creation](./imgs/02_Msg_HardwareStatus.png)
 
 ---
 
@@ -368,7 +369,6 @@ source ~/.bashrc
 ros2 run ce_robot 03_hw_status_subscriber
 ```
 
-![Publisher and Subscriber Execution](./imgs/publisher_subscriber_execution.png)
 
 ### **Step 3: Terminal 3 - Monitor Topic**
 
@@ -393,7 +393,7 @@ debug_message: Motor 1
 ```
 (Temperature values will vary between 35-60°C)
 
-![Topic Echo Output](./imgs/02_Database.png)
+![Publisher and Subscriber Execution](./imgs/03_Mag_Pub_Sub.png)
 
 ### **Step 4: Advanced - Run Aggregator**
 
@@ -459,11 +459,11 @@ You should see periodic aggregated statistics output:
 [INFO] [hardware_status_aggregator]: [Aggregated] Count: 3 | Robot: CE-ROBOT | Avg Temp: 52.3°C | Current Temp: 52°C
 ```
 
-![Aggregator in Action](./imgs/aggregator_output.png)
+![Aggregator in Action](./imgs/04_Msg_Pub_Agg.png)
 
 **Node Communication Graph:**
 
-![Node Graph Visualization](./imgs/node_graph.png)
+![Node Graph Visualization](./imgs/05_Msg_Rqt.png)
 
 ---
 
