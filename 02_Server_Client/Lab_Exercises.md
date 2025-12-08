@@ -308,6 +308,10 @@ Conversion Flags:
 ✓ Result: 100°C = 212°F
 ```
 
+**Result Screenshot:**
+
+![Temperature Conversion](./imgs/01_Convert_Temp.png)
+
 **How to Run Exercise 1:**
 
 ```bash
@@ -595,6 +599,10 @@ Major: CS
 ============================================================
 ```
 
+**Result Screenshot:**
+
+![Database Query Results](./imgs/02_Database.png)
+
 **How to Run Exercise 2:**
 
 ```bash
@@ -871,6 +879,10 @@ if __name__ == '__main__':
 [INFO] [robot_controller_client]: Position: 15
 [INFO] [robot_controller_client]: Mission complete!
 ```
+
+**Result Screenshot:**
+
+![Robot Controller Results](./imgs/03_Robot.png)
 
 **Key Concepts:**
 - Multiple services in one node
