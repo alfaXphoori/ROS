@@ -40,6 +40,8 @@ This guide demonstrates **custom message creation and usage** in ROS 2:
 └────────────────┘    └────────────────┘
 ```
 
+![Architecture Diagram](./imgs/03_Robot.png)
+
 ---
 
 ## **Understanding Message Types 📖**
@@ -300,6 +302,8 @@ You should see:
 ```
 (Temperature will vary between 35-60°C on each publication)
 
+![Publisher Output](./imgs/01_Convert_Temp.png)
+
 ---
 
 ## **🔄 Subscriber Implementation**
@@ -382,6 +386,8 @@ debug_message: Motor 1
 ---
 ```
 (Temperature values will vary between 35-60°C)
+
+![Topic Echo Output](./imgs/02_Database.png)
 
 ### **Step 4: Advanced - Run Aggregator**
 
