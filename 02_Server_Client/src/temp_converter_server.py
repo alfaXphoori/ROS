@@ -24,14 +24,14 @@ class TemperatureConverterServer(Node):
         self.get_logger().info('Service: convert_temperature')
         self.get_logger().info('Logic:')
         self.get_logger().info('  - Send (value=temp, b=1) for °C→°F conversion')
-        self.get_logger().info('  - Send (value=temp, b=2) for °F→K conversion')
-        self.get_logger().info('  - Send (value=temp, b=3) for K→°C conversion')
+        self.get_logger().info('  - Send (value=temp, b=2) for °F→°C conversion')
+        self.get_logger().info('  - Send (value=temp, b=3) for K→°F conversion')
 
     def convert_temperature_callback(self, request, response):
         """
         Convert temperature based on unit flag
         request.a: temperature value
-        request.b: unit flag (1=C→F, 2=F→K, 3=K→C)
+        request.b: unit flag (1=C→F, 2=F→C, 3=K→F)
         response.sum: converted temperature (as integer)
         """
         temp_value = float(request.a)
@@ -45,24 +45,24 @@ class TemperatureConverterServer(Node):
                     f'Convert {temp_value}°C → {result:.2f}°F'
                 )
 
-            elif unit_flag == 2:  # Fahrenheit to Kelvin
-                # Formula: K = (F - 32) × 5/9 + 273.15
-                result = (temp_value - 32) * 5 / 9 + 273.15
+            elif unit_flag == 2:  # Fahrenheit to Celsius
+                # Formula: C = (F - 32) × 5/9
+                result = (temp_value - 32) * 5 / 9
                 self.get_logger().info(
-                    f'Convert {temp_value}°F → {result:.2f}K'
+                    f'Convert {temp_value}°F → {result:.2f}°C'
                 )
 
-            elif unit_flag == 3:  # Kelvin to Celsius
-                # Formula: C = K - 273.15
-                result = temp_value - 273.15
+            elif unit_flag == 3:  # Kelvin to Fahrenheit
+                # Formula: F = (K - 273.15) × 9/5 + 32
+                result = (temp_value - 273.15) * 9 / 5 + 32
                 self.get_logger().info(
-                    f'Convert {temp_value}K → {result:.2f}°C'
+                    f'Convert {temp_value}K → {result:.2f}°F'
                 )
 
             else:
                 self.get_logger().warn(
                     f'Unknown unit flag: {unit_flag}. '
-                    'Use 1 (C→F), 2 (F→K), or 3 (K→C)'
+                    'Use 1 (C→F), 2 (F→C), or 3 (K→F)'
                 )
                 result = 0
 

@@ -3,8 +3,8 @@
 Temperature Unit Conversion Client
 Sends temperature values to the server for conversion
 - Send (value=temp, flag=1) for °C→°F
-- Send (value=temp, flag=2) for °F→K
-- Send (value=temp, flag=3) for K→°C
+- Send (value=temp, flag=2) for °F→°C
+- Send (value=temp, flag=3) for K→°F
 """
 
 import sys
@@ -35,8 +35,8 @@ class TemperatureConverterClient(Node):
 
         unit_map = {
             1: '°C → °F',
-            2: '°F → K',
-            3: 'K → °C'
+            2: '°F → °C',
+            3: 'K → °F'
         }
 
         self.get_logger().info(
@@ -61,19 +61,19 @@ def main(args=None):
     result1 = future1.result()
     print(f"Result: 25°C = {result1.sum}°F\n")
 
-    # Example 2: Convert 77°F to K
-    print("Example 2: Convert 77°F to Kelvin")
+    # Example 2: Convert 77°F to °C
+    print("Example 2: Convert 77°F to Celsius")
     future2 = client.send_request(77, 2)
     rclpy.spin_until_future_complete(client, future2)
     result2 = future2.result()
-    print(f"Result: 77°F = {result2.sum}K\n")
+    print(f"Result: 77°F = {result2.sum}°C\n")
 
-    # Example 3: Convert 298K to °C
-    print("Example 3: Convert 298K to Celsius")
+    # Example 3: Convert 298K to °F
+    print("Example 3: Convert 298K to Fahrenheit")
     future3 = client.send_request(298, 3)
     rclpy.spin_until_future_complete(client, future3)
     result3 = future3.result()
-    print(f"Result: 298K = {result3.sum}°C\n")
+    print(f"Result: 298K = {result3.sum}°F\n")
 
     # Interactive mode
     print("=== Interactive Mode ===\n")
@@ -81,8 +81,8 @@ def main(args=None):
         try:
             print("\nConversion options:")
             print("1. Celsius → Fahrenheit (°C → °F)")
-            print("2. Fahrenheit → Kelvin (°F → K)")
-            print("3. Kelvin → Celsius (K → °C)")
+            print("2. Fahrenheit → Celsius (°F → °C)")
+            print("3. Kelvin → Fahrenheit (K → °F)")
             print("0. Exit")
 
             choice = input("\nSelect conversion (0-3): ").strip()
