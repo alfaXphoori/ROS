@@ -211,7 +211,7 @@ class HwStatusNode(Node):
         self.hw_status_publish_ = self.create_publisher(
             HardwareStatus, "hardware_status", 10
         )
-        self.timer_ = self.create_timer(1.0, self.publish_h03_w_status)
+        self.timer_ = self.create_timer(1.0, self.publish_status)
         self.get_logger().info("Hw_Status_Publish_Node Start Now!")
 
     def publish_hw_status(self):
@@ -330,6 +330,7 @@ class HardwareStatusSubscriber(Node):
         self.received_count += 1
         self.get_logger().info(
             f'[{self.received_count}] Received: {msg.name_robot} | '
+            f'Number: {msg.number_robot} | '
             f'Temp: {msg.temperature}°C | '
             f'Motor: {msg.motor_ready} | '
             f'Message: {msg.debug_message}'
