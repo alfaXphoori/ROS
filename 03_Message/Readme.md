@@ -307,7 +307,6 @@ You should see:
 ```
 (Temperature will vary between 35-60°C on each publication)
 
-![Publisher Output](./imgs/01_Convert_Temp.png)
 
 ---
 
@@ -393,7 +392,7 @@ debug_message: Motor 1
 ```
 (Temperature values will vary between 35-60°C)
 
-![Publisher and Subscriber Execution](./imgs/03_Mag_Pub_Sub.png)
+![Publisher and Subscriber Execution](./imgs/03_Msg_Pub_Sub.png)
 
 ### **Step 4: Advanced - Run Aggregator**
 
