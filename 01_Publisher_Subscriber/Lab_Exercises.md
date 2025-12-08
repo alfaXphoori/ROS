@@ -966,6 +966,50 @@ ros2 node list
 
 ---
 
+## **📂 Final Directory Structure**
+
+```
+📁 ROS2_WS/
+├── 📁 src/
+│   └── 📁 ce_robot/
+│       ├── 📁 ce_robot/
+│       │   ├── 📄 __init__.py
+│       │   ├── 🐍 simple_publisher.py           # Exercise 1
+│       │   ├── 🐍 simple_subscriber.py          # Exercise 2
+│       │   ├── 🐍 counter_publisher.py          # Exercise 3
+│       │   ├── 🐍 counter_processor.py          # Exercise 4
+│       │   ├── 🐍 counter_logger.py             # Exercise 4
+│       │   ├── 🐍 temperature_publisher.py      # Exercise 5
+│       │   ├── 🐍 temperature_subscriber.py     # Exercise 5
+│       │   ├── 🐍 sensor_monitor.py             # Exercise 6
+│       │   ├── 🐍 humidity_publisher.py         # Exercise 6
+│       │   └── 🐍 pressure_publisher.py         # Exercise 6
+│       ├── 📄 package.xml
+│       ├── 📄 setup.cfg
+│       └── 📄 setup.py
+└── 📁 install/
+```
+
+**Entry Points in setup.py:**
+```python
+entry_points={
+    'console_scripts': [
+        '01_simple_publisher = ce_robot.simple_publisher:main',
+        '01_simple_subscriber = ce_robot.simple_subscriber:main',
+        '01_counter_publisher = ce_robot.counter_publisher:main',
+        '01_counter_processor = ce_robot.counter_processor:main',
+        '01_counter_logger = ce_robot.counter_logger:main',
+        '01_temperature_publisher = ce_robot.temperature_publisher:main',
+        '01_temperature_subscriber = ce_robot.temperature_subscriber:main',
+        '01_sensor_monitor = ce_robot.sensor_monitor:main',
+        '01_humidity_publisher = ce_robot.humidity_publisher:main',
+        '01_pressure_publisher = ce_robot.pressure_publisher:main',
+    ],
+},
+```
+
+---
+
 ## **✅ Completion Checklist**
 
 - [ ] Exercise 1: Basic Publisher completed
