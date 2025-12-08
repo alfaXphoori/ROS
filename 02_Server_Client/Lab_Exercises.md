@@ -91,8 +91,9 @@ By completing this lab, you will be able to:
 """
 Exercise 1: Temperature Conversion Server
 Converts temperature between Celsius, Fahrenheit, and Kelvin
-Service type: AddTwoInts (reused for simplicity - a=temp, b=unit)
-Note: In real scenario, would create custom .srv file
+- Input °C (flag=1) → Output °F
+- Input °F (flag=2) → Output °C
+- Input K (flag=3) → Output °C
 """
 
 import rclpy
@@ -113,54 +114,41 @@ class TempConverterServer(Node):
         
         self.get_logger().info('Temperature Converter Server started')
         self.get_logger().info('Service: /convert_temperature')
-        self.get_logger().info('Units: 1=Celsius, 2=Fahrenheit, 3=Kelvin')
+        self.get_logger().info('Conversions:')
+        self.get_logger().info('  1: °C → °F (Celsius to Fahrenheit)')
+        self.get_logger().info('  2: °F → °C (Fahrenheit to Celsius)')
+        self.get_logger().info('  3: K → °C (Kelvin to Celsius)')
 
     def convert_callback(self, request, response):
         """
         Convert temperature
         request.a = temperature value
-        request.b = unit (1=C, 2=F, 3=K)
+        request.b = conversion flag (1=C→F, 2=F→C, 3=K→C)
         response.sum = result
         """
         temp = request.a
-        unit = request.b
+        flag = request.b
         
-        # Validate temperature
-        if unit == 1:  # Celsius input
-            if temp < -273.15:
-                self.get_logger().warn('Temperature below absolute zero!')
-                response.sum = -999
-                return response
-            
-            # Convert to Fahrenheit and Kelvin for demo
-            fahrenheit = (temp * 9/5) + 32
-            kelvin = temp + 273.15
-            
-            self.get_logger().info(
-                f'Converting {temp}°C → F: {fahrenheit:.2f}°F, K: {kelvin:.2f}K'
-            )
-            response.sum = int(fahrenheit)
+        if flag == 1:  # Celsius to Fahrenheit
+            # Formula: F = (C × 9/5) + 32
+            result = (temp * 9/5) + 32
+            self.get_logger().info(f'Converting {temp}°C → {result:.2f}°F')
+            response.sum = int(result)
         
-        elif unit == 2:  # Fahrenheit input
-            celsius = (temp - 32) * 5/9
-            kelvin = celsius + 273.15
-            
-            self.get_logger().info(
-                f'Converting {temp}°F → C: {celsius:.2f}°C, K: {kelvin:.2f}K'
-            )
-            response.sum = int(celsius)
+        elif flag == 2:  # Fahrenheit to Celsius
+            # Formula: C = (F - 32) × 5/9
+            result = (temp - 32) * 5/9
+            self.get_logger().info(f'Converting {temp}°F → {result:.2f}°C')
+            response.sum = int(result)
         
-        elif unit == 3:  # Kelvin input
-            celsius = temp - 273.15
-            fahrenheit = (celsius * 9/5) + 32
-            
-            self.get_logger().info(
-                f'Converting {temp}K → C: {celsius:.2f}°C, F: {fahrenheit:.2f}°F'
-            )
-            response.sum = int(celsius)
+        elif flag == 3:  # Kelvin to Celsius
+            # Formula: C = K - 273.15
+            result = temp - 273.15
+            self.get_logger().info(f'Converting {temp}K → {result:.2f}°C')
+            response.sum = int(result)
         
         else:
-            self.get_logger().error('Invalid unit. Use 1=C, 2=F, 3=K')
+            self.get_logger().error(f'Invalid flag: {flag}. Use 1 (C→F), 2 (F→C), or 3 (K→C)')
             response.sum = -999
         
         return response
@@ -189,9 +177,17 @@ if __name__ == '__main__':
 #!/usr/bin/env python3
 """
 Exercise 1: Temperature Conversion Client
-Converts temperature using the server
-Usage: ros2 run ce_robot temp_converter_client <temp> <unit>
-Units: 1=Celsius, 2=Fahrenheit, 3=Kelvin
+Usage: ros2 run ce_robot temp_converter_client <temperature> <flag>
+
+Examples:
+  ros2 run ce_robot temp_converter_client 100 1  # Convert 100°C to °F
+  ros2 run ce_robot temp_converter_client 77 2   # Convert 77°F to °C
+  ros2 run ce_robot temp_converter_client 298 3  # Convert 298K to °C
+
+Flags:
+  1: Celsius → Fahrenheit (°C → °F)
+  2: Fahrenheit → Celsius (°F → °C)
+  3: Kelvin → Celsius (K → °C)
 """
 
 import sys
@@ -216,7 +212,7 @@ class TempConverterClient(Node):
         request.a = temp
         request.b = unit
         
-        self.get_logger().info(f'Converting {temp} (unit={unit})')
+        self.get_logger().info(f'Converting {temp}...')
         future = client.call_async(request)
         
         rclpy.spin_until_future_complete(self, future)
@@ -227,29 +223,51 @@ class TempConverterClient(Node):
 def main(args=None):
     rclpy.init(args=args)
     
-    if len(sys.argv) != 3:
-        print('Usage: temp_converter_client <temperature> <unit>')
-        print('Units: 1=Celsius, 2=Fahrenheit, 3=Kelvin')
+    # Parse command-line arguments
+    if len(sys.argv) < 3:
+        print('\n=== Temperature Unit Conversion Client ===\n')
+        print('Usage: ros2 run ce_robot temp_converter_client <temperature> <flag>\n')
+        print('Examples:')
+        print('  ros2 run ce_robot temp_converter_client 100 1  # Convert 100°C to °F')
+        print('  ros2 run ce_robot temp_converter_client 77 2   # Convert 77°F to °C')
+        print('  ros2 run ce_robot temp_converter_client 298 3  # Convert 298K to °C\n')
+        print('Conversion Flags:')
+        print('  1: Celsius → Fahrenheit (°C → °F)')
+        print('  2: Fahrenheit → Celsius (°F → °C)')
+        print('  3: Kelvin → Celsius (K → °C)\n')
         sys.exit(1)
     
-    temp = int(sys.argv[1])
-    unit = int(sys.argv[2])
-    
-    node = TempConverterClient()
-    response = node.convert(temp, unit)
-    
-    units = {1: '°C', 2: '°F', 3: 'K'}
-    unit_names = {1: 'Celsius', 2: 'Fahrenheit', 3: 'Kelvin'}
-    
-    if response.sum == -999:
-        node.get_logger().error('Conversion failed')
-    else:
-        node.get_logger().info(
-            f'Converted: {temp}{units[unit]} → {response.sum}°C'
-        )
-    
-    node.destroy_node()
-    rclpy.shutdown()
+    try:
+        temperature = float(sys.argv[1])
+        unit_flag = int(sys.argv[2])
+        
+        # Validate flag
+        if unit_flag not in [1, 2, 3]:
+            print(f'\n❌ Error: Invalid flag "{unit_flag}"')
+            print('Use: 1 (C→F), 2 (F→C), or 3 (K→C)\n')
+            sys.exit(1)
+        
+        node = TempConverterClient()
+        response = node.convert(int(temperature), unit_flag)
+        
+        # Display result
+        unit_names = {
+            1: ('°C', '°F'),
+            2: ('°F', '°C'),
+            3: ('K', '°C')
+        }
+        from_unit, to_unit = unit_names[unit_flag]
+        print(f'\n✓ Result: {temperature}{from_unit} = {response.sum}{to_unit}\n')
+        
+        node.destroy_node()
+        rclpy.shutdown()
+        
+    except ValueError as e:
+        print(f'\n❌ Error: Invalid input. Please enter valid numbers.\n')
+        sys.exit(1)
+    except Exception as e:
+        print(f'\n❌ Error: {str(e)}\n')
+        sys.exit(1)
 
 
 if __name__ == '__main__':
@@ -261,24 +279,58 @@ if __name__ == '__main__':
 ```
 [INFO] [temp_converter_server]: Temperature Converter Server started
 [INFO] [temp_converter_server]: Service: /convert_temperature
-[INFO] [temp_converter_server]: Units: 1=Celsius, 2=Fahrenheit, 3=Kelvin
-[INFO] [temp_converter_server]: Converting 25°C → F: 77.00°F, K: 298.15K
-[INFO] [temp_converter_server]: Converting 77°F → C: 25.00°C, K: 298.15K
+[INFO] [temp_converter_server]: Conversions:
+[INFO] [temp_converter_server]:   1: °C → °F (Celsius to Fahrenheit)
+[INFO] [temp_converter_server]:   2: °F → °C (Fahrenheit to Celsius)
+[INFO] [temp_converter_server]:   3: K → °C (Kelvin to Celsius)
+[INFO] [temp_converter_server]: Converting 100°C → 212.00°F
+[INFO] [temp_converter_server]: Converting 77°F → 25.00°C
+[INFO] [temp_converter_server]: Converting 298K → 24.85°C
 ```
 
 **Expected Output (Client):**
 
 ```
-[INFO] [temp_converter_client]: Converting 25 (unit=1)
-[INFO] [temp_converter_client]: Converted: 25°C → 77°C
+=== Temperature Unit Conversion Client ===
+
+Usage: ros2 run ce_robot temp_converter_client <temperature> <flag>
+
+Examples:
+  ros2 run ce_robot temp_converter_client 100 1  # Convert 100°C to °F
+  ros2 run ce_robot temp_converter_client 77 2   # Convert 77°F to °C
+  ros2 run ce_robot temp_converter_client 298 3  # Convert 298K to °C
+
+Conversion Flags:
+  1: Celsius → Fahrenheit (°C → °F)
+  2: Fahrenheit → Celsius (°F → °C)
+  3: Kelvin → Celsius (K → °C)
+
+✓ Result: 100°C = 212°F
+```
+
+**How to Run Exercise 1:**
+
+```bash
+# Terminal 1: Start the server
+ros2 run ce_robot temp_converter_server
+
+# Terminal 2: Convert 100°C to °F (run once)
+ros2 run ce_robot temp_converter_client 100 1
+
+# Terminal 2: For new conversion, run new command
+ros2 run ce_robot temp_converter_client 77 2
+
+# Terminal 2: Another conversion
+ros2 run ce_robot temp_converter_client 298 3
 ```
 
 **Key Concepts:**
-- Input validation for temperature ranges
-- Multiple request types handled by same service
-- Error handling and status codes (-999)
-- Type conversions and calculations
-- Command-line argument parsing
+- Command-line argument parsing for service client
+- Single execution per command (no interactive mode)
+- Temperature conversion formulas (C↔F, K→C)
+- Error validation and handling
+- Unit mapping and result display
+- Service request/response handling
 
 ---
 
