@@ -43,7 +43,7 @@ By completing this lab, you will be able to:
 
 ```
 ┌──────────────────────────────────────────────────┐
-│ Exercise 6: Validation & Error Handling          │
+│ Exercise 1: Validation & Error Handling          │
 │ (Production-quality implementation)              │
 │                                                  │
 │  ┌─────────────────────────────────────────┐   │
@@ -69,11 +69,11 @@ By completing this lab, you will be able to:
 
 | Exercise | Title | Level | Duration |
 |----------|-------|-------|----------|
-| 6 | Validation & Error Handling | Advanced | 25 min |
+| 1 | Validation & Error Handling | Advanced | 25 min |
 
 ---
 
-## **Exercise 6: Message Validation & Error Handling ⚠️**
+## **Exercise 1: Message Validation & Error Handling ⚠️**
 
 ### 🎯 Objective
 Implement robust message validation and error handling for production-quality code.
@@ -541,7 +541,7 @@ colcon build
 
 ## ✅ Lab Completion Checklist
 
-### Exercise 6: Validation & Error Handling
+### Exercise 1: Validation & Error Handling
 - [ ] Created `HardwareStatus_validated.py`
 - [ ] Implemented validation logic for all fields
 - [ ] Range checks work correctly
@@ -554,7 +554,7 @@ colcon build
 - [ ] Both nodes run without crashes
 
 ### Overall Completion
-- [ ] Exercise 6 completed
+- [ ] Exercise 1 completed
 - [ ] Validation Python files created and tested
 - [ ] Error handling implemented
 - [ ] Validation working correctly
