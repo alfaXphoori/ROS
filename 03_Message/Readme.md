@@ -206,8 +206,8 @@ from ce_robot_interfaces.msg import HardwareStatus
 class HwStatusNode(Node):
     def __init__(self):
         super().__init__("hardwarestatus_publish")
-        self.robot_name_ = "CE-RO"
-        self.robot_number_ = 9981
+        self.robot_name_ = "Robot-1"
+        self.robot_number_ = 1
         self.hw_status_publish_ = self.create_publisher(
             HardwareStatus, "hardware_status", 10
         )
@@ -263,8 +263,8 @@ Add the following lines under `console_scripts`:
 ```python
 entry_points={
     'console_scripts': [
-        "hw_publish = ce_robot.HardwareStatus_publish:main",
-        "hw_subscribe = ce_robot.HardwareStatus_subscribe:main",
+        "03_hw_publish = ce_robot.HardwareStatus_publish:main",
+        "03_hw_subscribe = ce_robot.HardwareStatus_subscribe:main",
     ],
 },
 install_requires=['setuptools', 'ce_robot_interfaces'],
@@ -289,7 +289,7 @@ colcon build --packages-select ce_robot --symlink-install
 
 ```bash
 source ~/.bashrc
-ros2 run ce_robot hw_status
+ros2 run ce_robot 03_hw_publish
 ```
 
 You should see:
@@ -353,7 +353,7 @@ if __name__ == '__main__':
 
 ```bash
 source ~/.bashrc
-ros2 run ce_robot hw_subscribe
+ros2 run ce_robot 03_hw_subscribe
 ```
 
 ### **Step 3: Terminal 3 - Monitor Topic**
