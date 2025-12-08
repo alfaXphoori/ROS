@@ -266,8 +266,10 @@ entry_points={
     'console_scripts': [
         "03_hw_status_publisher = ce_robot.HardwareStatus_publish:main",
         "03_hw_status_subscriber = ce_robot.HardwareStatus_subscribe:main",
+        "03_hw_status_aggregator = ce_robot.HardwareStatus_aggregate:main",
     ],
 },
+```
 
 ```
 
@@ -366,22 +368,77 @@ ros2 topic echo /hardware_status
 
 You should see messages displayed:
 ```
-name_robot: Robot-1
-number_robot: 1
-temperature: 45
+name_robot: CE-ROBOT
+number_robot: 1001
+temperature: 50
 motor_ready: true
-debug_message: Status check #0: All systems nominal
+debug_message: Motor 1
 ---
 ```
 
 ### **Step 4: Advanced - Run Aggregator**
 
-Terminal 2 alternative - Run aggregator instead:
-```bash
-ros2 run ce_robot hw_agg
+**File: HardwareStatus_aggregate.py**
+
+```python
+#!/usr/bin/env python3
+"""
+Hardware Status Aggregator
+Collects and aggregates hardware status messages
+"""
+
+import rclpy
+from rclpy.node import Node
+from ce_robot_interfaces.msg import HardwareStatus
+
+
+class HardwareStatusAggregator(Node):
+    def __init__(self):
+        super().__init__('hardware_status_aggregator')
+        self.subscriber = self.create_subscription(
+            HardwareStatus, 'hardware_status', self.status_callback, 10
+        )
+        self.received_count = 0
+        self.total_temperature = 0
+        self.get_logger().info('Hardware Status Aggregator started!')
+
+    def status_callback(self, msg):
+        """Callback function to aggregate messages"""
+        self.received_count += 1
+        self.total_temperature += msg.temperature
+        avg_temp = self.total_temperature / self.received_count
+        
+        self.get_logger().info(
+            f'[Aggregated] Count: {self.received_count} | '
+            f'Robot: {msg.name_robot} | '
+            f'Avg Temp: {avg_temp:.1f}°C | '
+            f'Current Temp: {msg.temperature}°C'
+        )
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    aggregator = HardwareStatusAggregator()
+    rclpy.spin(aggregator)
+    aggregator.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
 ```
 
-You should see periodic statistics output.
+Terminal 2 alternative - Run aggregator instead:
+```bash
+ros2 run ce_robot 03_hw_status_aggregator
+```
+
+You should see periodic aggregated statistics output:
+```
+[INFO] [hardware_status_aggregator]: [Aggregated] Count: 1 | Robot: CE-ROBOT | Avg Temp: 50.0°C | Current Temp: 50°C
+[INFO] [hardware_status_aggregator]: [Aggregated] Count: 2 | Robot: CE-ROBOT | Avg Temp: 50.0°C | Current Temp: 50°C
+[INFO] [hardware_status_aggregator]: [Aggregated] Count: 3 | Robot: CE-ROBOT | Avg Temp: 50.0°C | Current Temp: 50°C
+```
 
 ---
 
