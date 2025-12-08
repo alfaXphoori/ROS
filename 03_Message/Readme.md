@@ -458,7 +458,7 @@ You should see periodic aggregated statistics output:
 [INFO] [hardware_status_aggregator]: [Aggregated] Count: 3 | Robot: CE-ROBOT | Avg Temp: 52.3°C | Current Temp: 52°C
 ```
 
-![Aggregator in Action](./imgs/04_Msg_Pub_Agg.png)
+![Aggregator in Action](./imgs/04_Msg_Pub_Sub_Agg.png)
 
 **Node Communication Graph:**
 
