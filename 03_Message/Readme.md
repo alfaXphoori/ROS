@@ -216,10 +216,11 @@ class HwStatusNode(Node):
 
     def publish_hw_status(self):
         """Publish hardware status message"""
+        import random
         msg = HardwareStatus()
         msg.name_robot = self.robot_name_
         msg.number_robot = self.robot_number_
-        msg.temperature = 50
+        msg.temperature = random.randint(35, 60)  # Random temperature 35-60°C
         msg.motor_ready = True
         msg.debug_message = "Motor 1"
         self.hw_status_publish_.publish(msg)
@@ -297,8 +298,9 @@ ros2 run ce_robot 03_hw_status_publisher
 
 You should see:
 ```
-[INFO] [hardware_status_publisher]: Published: Robot=CE-ROBOT, Number=1001, Temp=50°C, Motor=True, Message=Motor 1
+[INFO] [hardware_status_publisher]: Published: Robot=CE-ROBOT, Number=1001, Temp=47°C, Motor=True, Message=Motor 1
 ```
+(Temperature will vary between 35-60°C on each publication)
 
 ---
 
@@ -370,11 +372,18 @@ You should see messages displayed:
 ```
 name_robot: CE-ROBOT
 number_robot: 1001
-temperature: 50
+temperature: 47
+motor_ready: true
+debug_message: Motor 1
+---
+name_robot: CE-ROBOT
+number_robot: 1001
+temperature: 52
 motor_ready: true
 debug_message: Motor 1
 ---
 ```
+(Temperature values will vary between 35-60°C)
 
 ### **Step 4: Advanced - Run Aggregator**
 
