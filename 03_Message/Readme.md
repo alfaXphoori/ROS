@@ -105,6 +105,8 @@ mkdir msg
 code .
 ```
 
+![Package Creation](./imgs/package_creation.png)
+
 ---
 
 ### 📌 Updating `package.xml` & `CMakeLists.txt`
@@ -172,6 +174,8 @@ Verify the message structure:
 ```bash
 ros2 interface show ce_robot_interfaces/msg/HardwareStatus
 ```
+
+![Message Definition Verification](./imgs/message_verification.png)
 
 ---
 
@@ -274,8 +278,6 @@ entry_points={
 },
 ```
 
-![Setup Configuration](./imgs/2_server.png)
-
 ---
 
 ## **🔨 Building the Package with Colcon**
@@ -366,6 +368,8 @@ source ~/.bashrc
 ros2 run ce_robot 03_hw_status_subscriber
 ```
 
+![Publisher and Subscriber Execution](./imgs/publisher_subscriber_execution.png)
+
 ### **Step 3: Terminal 3 - Monitor Topic**
 
 ```bash
@@ -450,10 +454,16 @@ ros2 run ce_robot 03_hw_status_aggregator
 
 You should see periodic aggregated statistics output:
 ```
-[INFO] [hardware_status_aggregator]: [Aggregated] Count: 1 | Robot: CE-ROBOT | Avg Temp: 50.0°C | Current Temp: 50°C
-[INFO] [hardware_status_aggregator]: [Aggregated] Count: 2 | Robot: CE-ROBOT | Avg Temp: 50.0°C | Current Temp: 50°C
-[INFO] [hardware_status_aggregator]: [Aggregated] Count: 3 | Robot: CE-ROBOT | Avg Temp: 50.0°C | Current Temp: 50°C
+[INFO] [hardware_status_aggregator]: [Aggregated] Count: 1 | Robot: CE-ROBOT | Avg Temp: 56.0°C | Current Temp: 56°C
+[INFO] [hardware_status_aggregator]: [Aggregated] Count: 2 | Robot: CE-ROBOT | Avg Temp: 52.5°C | Current Temp: 49°C
+[INFO] [hardware_status_aggregator]: [Aggregated] Count: 3 | Robot: CE-ROBOT | Avg Temp: 52.3°C | Current Temp: 52°C
 ```
+
+![Aggregator in Action](./imgs/aggregator_output.png)
+
+**Node Communication Graph:**
+
+![Node Graph Visualization](./imgs/node_graph.png)
 
 ---
 
