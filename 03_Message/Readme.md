@@ -211,7 +211,7 @@ class HwStatusNode(Node):
         self.hw_status_publish_ = self.create_publisher(
             HardwareStatus, "hardware_status", 10
         )
-        self.timer_ = self.create_timer(1.0, self.publish_status)
+        self.timer_ = self.create_timer(1.0, self.publish_hw_status)
         self.get_logger().info("Hw_Status_Publish_Node Start Now!")
 
     def publish_hw_status(self):
