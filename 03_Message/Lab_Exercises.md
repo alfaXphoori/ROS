@@ -16,11 +16,11 @@ Create and Use Custom Message Types in ROS 2
 
 ## **🛠 Lab Overview**
 
-This lab provides hands-on exercises to master custom message creation and usage in ROS 2. Each exercise builds upon the previous one, progressing from basic message definition through production-quality validation and error handling.
+This lab focuses on message validation and error handling in ROS 2. You'll implement production-quality code with comprehensive input validation, exception handling, and reliability metrics.
 
-**Duration:** ~90 minutes
-**Level:** Beginner to Intermediate
-**Prerequisites:** ROS 2 Jazzy installed, Publisher/Subscriber lab completed
+**Duration:** ~25 minutes
+**Level:** Advanced
+**Prerequisites:** ROS 2 Jazzy installed, custom messages lab completed
 
 ---
 
@@ -28,43 +28,38 @@ This lab provides hands-on exercises to master custom message creation and usage
 
 By completing this lab, you will be able to:
 
-- ✅ Create custom message packages following ROS 2 conventions
-- ✅ Define message types with appropriate fields and types
-- ✅ Build and generate message interfaces with `colcon`
-- ✅ Publish and subscribe to custom messages in Python
-- ✅ Aggregate data from multiple messages for analysis
-- ✅ Implement message validation and error handling
+- ✅ Validate all message fields for correct types and ranges
+- ✅ Implement input validation before publishing messages
+- ✅ Handle exceptions gracefully in publishers and subscribers
 - ✅ Use logging levels appropriately (INFO, WARN, ERROR)
 - ✅ Track reliability metrics and success rates
 - ✅ Write defensive code that handles invalid data
-- ✅ Debug and monitor custom message communication
+- ✅ Create alert mechanisms for critical conditions
+- ✅ Implement production-quality error handling
 ---
 
 ## **📊 Lab Architecture**
 
 ```
-┌─────────────────────────────────────────────┐
-│ Exercise 1: Message Package Creation        │
-│ (Create ce_robot_interfaces package)        │
-└──────────────┬──────────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────────┐
-│ Exercise 2: Publisher Implementation        │
-│ (Send HardwareStatus messages)              │
-└──────────────┬──────────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────────┐
-│ Exercise 3: Data Aggregation                │
-│ (Collect & analyze multiple messages)       │
-└──────────────┬──────────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────────┐
-│ Exercise 4: Validation & Error Handling     │
-│ (Production-quality implementation)         │
-└─────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────┐
+│ Exercise 4: Validation & Error Handling          │
+│ (Production-quality implementation)              │
+│                                                  │
+│  ┌─────────────────────────────────────────┐   │
+│  │ Validated Publisher                     │   │
+│  │ ✓ Input Validation                      │   │
+│  │ ✓ Range Checking                        │   │
+│  │ ✓ Error Handling & Metrics              │   │
+│  └────────────┬────────────────────────────┘   │
+│               │ HardwareStatus messages        │
+│               ▼                                 │
+│  ┌─────────────────────────────────────────┐   │
+│  │ Validated Subscriber                    │   │
+│  │ ✓ Error Handling                        │   │
+│  │ ✓ Critical Alerts                       │   │
+│  │ ✓ Statistics Tracking                   │   │
+│  └─────────────────────────────────────────┘   │
+└──────────────────────────────────────────────────┘
 ```
 
 ---
@@ -73,337 +68,7 @@ By completing this lab, you will be able to:
 
 | Exercise | Title | Level | Duration |
 |----------|-------|-------|----------|
-| 1 | Message Package Creation | Beginner | 20 min |
-| 2 | Publisher Implementation | Beginner | 20 min |
-| 3 | Data Aggregation | Intermediate | 25 min |
 | 4 | Validation & Error Handling | Advanced | 25 min |
-
----
-
-## **Exercise 1: Creating Custom Message Package 🔧**
-
-Refer to **Readme.md** for complete instructions on creating the message package, defining HardwareStatus.msg, and configuring package.xml and CMakeLists.txt.
-
-**Quick Summary:**
-```bash
-cd ~/ros2_ws/src
-ros2 pkg create ce_robot_interfaces
-cd ce_robot_interfaces
-rm -rf include/ src/
-mkdir msg
-```
-
-Define `msg/HardwareStatus.msg` with the following fields:
-```msg
-string name_robot          # Robot identifier/name
-int64 number_robot         # Robot ID number (1-1000)
-int64 temperature          # Temperature in Celsius (0-100)
-bool motor_ready           # Motor operational status
-string debug_message       # Status message for debugging
-```
-
-Then build and verify:
-```bash
-cd ~/ros2_ws
-colcon build --packages-select ce_robot_interfaces
-source install/setup.bash
-ros2 interface show ce_robot_interfaces/msg/HardwareStatus
-```
-
-**See Readme.md for:**
-- Detailed package.xml configuration
-- Detailed CMakeLists.txt configuration
-- Complete setup instructions with expected output
-
-### ✅ Completion Criteria
-- [ ] Created `ce_robot_interfaces` package
-- [ ] Defined `HardwareStatus.msg` with 5 fields
-- [ ] Built package successfully
-- [ ] Verified message structure with `ros2 interface show`
-
----
-
-## Exercise 2: Publisher with Custom Messages 📡
-
-### 🎯 Objective
-Create a publisher node that sends `HardwareStatus` messages with realistic robot data at 2 Hz (every 0.5 seconds).
-
-### 📝 Task
-
-**Step 1: Create publisher file**
-
-Create `HardwareStatus_publish.py` in `ce_robot/src/`:
-```python
-#!/usr/bin/env python3
-"""
-Exercise 2: Hardware Status Publisher
-Publishes simulated robot hardware status using custom message type
-"""
-
-import rclpy
-from rclpy.node import Node
-from ce_robot_interfaces.msg import HardwareStatus
-import random
-
-
-class HardwareStatusPublisher(Node):
-    def __init__(self):
-        super().__init__('hardware_status_publisher')
-        self.publisher_ = self.create_publisher(HardwareStatus, 'hardware_status', 10)
-        timer_period = 0.5  # 2 Hz
-        self.timer = self.create_timer(timer_period, self.timer_callback)
-        self.message_count = 0
-
-    def timer_callback(self):
-        msg = HardwareStatus()
-        msg.name_robot = 'CE-ROBOT'
-        msg.number_robot = 1001
-        msg.temperature = random.randint(35, 60)
-        msg.motor_ready = True
-        msg.debug_message = f"Status OK - Message #{self.message_count}"
-        
-        self.publisher_.publish(msg)
-        self.get_logger().info(
-            f'Published: Robot={msg.name_robot}, Temp={msg.temperature}°C, '
-            f'Motor={msg.motor_ready}'
-        )
-        self.message_count += 1
-
-
-def main(args=None):
-    rclpy.init(args=args)
-    publisher = HardwareStatusPublisher()
-    rclpy.spin(publisher)
-    publisher.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()
-```
-
-**Step 2: Update setup.py in `ce_robot`**
-
-Add the entry point in `setup.py`:
-```python
-entry_points={
-    'console_scripts': [
-        '03_hw_status_publisher = ce_robot.HardwareStatus_publish:main',
-    ],
-},
-```
-
-**Step 3: Build and run**
-```bash
-cd ~/ros2_ws
-colcon build --packages-select ce_robot --symlink-install
-source install/setup.bash
-ros2 run ce_robot 03_hw_status_publisher
-```
-
-**Step 4: Verify in separate terminal**
-```bash
-source install/setup.bash
-ros2 topic echo /hardware_status
-```
-
-### 🔍 Expected Output
-```
-$ ros2 run ce_robot 03_hw_status_publisher
-[INFO] [hardware_status_publisher-1]: Published: Robot=CE-ROBOT, Temp=45°C, Motor=True
-[INFO] [hardware_status_publisher-1]: Published: Robot=CE-ROBOT, Temp=58°C, Motor=True
-[INFO] [hardware_status_publisher-1]: Published: Robot=CE-ROBOT, Temp=39°C, Motor=True
-
-# In separate terminal:
-$ ros2 topic echo /hardware_status
-name_robot: CE-ROBOT
-number_robot: 1001
-temperature: 45
-motor_ready: true
-debug_message: Status OK - Message #0
----
-name_robot: CE-ROBOT
-number_robot: 1001
-temperature: 58
-motor_ready: true
-debug_message: Status OK - Message #1
----
-```
-
-### 💡 Key Learning Points
-- **Importing custom messages**: `from ce_robot_interfaces.msg import HardwareStatus`
-- **Message instantiation**: Create message object with `HardwareStatus()`
-- **Field assignment**: Set each field with appropriate types
-- **Timer callbacks**: Execute code at fixed intervals (0.5s = 2 Hz)
-- **Publishing**: Send messages to named topics with specified QoS depth
-- **Logging**: Track publisher activity with `self.get_logger().info()`
-
-### ✅ Completion Criteria
-- [ ] Created `HardwareStatus_publish.py` in `ce_robot/src/`
-- [ ] Publisher node initializes without errors
-- [ ] Timer callback executes every 0.5 seconds (2 Hz)
-- [ ] All 5 message fields populated correctly:
-  - [ ] name_robot = 'CE-ROBOT'
-  - [ ] number_robot = 1001
-  - [ ] temperature = random 35-60°C
-  - [ ] motor_ready = True
-  - [ ] debug_message with message number
-- [ ] Entry point configured in setup.py as `03_hw_status_publisher`
-- [ ] Build completes without errors
-- [ ] Publisher runs: `ros2 run ce_robot 03_hw_status_publisher`
-- [ ] Messages visible with: `ros2 topic echo /hardware_status`
-
----
-
-## Exercise 3: Multi-Field Message Aggregation 🔄
-
-### 🎯 Objective
-Create a subscriber that collects and analyzes `HardwareStatus` messages, calculating statistics over a rolling window of messages.
-
-### 📝 Task
-
-**Step 1: Create subscriber with aggregation**
-
-Create `HardwareStatus_aggregate.py` in `ce_robot/src/`:
-```python
-#!/usr/bin/env python3
-"""
-Exercise 3: Hardware Status Aggregator
-Subscribes to hardware_status and aggregates statistics over time
-"""
-
-import rclpy
-from rclpy.node import Node
-from ce_robot_interfaces.msg import HardwareStatus
-from collections import deque
-
-
-class HardwareStatusAggregator(Node):
-    def __init__(self):
-        super().__init__('hardware_status_aggregator')
-        self.subscriber = self.create_subscription(
-            HardwareStatus, 'hardware_status', self.status_callback, 10
-        )
-        self.timer = self.create_timer(5.0, self.print_stats)
-        
-        # Keep history of last 10 messages
-        self.temperature_history = deque(maxlen=10)
-        self.motor_statuses = []
-        self.message_count = 0
-
-    def status_callback(self, msg):
-        self.temperature_history.append(msg.temperature)
-        self.motor_statuses.append(msg.motor_ready)
-        self.message_count += 1
-        
-        self.get_logger().info(
-            f'Received: {msg.name_robot} (#{self.message_count}) | '
-            f'Temp: {msg.temperature}°C | Motor: {msg.motor_ready}'
-        )
-
-    def print_stats(self):
-        if len(self.temperature_history) == 0:
-            self.get_logger().info('No messages received yet')
-            return
-        
-        avg_temp = sum(self.temperature_history) / len(self.temperature_history)
-        max_temp = max(self.temperature_history)
-        min_temp = min(self.temperature_history)
-        motor_on_count = sum(1 for status in self.motor_statuses if status)
-        
-        self.get_logger().info(
-            f'\n╔════════════════════════════════════════╗\n'
-            f'║  Statistics (Last {len(self.temperature_history)} messages)     ║\n'
-            f'╠════════════════════════════════════════╣\n'
-            f'║  Total Messages: {self.message_count:<25} ║\n'
-            f'║  Temperature:                          ║\n'
-            f'║    • Average: {avg_temp:>6.1f}°C                    ║\n'
-            f'║    • Max:     {max_temp:>6}°C                      ║\n'
-            f'║    • Min:     {min_temp:>6}°C                      ║\n'
-            f'║  Motor Status - On: {motor_on_count}/{len(self.motor_statuses):<28} ║\n'
-            f'╚════════════════════════════════════════╝\n'
-        )
-
-
-def main(args=None):
-    rclpy.init(args=args)
-    aggregator = HardwareStatusAggregator()
-    rclpy.spin(aggregator)
-    aggregator.destroy_node()
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()
-```
-
-**Step 2: Add entry point to setup.py**
-
-Add to `setup.py`:
-```python
-'03_hw_status_aggregator = ce_robot.HardwareStatus_aggregate:main',
-```
-
-**Step 3: Build and run**
-
-In Terminal 1 (Publisher):
-```bash
-cd ~/ros2_ws
-colcon build --packages-select ce_robot --symlink-install
-source install/setup.bash
-ros2 run ce_robot 03_hw_status_publisher
-```
-
-In Terminal 2 (Aggregator):
-```bash
-source ~/ros2_ws/install/setup.bash
-ros2 run ce_robot 03_hw_status_aggregator
-```
-
-### 🔍 Expected Output
-```
-# Terminal 2 (Aggregator):
-[INFO] [hardware_status_aggregator-1]: Received: CE-ROBOT (#1) | Temp: 45°C | Motor: True
-[INFO] [hardware_status_aggregator-1]: Received: CE-ROBOT (#2) | Temp: 58°C | Motor: True
-[INFO] [hardware_status_aggregator-1]: Received: CE-ROBOT (#3) | Temp: 39°C | Motor: True
-...
-[INFO] [hardware_status_aggregator-1]: 
-╔════════════════════════════════════════╗
-║  Statistics (Last 10 messages)         ║
-╠════════════════════════════════════════╣
-║  Total Messages: 10                    ║
-║  Temperature:                          ║
-║    • Average:  47.2°C                  ║
-║    • Max:        60°C                  ║
-║    • Min:        35°C                  ║
-║  Motor Status - On: 10/10              ║
-╚════════════════════════════════════════╝
-```
-
-### 💡 Key Learning Points
-- **Message subscription**: Use `create_subscription()` to receive messages on a topic
-- **Callback functions**: Data processing happens in the callback when messages arrive
-- **Data aggregation**: Collecting multiple messages to analyze trends
-- **Deque for efficiency**: `deque(maxlen=10)` automatically drops old values, keeping only recent ones
-- **Statistics calculation**: Computing average, min, max from collected data
-- **Timer-based reporting**: Periodic status updates using `create_timer()`
-- **Data structure selection**: Choose appropriate collections for your use case
-
-### ✅ Completion Criteria
-- [ ] Created `HardwareStatus_aggregate.py` in `ce_robot/src/`
-- [ ] Subscriber successfully receives messages on 'hardware_status' topic
-- [ ] Temperature history stored in deque with maxlen=10
-- [ ] Motor status list tracks all received statuses
-- [ ] Statistics calculated correctly:
-  - [ ] Average temperature computed
-  - [ ] Maximum temperature tracked
-  - [ ] Minimum temperature tracked
-  - [ ] Motor status count calculated
-- [ ] Statistics printed every 5 seconds via timer callback
-- [ ] Entry point configured in setup.py as `03_hw_status_aggregator`
-- [ ] Publisher and aggregator run simultaneously
-- [ ] Statistics display shows correct values
-- [ ] No crashes when subscriber receives messages
 
 ---
 
@@ -756,43 +421,23 @@ ros2 topic type /topic_name
 
 ## ✅ Lab Completion Checklist
 
-### Exercise 1: Message Package
-- [ ] Created `ce_robot_interfaces` package
-- [ ] Defined `HardwareStatus.msg` with 5 fields
-- [ ] Updated `package.xml` and `CMakeLists.txt`
-- [ ] Built package without errors
-- [ ] Verified message with `ros2 interface show`
-
-### Exercise 2: Publisher
-- [ ] Created `HardwareStatus_publish.py`
-- [ ] Updated package dependencies
-- [ ] Built and ran publisher successfully
-- [ ] Messages visible with `ros2 topic echo`
-- [ ] All fields populated correctly
-
-### Exercise 3: Aggregation
-- [ ] Created subscriber with aggregation logic
-- [ ] Implemented deque-based history tracking
-- [ ] Calculated statistics (avg, min, max)
-- [ ] Publisher and subscriber run together
-- [ ] Statistics output displays correctly
-
-### Exercise 4: Validation
-- [ ] Created validated publisher with checks
-- [ ] Implemented error handling in publisher
-- [ ] Created validated subscriber with error handling
-- [ ] Added temperature and motor status alerts
-- [ ] Tracked and reported success metrics
-- [ ] No crashes on invalid data
+### Exercise 4: Validation & Error Handling
+- [ ] Created `HardwareStatus_validated.py` with validation logic
+- [ ] Implemented range checks for all message fields
+- [ ] Added error handling in publisher and subscriber
+- [ ] Added temperature alert (>75°C) and motor status alert
+- [ ] Entry points configured in setup.py
+- [ ] Build completes without errors
+- [ ] Both publisher and subscriber run without crashes
+- [ ] Success rate statistics calculated and logged
+- [ ] Validation correctly identifies out-of-range values
 
 ### Overall Completion
-- [ ] All 4 exercises completed
+- [ ] Exercise 4 completed
 - [ ] All Python files created and tested
-- [ ] Custom message package working
-- [ ] Publisher/subscriber communication verified
 - [ ] Error handling implemented
-- [ ] Statistics and validation working
+- [ ] Validation working correctly
 
 ---
 
-**🎓 Congratulations!** You've mastered custom message creation and usage in ROS 2! 🚀✨
+**🎓 Congratulations!** You've mastered message validation and error handling in ROS 2! 🚀✨
