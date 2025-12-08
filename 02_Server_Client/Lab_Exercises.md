@@ -310,7 +310,7 @@ Conversion Flags:
 
 **Result Screenshot:**
 
-![Temperature Conversion](./imgs/01_Convert_Temp.png)
+![Temperature Conversion](./imgs/Lab_01_Convert_Temp.png)
 
 **How to Run Exercise 1:**
 
@@ -601,7 +601,7 @@ Major: CS
 
 **Result Screenshot:**
 
-![Database Query Results](./imgs/02_Database.png)
+![Database Query Results](./imgs/Lab_02_Database.png)
 
 **How to Run Exercise 2:**
 
@@ -882,7 +882,7 @@ if __name__ == '__main__':
 
 **Result Screenshot:**
 
-![Robot Controller Results](./imgs/03_Robot.png)
+![Robot Controller Results](./imgs/Lab_03_Robot.png)
 
 **Key Concepts:**
 - Multiple services in one node
