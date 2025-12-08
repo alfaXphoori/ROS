@@ -295,7 +295,7 @@ ros2 run ce_robot 03_hw_status_publisher
 
 You should see:
 ```
-[INFO] [hardware_status_publisher]: Published: Robot=Robot-1, Temp=45°C, Motor=True, Message=Status check #0: All systems nominal
+[INFO] [hardware_status_publisher]: Published: Robot=CE-ROBOT, Number=1001, Temp=50°C, Motor=True, Message=Motor 1
 ```
 
 ---
