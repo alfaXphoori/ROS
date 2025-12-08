@@ -206,12 +206,12 @@ from ce_robot_interfaces.msg import HardwareStatus
 class HwStatusNode(Node):
     def __init__(self):
         super().__init__("hardwarestatus_publish")
-        self.robot_name_ = "CE-RO"
-        self.robot_number_ = 9981
+        self.robot_name_ = "CE-ROBOT"
+        self.robot_number_ = 1001
         self.hw_status_publish_ = self.create_publisher(
             HardwareStatus, "hardware_status", 10
         )
-        self.timer_ = self.create_timer(1.0, self.publish_hw_status)
+        self.timer_ = self.create_timer(1.0, self.publish_h03_w_status)
         self.get_logger().info("Hw_Status_Publish_Node Start Now!")
 
     def publish_hw_status(self):
@@ -225,6 +225,7 @@ class HwStatusNode(Node):
         self.hw_status_publish_.publish(msg)
         self.get_logger().info(
             f"Published: Robot={msg.name_robot}, "
+            f"Number={msg.number_robot}, "
             f"Temp={msg.temperature}°C, "
             f"Motor={msg.motor_ready}, "
             f"Message={msg.debug_message}"
@@ -267,7 +268,7 @@ entry_points={
         "03_hw_status_subscriber = ce_robot.HardwareStatus_subscribe:main",
     ],
 },
-install_requires=['setuptools', 'ce_robot_interfaces'],
+
 ```
 
 ---
