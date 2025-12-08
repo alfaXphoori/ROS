@@ -274,6 +274,8 @@ entry_points={
 },
 ```
 
+![Setup Configuration](./imgs/2_server.png)
+
 ---
 
 ## **🔨 Building the Package with Colcon**
