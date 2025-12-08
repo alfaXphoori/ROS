@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
 """
 Temperature Unit Conversion Client
-Sends temperature values to the server for conversion
-- Send (value=temp, flag=1) for °C→°F
-- Send (value=temp, flag=2) for °F→°C
-- Send (value=temp, flag=3) for K→°C
+Usage: ros2 run ce_robot temp_converter_client <temperature> <flag>
+
+Examples:
+  ros2 run ce_robot temp_converter_client 25 1    # Convert 25°C to °F
+  ros2 run ce_robot temp_converter_client 77 2    # Convert 77°F to °C
+  ros2 run ce_robot temp_converter_client 298 3   # Convert 298K to °C
+
+Flags:
+  1: Celsius → Fahrenheit (°C → °F)
+  2: Fahrenheit → Celsius (°F → °C)
+  3: Kelvin → Celsius (K → °C)
 """
 
 import sys
@@ -27,7 +34,7 @@ class TemperatureConverterClient(Node):
         """
         Send temperature conversion request
         temperature: float value to convert
-        unit_flag: 1 (C→F), 2 (F→K), 3 (K→C)
+        unit_flag: 1 (C→F), 2 (F→C), 3 (K→C)
         """
         request = AddTwoInts.Request()
         request.a = int(temperature)
@@ -51,58 +58,54 @@ def main(args=None):
     rclpy.init(args=args)
     client = TemperatureConverterClient()
 
-    # Example conversions
-    print("\n=== Temperature Conversion Examples ===\n")
+    # Parse command-line arguments
+    if len(sys.argv) < 3:
+        print("\n=== Temperature Unit Conversion Client ===\n")
+        print("Usage: ros2 run ce_robot temp_converter_client <temperature> <flag>\n")
+        print("Examples:")
+        print("  ros2 run ce_robot temp_converter_client 25 1    # Convert 25°C to °F")
+        print("  ros2 run ce_robot temp_converter_client 77 2    # Convert 77°F to °C")
+        print("  ros2 run ce_robot temp_converter_client 298 3   # Convert 298K to °C\n")
+        print("Conversion Flags:")
+        print("  1: Celsius → Fahrenheit (°C → °F)")
+        print("  2: Fahrenheit → Celsius (°F → °C)")
+        print("  3: Kelvin → Celsius (K → °C)\n")
+        client.destroy_node()
+        rclpy.shutdown()
+        return
 
-    # Example 1: Convert 25°C to °F
-    print("Example 1: Convert 25°C to Fahrenheit")
-    future1 = client.send_request(25, 1)
-    rclpy.spin_until_future_complete(client, future1)
-    result1 = future1.result()
-    print(f"Result: 25°C = {result1.sum}°F\n")
+    try:
+        temperature = float(sys.argv[1])
+        unit_flag = int(sys.argv[2])
 
-    # Example 2: Convert 77°F to °C
-    print("Example 2: Convert 77°F to Celsius")
-    future2 = client.send_request(77, 2)
-    rclpy.spin_until_future_complete(client, future2)
-    result2 = future2.result()
-    print(f"Result: 77°F = {result2.sum}°C\n")
+        # Validate flag
+        if unit_flag not in [1, 2, 3]:
+            print(f"\n❌ Error: Invalid flag '{unit_flag}'")
+            print("Use: 1 (C→F), 2 (F→C), or 3 (K→C)\n")
+            client.destroy_node()
+            rclpy.shutdown()
+            return
 
-    # Example 3: Convert 298K to °C
-    print("Example 3: Convert 298K to Celsius")
-    future3 = client.send_request(298, 3)
-    rclpy.spin_until_future_complete(client, future3)
-    result3 = future3.result()
-    print(f"Result: 298K = {result3.sum}°C\n")
+        # Send conversion request
+        print(f"\n🔄 Converting {temperature}...")
+        future = client.send_request(temperature, unit_flag)
+        rclpy.spin_until_future_complete(client, future)
+        result = future.result()
 
-    # Interactive mode
-    print("=== Interactive Mode ===\n")
-    while True:
-        try:
-            print("\nConversion options:")
-            print("1. Celsius → Fahrenheit (°C → °F)")
-            print("2. Fahrenheit → Celsius (°F → °C)")
-            print("3. Kelvin → Celsius (K → °C)")
-            print("0. Exit")
+        # Display result
+        unit_names = {
+            1: ('°C', '°F'),
+            2: ('°F', '°C'),
+            3: ('K', '°C')
+        }
+        from_unit, to_unit = unit_names[unit_flag]
+        print(f"✓ Result: {temperature}{from_unit} = {result.sum}{to_unit}\n")
 
-            choice = input("\nSelect conversion (0-3): ").strip()
-
-            if choice == '0':
-                break
-            elif choice in ['1', '2', '3']:
-                temp = float(input("Enter temperature value: "))
-                future = client.send_request(temp, int(choice))
-                rclpy.spin_until_future_complete(client, future)
-                result = future.result()
-                print(f"✓ Converted result: {result.sum}")
-            else:
-                print("Invalid choice. Please enter 0-3.")
-
-        except KeyboardInterrupt:
-            print("\n\nExiting...")
-            break
-        except ValueError:
-            print("Invalid input. Please enter a valid number.")
+    except ValueError as e:
+        print(f"\n❌ Error: Invalid input. Please enter valid numbers.")
+        print(f"Usage: ros2 run ce_robot temp_converter_client <temperature> <flag>\n")
+    except Exception as e:
+        print(f"\n❌ Error: {str(e)}\n")
 
     client.destroy_node()
     rclpy.shutdown()
@@ -110,3 +113,4 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+
