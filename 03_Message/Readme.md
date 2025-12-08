@@ -263,11 +263,8 @@ Add the following lines under `console_scripts`:
 ```python
 entry_points={
     'console_scripts': [
-        "hw_status = ce_robot.HardwareStatus_publish:main",
+        "hw_publish = ce_robot.HardwareStatus_publish:main",
         "hw_subscribe = ce_robot.HardwareStatus_subscribe:main",
-        "hw_agg = ce_robot.HardwareStatus_aggregate:main",
-        "hw_validated = ce_robot.HardwareStatus_validated:main",
-        "hw_validated_sub = ce_robot.HardwareStatus_validated_sub:main",
     ],
 },
 install_requires=['setuptools', 'ce_robot_interfaces'],
