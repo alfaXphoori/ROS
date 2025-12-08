@@ -429,9 +429,14 @@ if __name__ == '__main__':
 #!/usr/bin/env python3
 """
 Exercise 2: Database Client
-Queries the student database
+Queries the student database with formatted output
 Usage: ros2 run ce_robot database_client <query_type> [id]
 query_type: 0=all, 1=by_id
+
+Examples:
+  ros2 run ce_robot database_client 0      # Get all records
+  ros2 run ce_robot database_client 1 1    # Get student with ID 1
+  ros2 run ce_robot database_client 1 3    # Get student with ID 3
 """
 
 import sys
@@ -443,6 +448,15 @@ from example_interfaces.srv import AddTwoInts
 class DatabaseClient(Node):
     def __init__(self):
         super().__init__('database_client')
+        
+        # Student database for display
+        self.students = {
+            1: {'name': 'Alice', 'gpa': 3.8, 'major': 'CS'},
+            2: {'name': 'Bob', 'gpa': 3.5, 'major': 'EE'},
+            3: {'name': 'Charlie', 'gpa': 3.9, 'major': 'CS'},
+            4: {'name': 'Diana', 'gpa': 3.6, 'major': 'ME'},
+            5: {'name': 'Eve', 'gpa': 3.7, 'major': 'CS'},
+        }
 
     def query(self, query_type, query_id=0):
         """Query the database"""
@@ -468,44 +482,136 @@ def main(args=None):
     rclpy.init(args=args)
     
     if len(sys.argv) < 2:
-        print('Usage: database_client <query_type> [id]')
-        print('query_type: 0=all, 1=by_id')
+        print('\n=== Database Query Client ===\n')
+        print('Usage: database_client <query_type> [id]\n')
+        print('Query Types:')
+        print('  0 = Get all records')
+        print('  1 = Get record by ID\n')
+        print('Examples:')
+        print('  ros2 run ce_robot database_client 0      # Get all records')
+        print('  ros2 run ce_robot database_client 1 1    # Get student with ID 1')
+        print('  ros2 run ce_robot database_client 1 3    # Get student with ID 3\n')
         sys.exit(1)
     
-    query_type = int(sys.argv[1])
-    query_id = int(sys.argv[2]) if len(sys.argv) > 2 else 0
-    
-    node = DatabaseClient()
-    response = node.query(query_type, query_id)
-    
-    if response.sum >= 0:
-        node.get_logger().info(f'Query successful: {response.sum}')
-    else:
-        node.get_logger().warn('Query returned no results')
-    
-    node.destroy_node()
-    rclpy.shutdown()
+    try:
+        query_type = int(sys.argv[1])
+        query_id = int(sys.argv[2]) if len(sys.argv) > 2 else 0
+        
+        node = DatabaseClient()
+        response = node.query(query_type, query_id)
+        
+        print('\n' + '='*60)
+        print('📊 DATABASE QUERY RESULT')
+        print('='*60 + '\n')
+        
+        if query_type == 0:  # Get all records
+            if response.sum > 0:
+                print(f'✓ Total Records: {response.sum}\n')
+                print(f'{"ID":<5} {"Name":<15} {"GPA":<8} {"Major":<10}')
+                print('-'*48)
+                for sid, student in node.students.items():
+                    print(f'{sid:<5} {student["name"]:<15} {student["gpa"]:<8} {student["major"]:<10}')
+                print()
+            else:
+                print('❌ No records found\n')
+        
+        elif query_type == 1:  # Get by ID
+            if response.sum >= 0 and response.sum in node.students:
+                student = node.students[response.sum]
+                print(f'✓ Query Successful\n')
+                print(f'ID:    {response.sum}')
+                print(f'Name:  {student["name"]}')
+                print(f'GPA:   {student["gpa"]}')
+                print(f'Major: {student["major"]}\n')
+            else:
+                print(f'❌ Student with ID {query_id} not found\n')
+        
+        else:
+            print(f'❌ Invalid query type: {query_type}\n')
+        
+        print('='*60 + '\n')
+        
+        node.destroy_node()
+        rclpy.shutdown()
+        
+    except ValueError:
+        print(f'\n❌ Error: Invalid input. Please enter valid numbers.\n')
+        sys.exit(1)
+    except Exception as e:
+        print(f'\n❌ Error: {str(e)}\n')
+        sys.exit(1)
 
 
 if __name__ == '__main__':
     main()
 ```
 
-**Expected Output (Server):**
+**Expected Output (Client - Query All):**
 
 ```
-[INFO] [database_server]: Database Server started
-[INFO] [database_server]: Database loaded: 5 records
-[INFO] [database_server]: Query: All records (5 total)
-[INFO] [database_server]: Query: ID 1 → Alice (GPA: 3.8, Major: CS)
-[INFO] [database_server]: Query: ID 10 not found
+============================================================
+📊 DATABASE QUERY RESULT
+============================================================
+
+✓ Total Records: 5
+
+ID    Name            GPA      Major     
+────────────────────────────────────────────────
+1     Alice           3.8      CS        
+2     Bob             3.5      EE        
+3     Charlie         3.9      CS        
+4     Diana           3.6      ME        
+5     Eve             3.7      CS        
+
+============================================================
 ```
 
-**Expected Output (Client):**
+**Expected Output (Client - Query by ID):**
 
 ```
-[INFO] [database_client]: Querying database...
-[INFO] [database_client]: Query successful: 5
+============================================================
+📊 DATABASE QUERY RESULT
+============================================================
+
+✓ Query Successful
+
+ID:    1
+Name:  Alice
+GPA:   3.8
+Major: CS
+
+============================================================
+```
+
+**Expected Output (Client - Not Found):**
+
+```
+============================================================
+📊 DATABASE QUERY RESULT
+============================================================
+
+❌ Student with ID 10 not found
+
+============================================================
+```
+
+**How to Run Exercise 2:**
+
+```bash
+# Terminal 1: Start the server
+ros2 run ce_robot database_server
+
+# Terminal 2: Get all records
+ros2 run ce_robot database_client 0
+
+# Terminal 2: Query specific student by ID
+ros2 run ce_robot database_client 1 1
+
+# Terminal 2: Query another student
+ros2 run ce_robot database_client 1 3
+
+# Terminal 2: Query non-existent student
+ros2 run ce_robot database_client 1 10
 ```
 
 **Key Concepts:**
