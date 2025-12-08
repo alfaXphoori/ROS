@@ -923,6 +923,42 @@ ros2 node info /calculator_server
 
 ---
 
+## **📂 Final Directory Structure**
+
+```
+📁 ROS2_WS/
+├── 📁 src/
+│   └── 📁 ce_robot/
+│       ├── 📁 ce_robot/
+│       │   ├── 📄 __init__.py
+│       │   ├── 🐍 temp_converter_server.py      # Exercise 1
+│       │   ├── 🐍 temp_converter_client.py      # Exercise 1
+│       │   ├── 🐍 database_server.py            # Exercise 2
+│       │   ├── 🐍 database_client.py            # Exercise 2
+│       │   ├── 🐍 robot_controller_server.py    # Exercise 3
+│       │   └── 🐍 robot_controller_client.py    # Exercise 3
+│       ├── 📄 package.xml
+│       ├── 📄 setup.cfg
+│       └── 📄 setup.py
+└── 📁 install/
+```
+
+**Entry Points in setup.py:**
+```python
+entry_points={
+    'console_scripts': [
+        '02_temp_converter_server = ce_robot.temp_converter_server:main',
+        '02_temp_converter_client = ce_robot.temp_converter_client:main',
+        '02_database_server = ce_robot.database_server:main',
+        '02_database_client = ce_robot.database_client:main',
+        '02_robot_controller_server = ce_robot.robot_controller_server:main',
+        '02_robot_controller_client = ce_robot.robot_controller_client:main',
+    ],
+},
+```
+
+---
+
 ## **✅ Completion Checklist**
 
 - [ ] Exercise 1: Temperature Conversion Service completed
