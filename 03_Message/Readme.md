@@ -270,7 +270,6 @@ entry_points={
         "03_hw_status_aggregator = ce_robot.HardwareStatus_aggregate:main",
     ],
 },
-install_requires=['setuptools', 'ce_robot_interfaces'],
 ```
 
 ---
