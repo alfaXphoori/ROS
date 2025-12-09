@@ -1,30 +1,33 @@
 # **🧪 ROS 2 Custom Messages - Lab Exercises**
 
-**Hands-On Practice: Building Real-World Applications with Custom Messages**
+**Advanced Patterns: Validation, Filtering, and Multi-Robot Systems**
 
 ---
 
 ## **📌 Lab Information**
 
-**Lab Title:** Custom Messages - Practical Applications  
-**Duration:** 60 minutes  
-**Level:** Beginner (University Students)  
+**Lab Title:** Custom Messages - Advanced Applications  
+**Duration:** 75 minutes  
+**Level:** Beginner to Intermediate  
 **Prerequisites:** 
 - Completed Readme.md (Custom Message Package Setup)
-- Created `ce_robot_interfaces` package
-- Built `HardwareStatus.msg`
-- Created basic publisher and subscriber
+- Created `ce_robot_interfaces` package with `HardwareStatus.msg`
+- Built and tested basic publisher (`HardwareStatus_publish.py`)
+- Built and tested basic subscriber (`HardwareStatus_subscribe.py`)
+- Built and tested aggregator (`HardwareStatus_aggregate.py`)
 
-**What You Already Know:**
-✅ How to create message packages  
-✅ How to define `.msg` files  
-✅ How to build custom messages  
-✅ Basic publisher and subscriber patterns  
+**What You Already Know from Readme:**
+✅ Creating message packages and `.msg` files  
+✅ Building custom messages with colcon  
+✅ Basic publisher pattern with random temperature  
+✅ Basic subscriber pattern with message display  
+✅ Simple aggregation (count and average temperature)  
 
-**What You'll Learn in This Lab:**
-🎯 Validation and error handling  
-🎯 Data filtering and processing  
-🎯 Statistics and aggregation  
+**What You'll Learn in This Lab (NEW):**
+🎯 **Input validation** before publishing (preventing bad data)  
+🎯 **Conditional filtering** based on thresholds (alert systems)  
+🎯 **Advanced statistics** with rolling windows and reporting  
+🎯 **Multi-robot monitoring** (tracking multiple robots simultaneously)  
 
 ---
 
@@ -52,35 +55,42 @@ By completing this lab, you will be able to:
 
 ```
 ┌─────────────────────────────────────────────┐
-│ Exercise 1: Message Validation              │
-│ Add input validation to your publisher      │
+│ Exercise 1: Input Validation                │
+│ Validate data BEFORE publishing (NEW)       │
 └──────────────┬──────────────────────────────┘
                │
                ▼
 ┌─────────────────────────────────────────────┐
-│ Exercise 2: Data Filtering                  │
-│ Create subscriber that filters messages     │
+│ Exercise 2: Threshold Filtering             │
+│ Alert-based subscriber (NEW)                │
 └──────────────┬──────────────────────────────┘
                │
                ▼
 ┌─────────────────────────────────────────────┐
-│ Exercise 3: Statistics & Aggregation        │
-│ Track and analyze message patterns          │
+│ Exercise 3: Advanced Statistics             │
+│ Rolling windows + periodic reports (NEW)    │
+└──────────────┬──────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────┐
+│ Exercise 4: Multi-Robot Monitor             │
+│ Track multiple robots simultaneously (NEW)  │
 └─────────────────────────────────────────────┘
 ```
 
 | Exercise | Title | Duration | Difficulty |
 |----------|-------|----------|------------|
-| 1 | Message Validation | 20 min | ⭐⭐ |
-| 2 | Data Filtering | 20 min | ⭐⭐ |
-| 3 | Statistics & Aggregation | 20 min | ⭐⭐⭐ |
-
----
-
-## **Exercise 1: Message Validation ✅**
+## **Exercise 1: Input Validation ✅**
 
 ### 🎯 Objective
-Add robust validation to your publisher to ensure all data is correct before publishing.
+Extend the basic publisher from Readme with **input validation** to prevent publishing invalid data.
+
+### 📖 Background
+**Difference from Readme:** The basic publisher (`HardwareStatus_publish.py`) generates random data and publishes it directly. In production systems, you need to:
+- Validate data **before** publishing (not after)
+- Prevent invalid values from entering the system
+- Track validation success/failure rates
+- Log validation errors appropriatelyto your publisher to ensure all data is correct before publishing.
 
 ### 📖 Background
 In real applications, you need to validate data to prevent:
@@ -262,17 +272,17 @@ ros2 run ce_robot 03_hw_validated_publisher
 
 ---
 
-## **Exercise 2: Data Filtering 🔍**
+## **Exercise 2: Threshold-Based Filtering 🔍**
 
 ### 🎯 Objective
-Create a subscriber that filters and processes only relevant messages.
+Create an **alert subscriber** that filters messages and triggers warnings for critical conditions.
 
 ### 📖 Background
-In real systems, you often need to:
-- Filter out normal data, focus on alerts
-- Process only messages meeting certain criteria
-- Calculate statistics on filtered data
-- Implement threshold-based monitoring
+**Difference from Readme:** The basic subscriber (`HardwareStatus_subscribe.py`) displays ALL messages. In monitoring systems, you need:
+- **Conditional processing** - only react to critical values
+- **Alert thresholds** - trigger warnings above certain limits
+- **Filtered statistics** - calculate metrics only on important data
+- **Different log levels** - WARN for alerts, INFO for normal
 
 ### 📝 Tasks
 
@@ -426,18 +436,22 @@ ros2 run ce_robot 03_hw_filter_subscriber
 
 ---
 
-## **Exercise 3: Statistics & Aggregation 📊**
+## **Exercise 3: Advanced Statistics with Rolling Windows 📊**
 
 ### 🎯 Objective
-Create an advanced subscriber that tracks comprehensive statistics.
+Extend the basic aggregator with **rolling windows**, **periodic reporting**, and **comprehensive metrics**.
 
 ### 📖 Background
-Aggregation nodes collect data and calculate:
-- Running averages
-- Min/max values
-- Message rates
-- Trend analysis
-- Periodic reports
+**Difference from Readme:** The basic aggregator (`HardwareStatus_aggregate.py`) only calculates:
+- Simple count and average temperature
+
+**This exercise adds (NEW):**
+- **Rolling windows** - track last N values (not all history)
+- **Min/Max tracking** - temperature extremes
+- **Message rate calculation** - messages per second
+- **Motor status statistics** - percentage ready vs not ready
+- **Periodic reports** - automatic summary every 10 seconds
+- **Formatted output** - professional report display
 
 ### 📝 Tasks
 
@@ -638,15 +652,333 @@ ros2 run ce_robot 03_hw_statistics
 ### ✅ Completion Checklist
 
 - [ ] Created `HardwareStatus_stats.py`
-- [ ] Store last 50 temperatures in deque
-- [ ] Track message timestamps
-- [ ] Calculate average temperature
-- [ ] Track min/max temperatures
-- [ ] Count motor ready/not ready
-- [ ] Calculate message rate
-- [ ] Generate report every 10 seconds
-- [ ] Format report with box drawing
-- [ ] Test with publisher running
+- [ ] Store last 50 temperatures in deque (rolling window)
+- [ ] Track message timestamps for rate calculation
+- [ ] Calculate average temperature (on rolling window)
+- [ ] Track min/max temperatures (across all messages)
+- [ ] Count motor ready/not ready percentages
+- [ ] Calculate message rate (msg/sec)
+- [ ] Generate report every 10 seconds automatically
+- [ ] Format report with box drawing characters
+- [ ] Test with validated publisher running
+
+---
+
+## **Exercise 4: Multi-Robot Monitor 🤖🤖**
+
+### 🎯 Objective
+Create a monitoring system that tracks **multiple robots simultaneously** and provides per-robot statistics.
+
+### 📖 Background
+**New Concept:** All previous examples tracked a single robot. In real systems:
+- Multiple robots publish to the same topic
+- Each robot has a unique `name_robot` identifier
+- Monitor needs to track statistics **per robot**
+- Need to identify which robot has problems
+
+### 📝 Tasks
+
+**Step 1: Create Multi-Robot Monitor**
+
+Create `HardwareStatus_multi_robot.py` in `ce_robot/ce_robot/`:
+
+```python
+#!/usr/bin/env python3
+"""
+Multi-Robot Hardware Monitor
+Tracks multiple robots and provides per-robot statistics
+"""
+
+import rclpy
+from rclpy.node import Node
+from ce_robot_interfaces.msg import HardwareStatus
+from collections import defaultdict, deque
+
+
+class MultiRobotMonitor(Node):
+    def __init__(self):
+        super().__init__('multi_robot_monitor')
+        self.subscription = self.create_subscription(
+            HardwareStatus,
+            'hardware_status',
+            self.status_callback,
+            10
+        )
+        
+        # Per-robot data storage (dictionary of robot_name -> data)
+        self.robot_data = defaultdict(lambda: {
+            'count': 0,
+            'temperatures': deque(maxlen=10),
+            'motor_ready_count': 0,
+            'motor_not_ready_count': 0,
+            'last_seen': None
+        })
+        
+        self.total_messages = 0
+        
+        # Create timer for periodic reports (every 15 seconds)
+        self.report_timer = self.create_timer(15.0, self.print_multi_robot_report)
+        
+        self.get_logger().info('Multi-Robot Monitor started! Tracking all robots...')
+
+    def status_callback(self, msg):
+        """Collect data per robot"""
+        self.total_messages += 1
+        robot_name = msg.name_robot
+        
+        # Update robot-specific data
+        data = self.robot_data[robot_name]
+        data['count'] += 1
+        data['temperatures'].append(msg.temperature)
+        data['last_seen'] = self.get_clock().now()
+        
+        if msg.motor_ready:
+            data['motor_ready_count'] += 1
+        else:
+            data['motor_not_ready_count'] += 1
+        
+        # Log individual message
+        self.get_logger().info(
+            f'[{robot_name}] Temp: {msg.temperature}°C | Motor: {msg.motor_ready} | '
+            f'Robot Count: {data["count"]} | Total: {self.total_messages}'
+        )
+
+    def print_multi_robot_report(self):
+        """Generate comprehensive multi-robot report"""
+        if self.total_messages == 0:
+            self.get_logger().info('No data received yet...')
+            return
+        
+        num_robots = len(self.robot_data)
+        
+        report = f'\n'
+        report += f'╔═══════════════════════════════════════════════════════════╗\n'
+        report += f'║        MULTI-ROBOT MONITORING REPORT                      ║\n'
+        report += f'╠═══════════════════════════════════════════════════════════╣\n'
+        report += f'║ Total Messages:    {self.total_messages:>6}                              ║\n'
+        report += f'║ Active Robots:     {num_robots:>6}                              ║\n'
+        report += f'╠═══════════════════════════════════════════════════════════╣\n'
+        
+        # Per-robot statistics
+        for robot_name, data in sorted(self.robot_data.items()):
+            count = data['count']
+            temps = list(data['temperatures'])
+            
+            if len(temps) > 0:
+                avg_temp = sum(temps) / len(temps)
+                min_temp = min(temps)
+                max_temp = max(temps)
+            else:
+                avg_temp = min_temp = max_temp = 0
+            
+            motor_ready_pct = (data['motor_ready_count'] / count * 100) if count > 0 else 0
+            
+            report += f'║ Robot: {robot_name:<20}                        ║\n'
+            report += f'║   Messages:        {count:>6}                              ║\n'
+            report += f'║   Avg Temp:        {avg_temp:>6.1f}°C                          ║\n'
+            report += f'║   Min/Max:         {min_temp:>3}°C / {max_temp:>3}°C                        ║\n'
+            report += f'║   Motor Ready:     {motor_ready_pct:>6.1f}%                           ║\n'
+            report += f'╠═══════════════════════════════════════════════════════════╣\n'
+        
+        report += f'╚═══════════════════════════════════════════════════════════╝'
+        
+        self.get_logger().info(report)
+        
+        # Alert for robots with high average temperature
+        for robot_name, data in self.robot_data.items():
+            temps = list(data['temperatures'])
+            if len(temps) > 0:
+                avg_temp = sum(temps) / len(temps)
+                if avg_temp > 60:
+                    self.get_logger().warn(
+                        f'⚠️  HIGH TEMP WARNING: {robot_name} average is {avg_temp:.1f}°C!'
+                    )
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = MultiRobotMonitor()
+    
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        node.print_multi_robot_report()  # Final report on exit
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+**Step 2: Create Multi-Robot Publisher**
+
+Create `HardwareStatus_multi_pub.py` to simulate multiple robots:
+
+```python
+#!/usr/bin/env python3
+"""
+Multi-Robot Publisher
+Simulates multiple robots publishing to the same topic
+"""
+
+import rclpy
+from rclpy.node import Node
+from ce_robot_interfaces.msg import HardwareStatus
+import random
+
+
+class MultiRobotPublisher(Node):
+    def __init__(self):
+        super().__init__('multi_robot_publisher')
+        self.publisher_ = self.create_publisher(HardwareStatus, 'hardware_status', 10)
+        self.timer = self.create_timer(0.5, self.publish_status)  # Publish twice per second
+        
+        # Simulate 3 different robots
+        self.robots = [
+            {'name': 'CE-ROBOT-01', 'number': 1001, 'temp_base': 45},
+            {'name': 'CE-ROBOT-02', 'number': 1002, 'temp_base': 55},
+            {'name': 'CE-ROBOT-03', 'number': 1003, 'temp_base': 40},
+        ]
+        
+        self.publish_count = 0
+        self.get_logger().info('Multi-Robot Publisher started! Simulating 3 robots...')
+
+    def publish_status(self):
+        """Publish messages from different robots in rotation"""
+        self.publish_count += 1
+        
+        # Round-robin through robots
+        robot = self.robots[self.publish_count % len(self.robots)]
+        
+        msg = HardwareStatus()
+        msg.name_robot = robot['name']
+        msg.number_robot = robot['number']
+        msg.temperature = robot['temp_base'] + random.randint(-5, 15)
+        msg.motor_ready = random.choice([True, True, True, False])  # 75% ready
+        msg.debug_message = f'Status update #{self.publish_count}'
+        
+        self.publisher_.publish(msg)
+        self.get_logger().info(
+            f'Published: {msg.name_robot} | Temp: {msg.temperature}°C | Motor: {msg.motor_ready}'
+        )
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = MultiRobotPublisher()
+    
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+**Step 3: Make Executable**
+
+```bash
+chmod +x HardwareStatus_multi_robot.py
+chmod +x HardwareStatus_multi_pub.py
+```
+
+**Step 4: Update setup.py**
+
+```python
+"03_hw_multi_robot_monitor = ce_robot.HardwareStatus_multi_robot:main",
+"03_hw_multi_robot_publisher = ce_robot.HardwareStatus_multi_pub:main",
+```
+
+**Step 5: Build and Test**
+
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot --symlink-install
+source install/setup.bash
+```
+
+Run both nodes:
+```bash
+# Terminal 1
+ros2 run ce_robot 03_hw_multi_robot_publisher
+
+# Terminal 2
+ros2 run ce_robot 03_hw_multi_robot_monitor
+```
+
+### 🔍 Expected Output
+
+**Publisher Terminal:**
+```
+[INFO] [multi_robot_publisher]: Published: CE-ROBOT-01 | Temp: 48°C | Motor: True
+[INFO] [multi_robot_publisher]: Published: CE-ROBOT-02 | Temp: 62°C | Motor: True
+[INFO] [multi_robot_publisher]: Published: CE-ROBOT-03 | Temp: 43°C | Motor: False
+[INFO] [multi_robot_publisher]: Published: CE-ROBOT-01 | Temp: 51°C | Motor: True
+```
+
+**Monitor Terminal:**
+```
+[INFO] [multi_robot_monitor]: Multi-Robot Monitor started! Tracking all robots...
+[INFO] [multi_robot_monitor]: [CE-ROBOT-01] Temp: 48°C | Motor: True | Robot Count: 1 | Total: 1
+[INFO] [multi_robot_monitor]: [CE-ROBOT-02] Temp: 62°C | Motor: True | Robot Count: 1 | Total: 2
+[INFO] [multi_robot_monitor]: [CE-ROBOT-03] Temp: 43°C | Motor: False | Robot Count: 1 | Total: 3
+...
+[INFO] [multi_robot_monitor]: 
+╔═══════════════════════════════════════════════════════════╗
+║        MULTI-ROBOT MONITORING REPORT                      ║
+╠═══════════════════════════════════════════════════════════╣
+║ Total Messages:        30                                 ║
+║ Active Robots:          3                                 ║
+╠═══════════════════════════════════════════════════════════╣
+║ Robot: CE-ROBOT-01                                        ║
+║   Messages:            10                                 ║
+║   Avg Temp:          47.5°C                               ║
+║   Min/Max:            42°C /  53°C                        ║
+║   Motor Ready:        80.0%                               ║
+╠═══════════════════════════════════════════════════════════╣
+║ Robot: CE-ROBOT-02                                        ║
+║   Messages:            10                                 ║
+║   Avg Temp:          59.2°C                               ║
+║   Min/Max:            54°C /  68°C                        ║
+║   Motor Ready:        70.0%                               ║
+╠═══════════════════════════════════════════════════════════╣
+║ Robot: CE-ROBOT-03                                        ║
+║   Messages:            10                                 ║
+║   Avg Temp:          41.8°C                               ║
+║   Min/Max:            37°C /  48°C                        ║
+║   Motor Ready:        90.0%                               ║
+╠═══════════════════════════════════════════════════════════╣
+╚═══════════════════════════════════════════════════════════╝
+[WARN] [multi_robot_monitor]: ⚠️  HIGH TEMP WARNING: CE-ROBOT-02 average is 59.2°C!
+```
+
+### 💡 Key Learning Points
+
+- **defaultdict** for dynamic robot tracking
+- **Per-entity statistics** using dictionaries
+- **Shared topics** - multiple publishers on same topic
+- **Entity identification** using message fields
+- **Comparative analysis** across multiple sources
+- **Automated alerts** for specific robots
+
+### ✅ Completion Checklist
+
+- [ ] Created `HardwareStatus_multi_robot.py`
+- [ ] Created `HardwareStatus_multi_pub.py`
+- [ ] Used defaultdict for dynamic robot tracking
+- [ ] Track per-robot statistics separately
+- [ ] Calculate per-robot averages and ranges
+- [ ] Display all robots in single report
+- [ ] Alert for robots with high temperature
+- [ ] Test with 3 simulated robots
+- [ ] Verify per-robot data is correctly separated
 
 ---
 
@@ -663,12 +995,14 @@ ros2 run ce_robot 03_hw_statistics
 │   └── 📁 ce_robot/
 │       ├── 📁 ce_robot/
 │       │   ├── 📄 __init__.py
-│       │   ├── 🐍 HardwareStatus_publish.py          # From Readme
-│       │   ├── 🐍 HardwareStatus_subscribe.py        # From Readme
-│       │   ├── 🐍 HardwareStatus_aggregate.py        # From Readme
-│       │   ├── 🐍 HardwareStatus_validated.py        # Exercise 1
-│       │   ├── 🐍 HardwareStatus_filter.py           # Exercise 2
-│       │   └── 🐍 HardwareStatus_stats.py            # Exercise 3
+│       │   ├── 🐍 HardwareStatus_publish.py          # From Readme - Basic Publisher
+│       │   ├── 🐍 HardwareStatus_subscribe.py        # From Readme - Basic Subscriber
+│       │   ├── 🐍 HardwareStatus_aggregate.py        # From Readme - Simple Aggregator
+│       │   ├── 🐍 HardwareStatus_validated.py        # Lab Ex1 - Validation
+│       │   ├── 🐍 HardwareStatus_filter.py           # Lab Ex2 - Filtering
+│       │   ├── 🐍 HardwareStatus_stats.py            # Lab Ex3 - Advanced Stats
+│       │   ├── 🐍 HardwareStatus_multi_robot.py      # Lab Ex4 - Multi-Robot Monitor
+│       │   └── 🐍 HardwareStatus_multi_pub.py        # Lab Ex4 - Multi-Robot Publisher
 │       ├── 📄 package.xml
 │       ├── 📄 setup.cfg
 │       └── 📄 setup.py
@@ -679,15 +1013,17 @@ ros2 run ce_robot 03_hw_statistics
 ```python
 entry_points={
     'console_scripts': [
-        # From Readme
+        # From Readme (Basic patterns)
         '03_hw_status_publisher = ce_robot.HardwareStatus_publish:main',
         '03_hw_status_subscriber = ce_robot.HardwareStatus_subscribe:main',
         '03_hw_status_aggregator = ce_robot.HardwareStatus_aggregate:main',
         
-        # Lab Exercises
+        # Lab Exercises (Advanced patterns)
         '03_hw_validated_publisher = ce_robot.HardwareStatus_validated:main',
         '03_hw_filter_subscriber = ce_robot.HardwareStatus_filter:main',
         '03_hw_statistics = ce_robot.HardwareStatus_stats:main',
+        '03_hw_multi_robot_monitor = ce_robot.HardwareStatus_multi_robot:main',
+        '03_hw_multi_robot_publisher = ce_robot.HardwareStatus_multi_pub:main',
     ],
 },
 ```
@@ -739,42 +1075,53 @@ rqt
 
 ## **✅ Lab Completion Checklist**
 
-### Exercise 1: Validation
+### Exercise 1: Input Validation
 - [ ] Created `HardwareStatus_validated.py`
-- [ ] Implemented validation function
-- [ ] Added range checks for all fields
+- [ ] Implemented `validate_message()` function
+- [ ] Added range checks for all 5 fields
 - [ ] Track success/failure statistics
 - [ ] Calculate and display success rate
-- [ ] Test with invalid data
-- [ ] Validation catches errors correctly
+- [ ] Test with intentionally invalid data
+- [ ] **Understand difference from Readme:** validation prevents bad data from entering system
 
-### Exercise 2: Filtering
+### Exercise 2: Threshold Filtering
 - [ ] Created `HardwareStatus_filter.py`
 - [ ] Implemented temperature threshold (>55°C)
-- [ ] Used deque for rolling window
+- [ ] Used deque for rolling window (last 10 high temps)
 - [ ] Calculate percentage of filtered messages
-- [ ] Calculate average and max values
-- [ ] Used appropriate logging levels
-- [ ] Filter works correctly
+- [ ] Calculate average and max of high temps only
+- [ ] Used WARN for alerts, INFO for normal
+- [ ] **Understand difference from Readme:** conditional processing vs displaying all
 
-### Exercise 3: Statistics
+### Exercise 3: Advanced Statistics
 - [ ] Created `HardwareStatus_stats.py`
-- [ ] Store last 50 temperatures
+- [ ] Store last 50 temperatures in rolling window
 - [ ] Track timestamps for rate calculation
 - [ ] Calculate average, min, max temperature
-- [ ] Track motor status counts
-- [ ] Generate periodic reports (10 seconds)
+- [ ] Track motor status percentages
+- [ ] Generate periodic reports (every 10 seconds)
 - [ ] Format report with box characters
-- [ ] All statistics calculate correctly
+- [ ] **Understand difference from Readme:** rolling windows, rate calc, periodic reports vs simple avg
 
-### Overall
-- [ ] All Python files are executable
-- [ ] All entry points added to setup.py
+### Exercise 4: Multi-Robot Monitor
+- [ ] Created `HardwareStatus_multi_robot.py`
+- [ ] Created `HardwareStatus_multi_pub.py`
+- [ ] Used defaultdict for dynamic robot tracking
+- [ ] Track per-robot statistics separately
+- [ ] Calculate per-robot averages and ranges
+- [ ] Display all robots in single report
+- [ ] Alert for specific robots with high temperature
+- [ ] Test with 3 simulated robots
+- [ ] **Understand new concept:** tracking multiple entities on shared topic
+
+### Overall Lab
+- [ ] All Python files are executable (`chmod +x`)
+- [ ] All 5 new entry points added to setup.py
 - [ ] Package builds without errors
 - [ ] All nodes run successfully
 - [ ] Can run multiple nodes simultaneously
-- [ ] Tested with rqt_graph
-- [ ] Understand validation, filtering, and aggregation patterns
+- [ ] Tested with `rqt_graph`
+- [ ] **Understand advanced patterns** not in Readme: validation, filtering, rolling windows, multi-entity tracking
 
 ---
 
@@ -802,28 +1149,46 @@ source install/setup.bash
 ros2 topic list
 ros2 topic info /hardware_status
 ```
+## **🎓 What You've Learned (Beyond the Readme)**
 
-### Issue: Import error for ce_robot_interfaces
-**Solution:** Build interface package first
-```bash
-cd ~/ros2_ws
-colcon build --packages-select ce_robot_interfaces
-source install/setup.bash
-```
+### **From Readme (Review):**
+✅ Creating custom message packages  
+✅ Defining `.msg` files  
+✅ Basic publisher pattern  
+✅ Basic subscriber pattern  
+✅ Simple aggregation (count and average)  
 
----
-
-## **🎓 What You've Learned**
-
-### Validation Techniques
+### **NEW from Lab Exercise 1:**
 ✅ Input validation before publishing  
-✅ Range checking for numeric values  
-✅ String length validation  
-✅ Error message generation  
-✅ Success rate tracking  
+✅ Range checking for all data types  
+✅ Error prevention (not just detection)  
+✅ Success/failure rate tracking  
 
-### Data Processing
-✅ Conditional filtering  
+### **NEW from Lab Exercise 2:**
+✅ Conditional filtering (alerts only)  
+✅ Threshold-based monitoring  
+✅ Statistical calculations on filtered data  
+✅ Appropriate logging levels (WARN vs INFO)  
+
+### **NEW from Lab Exercise 3:**
+✅ Rolling window analysis (last N values)  
+✅ Min/max tracking across time  
+✅ Message rate calculation  
+✅ Periodic automated reports  
+✅ Professional formatted output  
+
+### **NEW from Lab Exercise 4:**
+✅ Multi-entity tracking (multiple robots)  
+✅ Per-entity statistics using dictionaries  
+✅ Shared topic patterns  
+✅ Comparative analysis  
+✅ Entity-specific alerts  
+
+### **Advanced Best Practices:**
+✅ Defensive programming with validation  
+✅ Data quality assurance  
+✅ Scalable monitoring patterns  
+✅ Production-ready error handlingltering  
 ✅ Threshold-based monitoring  
 ✅ Statistical calculations  
 ✅ Rolling window analysis  
@@ -842,25 +1207,34 @@ source install/setup.bash
 
 - [ROS 2 Custom Interfaces](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Custom-ROS2-Interfaces.html)
 - [ROS 2 Python Node Guide](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Publisher-And-Subscriber.html)
-- [ROS 2 Logging](https://docs.ros.org/en/jazzy/Tutorials/Demos/Logging-and-logger-configuration.html)
-- [Python Collections (deque)](https://docs.python.org/3/library/collections.html#collections.deque)
-
----
-
-## **🚀 Next Steps**
-
-After completing this lab, you can:
-
-1. **Extend validation** - Add more complex validation rules
-2. **Multiple filters** - Create different filtering criteria
-3. **Data visualization** - Plot statistics over time
-4. **Alert system** - Send notifications for critical conditions
-5. **Database storage** - Save messages to a database
-6. **Web dashboard** - Create real-time monitoring dashboard
-
----
-
 ## **💡 Challenge Projects**
+
+### Challenge 1: Persistent Alert System
+Extend Exercise 2 to:
+- Send alert if temperature stays above 60°C for 5 **consecutive** messages
+- Track total alert count since start
+- Add cooldown period (no repeated alerts for 30 seconds)
+
+### Challenge 2: CSV Data Logger
+Create a new node that:
+- Subscribes to `hardware_status`
+- Records all messages to CSV file with timestamp
+- Allows playback from file using a separate publisher node
+- Implements data compression for long-running logs
+
+### Challenge 3: Robot Fleet Dashboard
+Extend Exercise 4 to:
+- Identify which robot has highest/lowest average temperature
+- Track which robot sends most messages
+- Calculate fleet-wide statistics (total avg across all robots)
+- Generate comparison graphs between robots
+
+### Challenge 4: Anomaly Detection
+Create a node that:
+- Tracks normal temperature range per robot
+- Detects sudden temperature spikes (>10°C change)
+- Identifies robots with unusual motor ready/not ready patterns
+- Sends alerts for anomalous behavior
 
 ### Challenge 1: Temperature Alert System
 Create a node that:
