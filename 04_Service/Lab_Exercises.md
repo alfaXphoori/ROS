@@ -1,12 +1,34 @@
-# **🔧 Custom Service Lab Exercises**
+# **🔧 ROS 2 Custom Services - Lab Exercises**
 
-Master custom service creation and usage in ROS 2 through progressive hands-on exercises.
+**Real-World Warehouse Robot Command and Control**
 
 ---
 
-## **📌 Project Title**
+## **📌 Lab Information**
 
-Create and Use Custom Service Types in ROS 2
+**Lab Title:** Warehouse Robot Service Control System  
+**Duration:** 90 minutes  
+**Level:** Beginner to Intermediate  
+**Prerequisites:** 
+- Completed Readme.md (Basic Service Setup)
+- Completed 03_Message lab (Custom Messages)
+- Created `ce_robot_interfaces` package
+- Understanding of request-response patterns
+
+**What You Already Know from Readme:**
+✅ Creating service packages and `.srv` files  
+✅ Building custom services with colcon  
+✅ Basic server/client patterns  
+✅ Using `CalRectangle.srv` example  
+
+**What You'll Build in This Lab:**
+🤖 **Complete robot command control system**  
+📍 **Navigation and movement services**  
+🔧 **Robot manipulation services**  
+⚙️ **Configuration and calibration services**  
+🎯 **Multi-step mission execution**  
+
+---
 
 ## **👤 Authors**
 
@@ -14,127 +36,298 @@ Create and Use Custom Service Types in ROS 2
 
 ---
 
-## **🛠 Lab Overview**
-
-This lab provides hands-on exercises to master custom service definitions and request-response communication patterns in ROS 2. Each exercise builds upon the previous one, progressing from basic service definition through production-quality multi-service coordination.
-
-**Duration:** ~2 hours
-**Level:** Beginner to Intermediate
-**Prerequisites:** ROS 2 Jazzy installed, Publisher/Subscriber and Server/Client labs completed
-
----
-
-## **🎯 Learning Objectives**
+## **🎯 Lab Objectives**
 
 By completing this lab, you will be able to:
 
-- ✅ Create custom .srv files with request and response fields
-- ✅ Build service packages following ROS 2 conventions
-- ✅ Implement robust server nodes with proper error handling
-- ✅ Create client nodes that make service requests
-- ✅ Define complex data structures in service definitions
-- ✅ Implement state management in servers
-- ✅ Handle multiple service calls sequentially
-- ✅ Use service introspection tools for debugging
-- ✅ Validate input and handle edge cases
-- ✅ Coordinate multi-service workflows from clients
+1. **Design** services for robot command and control
+2. **Create** custom services for real-world robotics operations
+3. **Implement** navigation command services
+4. **Build** robot manipulation control services
+5. **Handle** service requests with validation and error handling
+6. **Coordinate** multiple service calls for complex tasks
+7. **Apply** professional robotics service patterns
 
 ---
 
-## **📊 Lab Architecture**
+## **🤖 Real-World Scenario**
+
+You're developing a command and control system for an autonomous warehouse robot. The robot needs services to:
+- **Navigate** to specific locations (waypoints, docking stations)
+- **Manipulate** objects (pick, place, grip control)
+- **Configure** its behavior (speed limits, safety zones)
+- **Execute** complex missions (multi-step operations)
+
+This lab will guide you through creating professional robot control services for warehouse automation.
+
+---
+
+## **📚 Lab Structure**
 
 ```
 ┌─────────────────────────────────────────────┐
-│ Exercise 1: Basic Rectangle Calculator      │
-│ (Simple service with calculation)           │
+│ Setup: Create Robot Control Services       │
+│ Design services for robot commands          │
 └──────────────┬──────────────────────────────┘
                │
                ▼
 ┌─────────────────────────────────────────────┐
-│ Exercise 2: Distance Calculator Service     │
-│ (Multiple calculations, error handling)     │
+│ Exercise 1: Robot Navigation Service        │
+│ Move robot to target positions              │
 └──────────────┬──────────────────────────────┘
                │
                ▼
 ┌─────────────────────────────────────────────┐
-│ Exercise 3: Shape Analyzer Service          │
-│ (Complex calculations, multiple shapes)     │
+│ Exercise 2: Gripper Control Service         │
+│ Pick and place object manipulation          │
 └─────────────────────────────────────────────┘
 ```
 
----
-
-## **📚 Learning Path Overview**
-
-| Exercise | Title | Level | Duration |
-|----------|-------|-------|----------|
-| 1 | Rectangle Area Calculator | Beginner | 25 min |
-| 2 | Distance Calculator | Intermediate | 30 min |
-| 3 | Shape Analyzer | Advanced | 35 min |
+| Step | Title | Duration | Difficulty |
+|------|-------|----------|------------|
+| Setup | Design Robot Services | 15 min | ⭐⭐ |
+| Ex 1 | Navigation Service | 30 min | ⭐⭐⭐ |
+| Ex 2 | Gripper Control | 25 min | ⭐⭐ |
 
 ---
 
-## **Exercise 1: Rectangle Area Calculator Service (Beginner) 📐**
+## **Setup: Create Robot Control Services 📝**
+
+### 🎯 Objective
+Design and build services for warehouse robot control operations.
+
+### 📖 Service Definitions
+
+Create service files in `ce_robot_interfaces/srv/`:
+
+**1. NavigateToPosition.srv** - Move robot to target location
+```srv
+# Request
+float64 target_x           # Target X coordinate (meters)
+float64 target_y           # Target Y coordinate (meters)
+float64 target_yaw         # Target orientation (radians)
+float32 max_speed          # Maximum speed (m/s)
+bool precise_positioning   # Use high-precision mode
+
+---
+
+# Response
+bool success               # Navigation success
+float64 final_x            # Final X position reached
+float64 final_y            # Final Y position reached
+float64 final_yaw          # Final orientation reached
+float64 distance_traveled  # Total distance traveled (meters)
+float32 time_elapsed       # Time taken (seconds)
+string message             # Status message
+```
+
+**2. GripperCommand.srv** - Control robot gripper
+```srv
+# Request
+int32 command              # 1=Open, 2=Close, 3=SetPosition
+float32 position           # Gripper position (0.0-1.0, 0=closed)
+float32 force              # Grip force (0.0-1.0)
+bool check_object          # Verify object presence
+
+---
+
+# Response
+bool success               # Command success
+bool object_detected       # Object detected in gripper
+float32 actual_position    # Actual gripper position
+float32 actual_force       # Actual grip force applied
+string message             # Status message
+```
+
+### 📝 Update Build Configuration
+
+Edit `ce_robot_interfaces/CMakeLists.txt`:
+
+```cmake
+find_package(rosidl_default_generators REQUIRED)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/HardwareStatus.msg"
+  "msg/RobotStatus.msg"
+  "srv/CalRectangle.srv"
+  "srv/NavigateToPosition.srv"
+  "srv/GripperCommand.srv"
+)
+```
+
+### 🔨 Build the Services
+
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot_interfaces
+source install/setup.bash
+```
+
+### ✅ Verify Service Structures
+
+```bash
+ros2 interface show ce_robot_interfaces/srv/NavigateToPosition
+ros2 interface show ce_robot_interfaces/srv/GripperCommand
+```
+
+---
+
+## **Exercise 1: Robot Navigation Service 🗺️**
 
 ### **📝 Task**
 
-Create a custom service that calculates the area of a rectangle given length and width.
+Create a navigation service that moves the robot to target positions with validation and safety checks.
 
-### **Service Definition: CalRectangle.srv**
+### 🎯 Objective
+Implement a realistic navigation service that:
+- Validates target positions are within bounds
+- Calculates optimal path and distance
+- Simulates movement with realistic timing
+- Reports actual final position and statistics
+- Handles edge cases and errors
 
-```srv
-float64 length          # Rectangle length
-float64 width           # Rectangle width
----
-float64 area_rectangle  # Calculated area
-```
+### **📖 Background**
 
-### **File: CalRect_server.py**
+In warehouse robots, navigation services are critical for:
+- Moving to pickup locations
+- Traveling to delivery stations
+- Returning to docking/charging stations
+- Positioning for precise operations
+
+This exercise simulates realistic navigation with path planning, speed control, and position tracking.
+
+### **Step 1: Create Navigation Server**
+
+Create `navigate_to_position_server.py` in `ce_robot/ce_robot/`:
 
 ```python
 #!/usr/bin/env python3
 """
-Exercise 1: Rectangle Calculator Server
-Calculates rectangle area from length and width
+Exercise 1: Robot Navigation Service Server
+Moves robot to target positions with validation
 """
 
 import rclpy
+import math
+import time
 from rclpy.node import Node
-from ce_robot_interfaces.srv import CalRectangle
+from ce_robot_interfaces.srv import NavigateToPosition
 
 
-class RectangleCalculatorServer(Node):
+class NavigationServer(Node):
     def __init__(self):
-        super().__init__('calrect_server')
+        super().__init__('navigation_server')
         
         self.srv = self.create_service(
-            CalRectangle,
-            'cal_rect',
-            self.calculate_area_callback
+            NavigateToPosition,
+            'navigate_to_position',
+            self.navigate_callback
         )
         
-        self.get_logger().info('Rectangle Calculator Server started')
-        self.get_logger().info('Service: /cal_rect')
-        self.get_logger().info('Waiting for requests...')
+        # Robot state
+        self.current_x = 0.0
+        self.current_y = 0.0
+        self.current_yaw = 0.0
+        
+        # Workspace bounds (meters)
+        self.workspace_min_x = -10.0
+        self.workspace_max_x = 10.0
+        self.workspace_min_y = -10.0
+        self.workspace_max_y = 10.0
+        
+        # Robot specifications
+        self.default_max_speed = 1.0  # m/s
+        self.max_speed_limit = 2.0    # m/s
+        
+        self.navigation_count = 0
+        
+        self.get_logger().info('🗺️  Navigation Server started')
+        self.get_logger().info(f'   Current position: ({self.current_x}, {self.current_y})')
+        self.get_logger().info(f'   Workspace: X[{self.workspace_min_x}, {self.workspace_max_x}], '
+                             f'Y[{self.workspace_min_y}, {self.workspace_max_y}]')
 
-    def calculate_area_callback(self, request, response):
-        """Calculate rectangle area"""
-        length = request.length
-        width = request.width
+    def validate_position(self, x, y):
+        """Check if position is within workspace bounds"""
+        return (self.workspace_min_x <= x <= self.workspace_max_x and
+                self.workspace_min_y <= y <= self.workspace_max_y)
+
+    def calculate_distance(self, x1, y1, x2, y2):
+        """Calculate Euclidean distance"""
+        return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+
+    def navigate_callback(self, request, response):
+        """Handle navigation request"""
+        self.navigation_count += 1
         
-        # Validate input
-        if length <= 0 or width <= 0:
-            self.get_logger().warn(
-                f'Invalid input: length={length}, width={width}'
-            )
-            response.area_rectangle = 0
-            return response
-        
-        area = length * width
-        response.area_rectangle = area
+        target_x = request.target_x
+        target_y = request.target_y
+        target_yaw = request.target_yaw
+        max_speed = request.max_speed if request.max_speed > 0 else self.default_max_speed
+        precise = request.precise_positioning
         
         self.get_logger().info(
-            f'Calculated: {length} × {width} = {area} m²'
+            f'\n📍 Navigation Request #{self.navigation_count}:\n'
+            f'   From: ({self.current_x:.2f}, {self.current_y:.2f}, {self.current_yaw:.2f})\n'
+            f'   To: ({target_x:.2f}, {target_y:.2f}, {target_yaw:.2f})\n'
+            f'   Max Speed: {max_speed:.2f} m/s | Precise: {precise}'
+        )
+        
+        # Validate target position
+        if not self.validate_position(target_x, target_y):
+            response.success = False
+            response.final_x = self.current_x
+            response.final_y = self.current_y
+            response.final_yaw = self.current_yaw
+            response.distance_traveled = 0.0
+            response.time_elapsed = 0.0
+            response.message = f'❌ Target position out of bounds!'
+            
+            self.get_logger().error(response.message)
+            return response
+        
+        # Validate speed
+        if max_speed > self.max_speed_limit:
+            max_speed = self.max_speed_limit
+            self.get_logger().warn(f'⚠️  Speed limited to {self.max_speed_limit} m/s')
+        
+        # Calculate distance and estimated time
+        distance = self.calculate_distance(
+            self.current_x, self.current_y,
+            target_x, target_y
+        )
+        
+        # Simulate navigation time (distance / speed + rotation time)
+        rotation_time = abs(target_yaw - self.current_yaw) * 0.5  # 0.5 sec per radian
+        travel_time = distance / max_speed
+        total_time = travel_time + rotation_time
+        
+        # Add precision time if precise positioning enabled
+        if precise:
+            total_time += 1.0  # Extra second for precise positioning
+        
+        self.get_logger().info(
+            f'🚀 Navigating {distance:.2f}m | ETA: {total_time:.1f}s'
+        )
+        
+        # Simulate navigation (in real robot, this would be actual movement)
+        time.sleep(min(total_time / 10, 2.0))  # Scaled-down simulation time
+        
+        # Update robot position (simulate successful navigation)
+        self.current_x = target_x
+        self.current_y = target_y
+        self.current_yaw = target_yaw
+        
+        # Prepare response
+        response.success = True
+        response.final_x = self.current_x
+        response.final_y = self.current_y
+        response.final_yaw = self.current_yaw
+        response.distance_traveled = distance
+        response.time_elapsed = float(total_time)
+        response.message = f'✅ Navigation complete! Traveled {distance:.2f}m in {total_time:.1f}s'
+        
+        self.get_logger().info(
+            f'✅ Arrived at ({self.current_x:.2f}, {self.current_y:.2f}, {self.current_yaw:.2f})'
         )
         
         return response
@@ -142,12 +335,12 @@ class RectangleCalculatorServer(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = RectangleCalculatorServer()
+    node = NavigationServer()
     
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
-        self.get_logger().info('Shutting down...')
+        node.get_logger().info('\n🗺️  Navigation Server shutting down...')
     finally:
         node.destroy_node()
         rclpy.shutdown()
@@ -157,43 +350,49 @@ if __name__ == '__main__':
     main()
 ```
 
-### **File: CalRect_client.py**
+### **Step 2: Create Navigation Client**
+
+Create `navigate_to_position_client.py` in `ce_robot/ce_robot/`:
 
 ```python
 #!/usr/bin/env python3
 """
-Exercise 1: Rectangle Calculator Client
-Sends area calculation requests
-Usage: ros2 run ce_robot cal_rect_client <length> <width>
+Exercise 1: Robot Navigation Service Client
+Sends navigation commands to robot
+Usage: ros2 run ce_robot navigate_client <x> <y> [yaw] [speed] [precise]
 """
 
 import sys
 import rclpy
 from rclpy.node import Node
-from ce_robot_interfaces.srv import CalRectangle
+from ce_robot_interfaces.srv import NavigateToPosition
 
 
-class RectangleCalculatorClient(Node):
+class NavigationClient(Node):
     def __init__(self):
-        super().__init__('calrect_client')
+        super().__init__('navigation_client')
 
-    def send_request(self, length, width):
-        """Send rectangle area calculation request"""
+    def navigate_to(self, x, y, yaw=0.0, max_speed=1.0, precise=False):
+        """Send navigation request"""
         
-        client = self.create_client(CalRectangle, 'cal_rect')
+        client = self.create_client(NavigateToPosition, 'navigate_to_position')
         
         while not client.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('Waiting for service...')
+            self.get_logger().info('⏳ Waiting for navigation service...')
         
-        request = CalRectangle.Request()
-        request.length = length
-        request.width = width
+        request = NavigateToPosition.Request()
+        request.target_x = x
+        request.target_y = y
+        request.target_yaw = yaw
+        request.max_speed = max_speed
+        request.precise_positioning = precise
         
         self.get_logger().info(
-            f'Requesting area for: {length} × {width}'
+            f'🎯 Requesting navigation to ({x}, {y}, {yaw:.2f}) '
+            f'@ {max_speed} m/s'
         )
-        future = client.call_async(request)
         
+        future = client.call_async(request)
         rclpy.spin_until_future_complete(self, future)
         
         return future.result()
@@ -202,27 +401,38 @@ class RectangleCalculatorClient(Node):
 def main(args=None):
     rclpy.init(args=args)
     
-    if len(sys.argv) != 3:
-        print('Usage: cal_rect_client <length> <width>')
-        print('Example: cal_rect_client 22.22 33.34')
+    if len(sys.argv) < 3:
+        print('Usage: navigate_client <x> <y> [yaw] [speed] [precise]')
+        print('Example: navigate_client 5.0 3.0')
+        print('Example: navigate_client 5.0 3.0 1.57 1.5 true')
         sys.exit(1)
     
     try:
-        length = float(sys.argv[1])
-        width = float(sys.argv[2])
+        x = float(sys.argv[1])
+        y = float(sys.argv[2])
+        yaw = float(sys.argv[3]) if len(sys.argv) > 3 else 0.0
+        speed = float(sys.argv[4]) if len(sys.argv) > 4 else 1.0
+        precise = sys.argv[5].lower() == 'true' if len(sys.argv) > 5 else False
     except ValueError:
-        print('Error: length and width must be numbers')
+        print('Error: Invalid input values')
         sys.exit(1)
     
-    node = RectangleCalculatorClient()
-    response = node.send_request(length, width)
+    node = NavigationClient()
+    response = node.navigate_to(x, y, yaw, speed, precise)
     
-    if response.area_rectangle > 0:
+    if response.success:
         node.get_logger().info(
-            f'Result: Area = {response.area_rectangle:.2f} m²'
+            f'\n✅ Navigation Success!\n'
+            f'   Final Position: ({response.final_x:.2f}, {response.final_y:.2f}, {response.final_yaw:.2f})\n'
+            f'   Distance: {response.distance_traveled:.2f}m\n'
+            f'   Time: {response.time_elapsed:.1f}s\n'
+            f'   Message: {response.message}'
         )
     else:
-        node.get_logger().error('Invalid dimensions provided')
+        node.get_logger().error(
+            f'\n❌ Navigation Failed!\n'
+            f'   Message: {response.message}'
+        )
     
     node.destroy_node()
     rclpy.shutdown()
@@ -230,120 +440,268 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+```
+
+### **Step 3: Setup and Build**
+
+**Make files executable:**
+```bash
+chmod +x navigate_to_position_server.py
+chmod +x navigate_to_position_client.py
+```
+
+**Update setup.py** in `ce_robot/setup.py`:
+```python
+entry_points={
+    'console_scripts': [
+        # Previous entries...
+        '04_navigate_server = ce_robot.navigate_to_position_server:main',
+        '04_navigate_client = ce_robot.navigate_to_position_client:main',
+    ],
+},
+```
+
+**Build:**
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot --symlink-install
+source install/setup.bash
 ```
 
 ### **Testing Exercise 1**
 
 **Terminal 1 - Server:**
 ```bash
-ros2 run ce_robot cal_rect_server
+ros2 run ce_robot 04_navigate_server
 ```
 
-**Terminal 2 - Client:**
+**Terminal 2 - Client (Basic navigation):**
 ```bash
-ros2 run ce_robot cal_rect_client 22.22 33.34
+ros2 run ce_robot 04_navigate_client 5.0 3.0
 ```
 
 **Expected Output (Server):**
 ```
-[INFO] [calrect_server]: Rectangle Calculator Server started
-[INFO] [calrect_server]: Service: /cal_rect
-[INFO] [calrect_server]: Waiting for requests...
-[INFO] [calrect_server]: Calculated: 22.22 × 33.34 = 741.1248 m²
+[INFO] [navigation_server]: 🗺️  Navigation Server started
+[INFO] [navigation_server]:    Current position: (0.0, 0.0)
+[INFO] [navigation_server]:    Workspace: X[-10.0, 10.0], Y[-10.0, 10.0]
+
+[INFO] [navigation_server]: 
+📍 Navigation Request #1:
+   From: (0.00, 0.00, 0.00)
+   To: (5.00, 3.00, 0.00)
+   Max Speed: 1.00 m/s | Precise: False
+[INFO] [navigation_server]: 🚀 Navigating 5.83m | ETA: 5.8s
+[INFO] [navigation_server]: ✅ Arrived at (5.00, 3.00, 0.00)
 ```
 
 **Expected Output (Client):**
 ```
-[INFO] [calrect_client]: Requesting area for: 22.22 × 33.34
-[INFO] [calrect_client]: Result: Area = 741.12 m²
+[INFO] [navigation_client]: 🎯 Requesting navigation to (5.0, 3.0, 0.00) @ 1.0 m/s
+[INFO] [navigation_client]: 
+✅ Navigation Success!
+   Final Position: (5.00, 3.00, 0.00)
+   Distance: 5.83m
+   Time: 5.8s
+   Message: ✅ Navigation complete! Traveled 5.83m in 5.8s
 ```
 
-### **Key Concepts**
+**Test with precise positioning:**
+```bash
+ros2 run ce_robot 04_navigate_client -2.5 4.0 1.57 1.5 true
+```
 
-- Service request/response structure
-- Input validation in callbacks
-- Basic calculations in services
-- Error checking before processing
+**Test out-of-bounds (should fail):**
+```bash
+ros2 run ce_robot 04_navigate_client 15.0 20.0
+```
+
+### **💡 Key Learning Points**
+
+- **Position validation** - Check workspace bounds before navigation
+- **Distance calculation** - Euclidean distance for path planning
+- **Speed limiting** - Safety constraints on maximum velocity
+- **Time estimation** - Calculate realistic navigation duration
+- **State tracking** - Maintain current robot position
+- **Error handling** - Graceful failure for invalid requests
+- **Professional logging** - Clear status messages with icons
+
+### ✅ Completion Checklist - Exercise 1
+
+- [ ] Created NavigateToPosition.srv
+- [ ] Built ce_robot_interfaces successfully
+- [ ] Created navigate_to_position_server.py
+- [ ] Created navigate_to_position_client.py
+- [ ] Updated setup.py with entry points
+- [ ] Built ce_robot package successfully
+- [ ] Server starts and listens for requests
+- [ ] Client successfully connects to service
+- [ ] Position validation works (rejects out-of-bounds)
+- [ ] Distance calculation is correct
+- [ ] Speed limiting enforced
+- [ ] Precise positioning mode works
+- [ ] State tracking maintains robot position
 
 ---
 
-## **Exercise 2: Distance Calculator Service (Intermediate) 📍**
+## **Exercise 2: Gripper Control Service 🤖**
 
 ### **📝 Task**
 
-Create a custom service that calculates distances between two points (Euclidean and Manhattan distance).
+Create a gripper control service for pick-and-place operations with object detection.
 
-### **Service Definition: DistanceCalculator.srv**
+### 🎯 Objective
+Implement a realistic gripper service that:
+- Opens and closes the gripper
+- Sets precise gripper positions
+- Applies controlled grip force
+- Detects object presence
+- Validates commands and parameters
+- Reports actual gripper state
 
-```srv
-float64 x1
-float64 y1
-float64 x2
-float64 y2
-int32 distance_type  # 1=Euclidean, 2=Manhattan
----
-float64 distance
-string distance_name
-```
+### **📖 Background**
 
-### **File: distance_calc_server.py**
+In warehouse robots, gripper control is essential for:
+- Picking items from shelves
+- Placing items in bins/containers
+- Handling objects of different sizes
+- Detecting successful grasps
+
+This exercise simulates realistic gripper control with position control, force management, and object detection.
+
+### **Step 1: Create Gripper Server**
+
+Create `gripper_control_server.py` in `ce_robot/ce_robot/`:
 
 ```python
 #!/usr/bin/env python3
 """
-Exercise 2: Distance Calculator Server
-Calculates Euclidean and Manhattan distances between two points
+Exercise 2: Gripper Control Service Server
+Controls robot gripper for pick and place operations
 """
 
 import rclpy
-import math
+import time
+import random
 from rclpy.node import Node
-from ce_robot_interfaces.srv import DistanceCalculator
+from ce_robot_interfaces.srv import GripperCommand
 
 
-class DistanceCalculatorServer(Node):
+class GripperControlServer(Node):
     def __init__(self):
-        super().__init__('distance_server')
+        super().__init__('gripper_control_server')
         
         self.srv = self.create_service(
-            DistanceCalculator,
-            'calculate_distance',
-            self.calculate_distance_callback
+            GripperCommand,
+            'gripper_command',
+            self.gripper_callback
         )
         
-        self.call_count = 0
-        self.get_logger().info('Distance Calculator Server started')
-        self.get_logger().info('Service: /calculate_distance')
+        # Gripper state
+        self.current_position = 1.0  # 1.0 = fully open
+        self.current_force = 0.0
+        self.object_in_gripper = False
+        
+        # Gripper specifications
+        self.min_position = 0.0   # Fully closed
+        self.max_position = 1.0   # Fully open
+        self.max_force = 1.0      # Maximum grip force
+        
+        self.command_count = 0
+        
+        self.get_logger().info('🤖 Gripper Control Server started')
+        self.get_logger().info(f'   Current state: Position={self.current_position:.2f}, Force={self.current_force:.2f}')
 
-    def calculate_distance_callback(self, request, response):
-        """Calculate distance between two points"""
-        self.call_count += 1
+    def simulate_object_detection(self, position):
+        """Simulate object detection based on gripper position"""
+        # Object detected if gripper is somewhat closed (0.2-0.6 range)
+        if 0.2 <= position <= 0.6:
+            return random.choice([True, True, False])  # 66% detection rate
+        return False
+
+    def gripper_callback(self, request, response):
+        """Handle gripper command"""
+        self.command_count += 1
         
-        x1, y1 = request.x1, request.y1
-        x2, y2 = request.x2, request.y2
-        distance_type = request.distance_type
+        command = request.command
+        position = request.position
+        force = request.force
+        check_object = request.check_object
         
         self.get_logger().info(
-            f'Request #{self.call_count}: '
-            f'Point1({x1}, {y1}) → Point2({x2}, {y2}), '
-            f'Type: {distance_type}'
+            f'\n🤖 Gripper Command #{self.command_count}:\n'
+            f'   Command: {command} (1=Open, 2=Close, 3=SetPosition)\n'
+            f'   Position: {position:.2f} | Force: {force:.2f}\n'
+            f'   Check Object: {check_object}'
         )
         
-        if distance_type == 1:  # Euclidean
-            distance = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
-            response.distance_name = 'Euclidean'
-        elif distance_type == 2:  # Manhattan
-            distance = abs(x2 - x1) + abs(y2 - y1)
-            response.distance_name = 'Manhattan'
-        else:
-            self.get_logger().warn(f'Unknown distance type: {distance_type}')
-            distance = 0
-            response.distance_name = 'Unknown'
+        # Validate command
+        if command not in [1, 2, 3]:
+            response.success = False
+            response.object_detected = False
+            response.actual_position = self.current_position
+            response.actual_force = self.current_force
+            response.message = '❌ Invalid command! Use 1=Open, 2=Close, 3=SetPosition'
+            self.get_logger().error(response.message)
+            return response
         
-        response.distance = distance
+        # Process command
+        if command == 1:  # Open
+            target_position = 1.0
+            self.get_logger().info('📂 Opening gripper...')
+            
+        elif command == 2:  # Close
+            target_position = 0.0
+            self.get_logger().info('📁 Closing gripper...')
+            
+        elif command == 3:  # Set Position
+            # Validate position
+            if not (0.0 <= position <= 1.0):
+                response.success = False
+                response.object_detected = False
+                response.actual_position = self.current_position
+                response.actual_force = self.current_force
+                response.message = f'❌ Invalid position: {position}. Must be 0.0-1.0'
+                self.get_logger().error(response.message)
+                return response
+            
+            target_position = position
+            self.get_logger().info(f'🎯 Setting gripper to position {target_position:.2f}...')
+        
+        # Validate force
+        if not (0.0 <= force <= 1.0):
+            force = min(max(force, 0.0), 1.0)
+            self.get_logger().warn(f'⚠️  Force clamped to {force:.2f}')
+        
+        # Simulate movement time
+        movement_distance = abs(target_position - self.current_position)
+        movement_time = movement_distance * 2.0  # 2 seconds per full range
+        time.sleep(min(movement_time / 5, 1.0))  # Scaled simulation
+        
+        # Update gripper state
+        self.current_position = target_position
+        self.current_force = force if target_position < 0.5 else 0.0  # Force only when closing
+        
+        # Check for object if requested
+        if check_object:
+            self.object_in_gripper = self.simulate_object_detection(self.current_position)
+        else:
+            self.object_in_gripper = False
+        
+        # Prepare response
+        response.success = True
+        response.object_detected = self.object_in_gripper
+        response.actual_position = float(self.current_position)
+        response.actual_force = float(self.current_force)
+        
+        if self.object_in_gripper:
+            response.message = f'✅ Gripper command complete! Object detected at position {self.current_position:.2f}'
+        else:
+            response.message = f'✅ Gripper at position {self.current_position:.2f}'
         
         self.get_logger().info(
-            f'{response.distance_name} distance: {distance:.4f}'
+            f'✅ Complete: Position={self.current_position:.2f}, '
+            f'Force={self.current_force:.2f}, Object={self.object_in_gripper}'
         )
         
         return response
@@ -351,12 +709,12 @@ class DistanceCalculatorServer(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = DistanceCalculatorServer()
+    node = GripperControlServer()
     
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
-        pass
+        node.get_logger().info('\n🤖 Gripper Control Server shutting down...')
     finally:
         node.destroy_node()
         rclpy.shutdown()
@@ -366,47 +724,49 @@ if __name__ == '__main__':
     main()
 ```
 
-### **File: distance_calc_client.py**
+### **Step 2: Create Gripper Client**
+
+Create `gripper_control_client.py` in `ce_robot/ce_robot/`:
 
 ```python
 #!/usr/bin/env python3
 """
-Exercise 2: Distance Calculator Client
-Usage: ros2 run ce_robot distance_calc_client <x1> <y1> <x2> <y2> <type>
-Types: 1=Euclidean, 2=Manhattan
+Exercise 2: Gripper Control Service Client
+Sends gripper commands
+Usage: ros2 run ce_robot gripper_client <command> [position] [force] [check_object]
+Commands: 1=Open, 2=Close, 3=SetPosition
 """
 
 import sys
 import rclpy
 from rclpy.node import Node
-from ce_robot_interfaces.srv import DistanceCalculator
+from ce_robot_interfaces.srv import GripperCommand
 
 
-class DistanceCalculatorClient(Node):
+class GripperClient(Node):
     def __init__(self):
-        super().__init__('distance_client')
+        super().__init__('gripper_client')
 
-    def calculate_distance(self, x1, y1, x2, y2, distance_type):
-        """Request distance calculation"""
+    def send_command(self, command, position=0.5, force=0.5, check_object=True):
+        """Send gripper command"""
         
-        client = self.create_client(
-            DistanceCalculator,
-            'calculate_distance'
-        )
+        client = self.create_client(GripperCommand, 'gripper_command')
         
         while not client.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('Waiting for service...')
+            self.get_logger().info('⏳ Waiting for gripper service...')
         
-        request = DistanceCalculator.Request()
-        request.x1 = x1
-        request.y1 = y1
-        request.x2 = x2
-        request.y2 = y2
-        request.distance_type = distance_type
+        request = GripperCommand.Request()
+        request.command = command
+        request.position = position
+        request.force = force
+        request.check_object = check_object
         
-        self.get_logger().info(f'Requesting distance calculation...')
+        cmd_names = {1: "OPEN", 2: "CLOSE", 3: "SET_POSITION"}
+        self.get_logger().info(
+            f'🤖 Sending gripper command: {cmd_names.get(command, "UNKNOWN")}'
+        )
+        
         future = client.call_async(request)
-        
         rclpy.spin_until_future_complete(self, future)
         
         return future.result()
@@ -415,28 +775,43 @@ class DistanceCalculatorClient(Node):
 def main(args=None):
     rclpy.init(args=args)
     
-    if len(sys.argv) != 6:
-        print('Usage: distance_calc_client <x1> <y1> <x2> <y2> <type>')
-        print('Types: 1=Euclidean, 2=Manhattan')
-        print('Example: distance_calc_client 0 0 3 4 1')
+    if len(sys.argv) < 2:
+        print('Usage: gripper_client <command> [position] [force] [check_object]')
+        print('Commands:')
+        print('  1 = Open gripper')
+        print('  2 = Close gripper')
+        print('  3 = Set position (requires position 0.0-1.0)')
+        print('Examples:')
+        print('  gripper_client 1              # Open')
+        print('  gripper_client 2              # Close')
+        print('  gripper_client 3 0.5 0.8 true # Set to 50%, force 80%, check object')
         sys.exit(1)
     
     try:
-        x1 = float(sys.argv[1])
-        y1 = float(sys.argv[2])
-        x2 = float(sys.argv[3])
-        y2 = float(sys.argv[4])
-        distance_type = int(sys.argv[5])
+        command = int(sys.argv[1])
+        position = float(sys.argv[2]) if len(sys.argv) > 2 else 0.5
+        force = float(sys.argv[3]) if len(sys.argv) > 3 else 0.5
+        check_object = sys.argv[4].lower() == 'true' if len(sys.argv) > 4 else True
     except ValueError:
         print('Error: Invalid input values')
         sys.exit(1)
     
-    node = DistanceCalculatorClient()
-    response = node.calculate_distance(x1, y1, x2, y2, distance_type)
+    node = GripperClient()
+    response = node.send_command(command, position, force, check_object)
     
-    node.get_logger().info(
-        f'{response.distance_name} Distance: {response.distance:.4f} units'
-    )
+    if response.success:
+        node.get_logger().info(
+            f'\n✅ Gripper Command Success!\n'
+            f'   Position: {response.actual_position:.2f}\n'
+            f'   Force: {response.actual_force:.2f}\n'
+            f'   Object Detected: {response.object_detected}\n'
+            f'   Message: {response.message}'
+        )
+    else:
+        node.get_logger().error(
+            f'\n❌ Gripper Command Failed!\n'
+            f'   Message: {response.message}'
+        )
     
     node.destroy_node()
     rclpy.shutdown()
@@ -446,85 +821,325 @@ if __name__ == '__main__':
     main()
 ```
 
+### **Step 3: Setup and Build**
+
+**Make files executable:**
+```bash
+chmod +x gripper_control_server.py
+chmod +x gripper_control_client.py
+```
+
+**Update setup.py** in `ce_robot/setup.py`:
+```python
+entry_points={
+    'console_scripts': [
+        # Previous entries...
+        '04_navigate_server = ce_robot.navigate_to_position_server:main',
+        '04_navigate_client = ce_robot.navigate_to_position_client:main',
+        '04_gripper_server = ce_robot.gripper_control_server:main',
+        '04_gripper_client = ce_robot.gripper_control_client:main',
+    ],
+},
+```
+
+**Build:**
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot --symlink-install
+source install/setup.bash
+```
+
 ### **Testing Exercise 2**
 
 **Terminal 1 - Server:**
 ```bash
-ros2 run ce_robot distance_calc_server
+ros2 run ce_robot 04_gripper_server
 ```
 
-**Terminal 2 - Client (Euclidean distance 3-4-5 triangle):**
+**Terminal 2 - Client (Open gripper):**
 ```bash
-ros2 run ce_robot distance_calc_client 0 0 3 4 1
+ros2 run ce_robot 04_gripper_client 1
 ```
 
-**Expected Output:**
+**Expected Output (Server):**
 ```
-[INFO] [distance_server]: Request #1: Point1(0, 0) → Point2(3, 4), Type: 1
-[INFO] [distance_server]: Euclidean distance: 5.0000
+[INFO] [gripper_control_server]: 🤖 Gripper Control Server started
+[INFO] [gripper_control_server]:    Current state: Position=1.00, Force=0.00
 
-[distance_client]: Euclidean Distance: 5.0000 units
+[INFO] [gripper_control_server]: 
+🤖 Gripper Command #1:
+   Command: 1 (1=Open, 2=Close, 3=SetPosition)
+   Position: 0.50 | Force: 0.50
+   Check Object: True
+[INFO] [gripper_control_server]: 📂 Opening gripper...
+[INFO] [gripper_control_server]: ✅ Complete: Position=1.00, Force=0.00, Object=False
 ```
 
-**Terminal 2 - Client (Manhattan distance):**
+**Expected Output (Client):**
+```
+[INFO] [gripper_client]: 🤖 Sending gripper command: OPEN
+[INFO] [gripper_client]: 
+✅ Gripper Command Success!
+   Position: 1.00
+   Force: 0.00
+   Object Detected: False
+   Message: ✅ Gripper at position 1.00
+```
+
+**Test closing with object detection:**
 ```bash
-ros2 run ce_robot distance_calc_client 0 0 3 4 2
+ros2 run ce_robot 04_gripper_client 2
 ```
 
-**Expected Output:**
-```
-[INFO] [distance_server]: Request #2: Point1(0, 0) → Point2(3, 4), Type: 2
-[INFO] [distance_server]: Manhattan distance: 7.0000
-
-[distance_client]: Manhattan Distance: 7.0000 units
+**Test custom position:**
+```bash
+ros2 run ce_robot 04_gripper_client 3 0.4 0.7 true
 ```
 
-### **Key Concepts**
+**Expected Output (with object detected):**
+```
+[INFO] [gripper_control_server]: 🤖 Gripper Command #3:
+   Command: 3 (1=Open, 2=Close, 3=SetPosition)
+   Position: 0.40 | Force: 0.70
+   Check Object: True
+[INFO] [gripper_control_server]: 🎯 Setting gripper to position 0.40...
+[INFO] [gripper_control_server]: ✅ Complete: Position=0.40, Force=0.70, Object=True
 
-- Complex request structures with multiple fields
-- Conditional logic in service handlers
-- Returning different response types
-- Math operations in services
-- Request counter/logging
+[gripper_client]: ✅ Gripper Command Success!
+   Position: 0.40
+   Force: 0.70
+   Object Detected: True
+   Message: ✅ Gripper command complete! Object detected at position 0.40
+```
+
+### **💡 Key Learning Points**
+
+- **Command validation** - Check command types before execution
+- **Position control** - Precise gripper positioning (0.0-1.0 range)
+- **Force management** - Apply appropriate grip force
+- **Object detection** - Simulate object presence sensing
+- **State management** - Track gripper position and force
+- **Error handling** - Validate ranges and return error messages
+- **Professional logging** - Clear command and status reporting
+
+### ✅ Completion Checklist - Exercise 2
+
+- [ ] Created GripperCommand.srv
+- [ ] Built ce_robot_interfaces successfully
+- [ ] Created gripper_control_server.py
+- [ ] Created gripper_control_client.py
+- [ ] Updated setup.py with entry points
+- [ ] Built ce_robot package successfully
+- [ ] Server starts and listens for requests
+- [ ] Open command works
+- [ ] Close command works
+- [ ] Set position command works
+- [ ] Position validation works (rejects <0 or >1)
+- [ ] Force validation and clamping works
+- [ ] Object detection simulation works
+- [ ] State tracking maintains gripper state
 
 ---
 
-## **Exercise 3: Shape Analyzer Service (Advanced) 🔷**
+## **📂 Final Directory Structure**
 
-### **📝 Task**
-
-Create a custom service that analyzes different geometric shapes and calculates their properties.
-
-### **Service Definition: ShapeAnalyzer.srv**
-
-```srv
-int32 shape_type      # 1=Circle, 2=Triangle, 3=Ellipse
-float64 param1         # Radius/Side1/SemiMajor
-float64 param2         # unused/Side2/SemiMinor
-float64 param3         # unused/Side3/unused
----
-float64 area
-float64 perimeter
-string shape_name
-string properties
+```
+📁 ROS2_WS/
+├── 📁 src/
+│   ├── 📁 ce_robot_interfaces/
+│   │   ├── 📁 srv/
+│   │   │   ├── 📄 CalRectangle.srv           # From Readme
+│   │   │   ├── 📄 NavigateToPosition.srv     # Lab Exercise 1
+│   │   │   └── 📄 GripperCommand.srv          # Lab Exercise 2
+│   │   ├── 📄 package.xml
+│   │   └── 📄 CMakeLists.txt
+│   └── 📁 ce_robot/
+│       ├── 📁 ce_robot/
+│       │   ├── 📄 __init__.py
+│       │   ├── 🐍 CalRect_server.py                    # From Readme
+│       │   ├── 🐍 CalRect_client.py                    # From Readme
+│       │   ├── 🐍 navigate_to_position_server.py       # Exercise 1
+│       │   ├── 🐍 navigate_to_position_client.py       # Exercise 1
+│       │   ├── 🐍 gripper_control_server.py            # Exercise 2
+│       │   └── 🐍 gripper_control_client.py            # Exercise 2
+│       ├── 📄 package.xml
+│       ├── 📄 setup.cfg
+│       └── 📄 setup.py
+└── 📁 install/
 ```
 
-### **File: shape_analyzer_server.py**
+---
 
-```python
-#!/usr/bin/env python3
-"""
-Exercise 3: Shape Analyzer Server
-Analyzes geometric shapes and calculates properties
-"""
+## **🔍 Useful ROS 2 Commands**
 
-import rclpy
-import math
-from rclpy.node import Node
-from ce_robot_interfaces.srv import ShapeAnalyzer
+### Service Inspection
+```bash
+# List all active services
+ros2 service list
 
+# View service type
+ros2 service type /navigate_to_position
 
-class ShapeAnalyzerServer(Node):
+# View service definition
+ros2 interface show ce_robot_interfaces/srv/NavigateToPosition
+ros2 interface show ce_robot_interfaces/srv/GripperCommand
+
+# Call service from command line
+ros2 service call /navigate_to_position ce_robot_interfaces/srv/NavigateToPosition "{target_x: 5.0, target_y: 3.0, target_yaw: 0.0, max_speed: 1.0, precise_positioning: false}"
+
+ros2 service call /gripper_command ce_robot_interfaces/srv/GripperCommand "{command: 1, position: 0.5, force: 0.5, check_object: true}"
+
+# View service information
+ros2 service info /navigate_to_position
+
+# Visualize service connections
+rqt_graph
+
+# List all nodes
+ros2 node list
+
+# Get node information
+ros2 node info /navigation_server
+ros2 node info /gripper_control_server
+```
+
+---
+
+## **✅ Complete Lab Checklist**
+
+**Setup:**
+- [ ] ce_robot_interfaces package exists
+- [ ] All .srv files created
+- [ ] CMakeLists.txt updated with all services
+- [ ] Services built successfully
+- [ ] All service interfaces verified
+
+**Exercise 1: Navigation Service**
+- [ ] NavigateToPosition.srv defined
+- [ ] Server implemented with validation
+- [ ] Client implemented with command-line args
+- [ ] Position bounds checking works
+- [ ] Distance calculation correct
+- [ ] Speed limiting enforced
+- [ ] State tracking maintains position
+- [ ] All tests passed
+
+**Exercise 2: Gripper Control**
+- [ ] GripperCommand.srv defined
+- [ ] Server implemented with state management
+- [ ] Client implemented with commands
+- [ ] Open/Close commands work
+- [ ] Set position command works
+- [ ] Position/force validation works
+- [ ] Object detection simulation works
+- [ ] All tests passed
+
+**Integration:**
+- [ ] All services built successfully
+- [ ] All clients connect and receive responses
+- [ ] Command-line service calls work
+- [ ] rqt_graph shows proper connections
+- [ ] All error cases handled gracefully
+
+---
+
+## **💡 Tips & Tricks**
+
+1. **Always source setup.bash before running:**
+   ```bash
+   source ~/.bashrc
+   ```
+
+2. **Rebuild services when .srv files change:**
+   ```bash
+   colcon build --packages-select ce_robot_interfaces
+   source install/setup.bash
+   ```
+
+3. **Test services from command line before running clients:**
+   ```bash
+   ros2 service call /service_name package/srv/ServiceType "{field: value}"
+   ```
+
+4. **Use rqt_graph to visualize connections:**
+   ```bash
+   rqt_graph
+   ```
+
+5. **Monitor service calls in real-time:**
+   ```bash
+   ros2 run rqt_service_caller rqt_service_caller
+   ```
+
+6. **Always wait for service availability before calling:**
+   ```python
+   while not client.wait_for_service(timeout_sec=1.0):
+       self.get_logger().info('Waiting for service...')
+   ```
+
+7. **Use type conversion for service fields:**
+   ```python
+   response.actual_position = float(self.current_position)
+   response.command = int(request.command)
+   ```
+
+---
+
+## **🎓 What You've Learned**
+
+### Service Design
+✅ Designing services for robot command and control  
+✅ Creating request/response structures for real operations  
+✅ Choosing appropriate data types for robot parameters  
+✅ Organizing service fields logically  
+✅ Adding validation and error handling  
+
+### Robot Operations
+✅ Navigation service with position validation  
+✅ Gripper control with state management  
+✅ Object detection simulation  
+✅ Command validation and safety checks  
+✅ State tracking across service calls  
+
+### ROS 2 Best Practices
+✅ Professional service patterns  
+✅ Error handling and validation  
+✅ Clear logging with status messages  
+✅ Command-line argument parsing  
+✅ Service client patterns  
+
+---
+
+## **📚 Additional Resources**
+
+- [ROS 2 Services Documentation](https://docs.ros.org/en/jazzy/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Services/Understanding-ROS2-Services.html)
+- [ROS 2 Custom Interfaces](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Custom-ROS2-Interfaces.html)
+- [Robot Navigation Concepts](https://navigation.ros.org/)
+- [Gripper Control Systems](https://robotics.stackexchange.com/questions/tagged/gripper)
+
+---
+
+## **🚀 Next Steps**
+
+Continue building your robot control system:
+
+1. **Integrate** navigation and gripper services for pick-and-place
+2. **Add** mission planning service (multi-step operations)
+3. **Create** charging dock service (autonomous charging)
+4. **Implement** inventory management service
+5. **Build** fleet coordination for multiple robots
+
+---
+
+**🎉 Congratulations! You've created a professional robot control service system!** 🚀✨
+
+You now have:
+- ✅ Navigation service for robot movement
+- ✅ Gripper service for object manipulation
+- ✅ Complete warehouse robot control foundation
+- ✅ Professional service patterns and validation
+
+**Keep building!** 💪🤖
     def __init__(self):
         super().__init__('shape_analyzer_server')
         
