@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Exercise 4: Validated Hardware Status Publisher
-Publishes messages with input validation and error handling
+Validated Hardware Status Publisher
+Adds input validation and error handling
 """
 
 import rclpy
@@ -10,80 +10,99 @@ from ce_robot_interfaces.msg import HardwareStatus
 import random
 
 
-class ValidatedHardwarePublisher(Node):
+class ValidatedHwPublisher(Node):
     def __init__(self):
         super().__init__('validated_hw_publisher')
-        self.publisher = self.create_publisher(HardwareStatus, 'hardware_status', 10)
-        self.timer = self.create_timer(2.0, self.timer_callback)
-        self.robot_id = 1
-        self.count = 0
-        self.error_count = 0
+        self.publisher_ = self.create_publisher(HardwareStatus, 'hardware_status', 10)
+        self.timer = self.create_timer(1.0, self.publish_status)
+        
+        # Statistics tracking
+        self.total_attempts = 0
+        self.successful_publishes = 0
+        self.failed_publishes = 0
+        
+        self.get_logger().info('Validated HW Publisher started!')
 
     def validate_message(self, msg):
-        """Validate message fields before publishing"""
-        errors = []
-        
-        # Validate name_robot
+        """
+        Validate message fields
+        Returns: (is_valid, error_message)
+        """
+        # Check name_robot
         if not msg.name_robot or len(msg.name_robot) == 0:
-            errors.append("name_robot cannot be empty")
+            return False, "name_robot cannot be empty"
         
-        # Validate number_robot
-        if msg.number_robot < 1 or msg.number_robot > 1000:
-            errors.append(f"number_robot must be 1-1000, got {msg.number_robot}")
+        # Check number_robot range
+        if msg.number_robot < 1 or msg.number_robot > 9999:
+            return False, f"number_robot must be 1-9999, got {msg.number_robot}"
         
-        # Validate temperature
+        # Check temperature range
         if msg.temperature < -40 or msg.temperature > 100:
-            errors.append(f"temperature out of range: {msg.temperature}°C")
+            return False, f"temperature out of range (-40 to 100°C): {msg.temperature}°C"
         
-        # Validate debug_message
+        # Check debug_message length
         if len(msg.debug_message) > 200:
-            errors.append("debug_message exceeds 200 characters")
+            return False, "debug_message exceeds 200 characters"
         
-        return errors
+        return True, "OK"
 
-    def timer_callback(self):
+    def publish_status(self):
+        """Create, validate, and publish message"""
+        self.total_attempts += 1
+        
+        # Create message with random data
         msg = HardwareStatus()
-        msg.name_robot = f'Robot-{self.robot_id}'
-        msg.number_robot = self.robot_id
-        msg.temperature = random.randint(20, 80)
-        msg.motor_ready = random.choice([True, False])
-        msg.debug_message = f'Cycle #{self.count}: {"Motors running" if msg.motor_ready else "Motors stopped"}'
+        msg.name_robot = 'CE-ROBOT'
+        msg.number_robot = random.randint(1000, 1010)  # Valid range
+        msg.temperature = random.randint(30, 70)  # Mostly valid, some edge cases
+        msg.motor_ready = True
+        msg.debug_message = f'Status update #{self.total_attempts}'
+        
+        # Occasionally generate invalid data for testing
+        if self.total_attempts % 10 == 0:
+            msg.temperature = 150  # Invalid temperature!
         
         # Validate before publishing
-        errors = self.validate_message(msg)
+        is_valid, error_msg = self.validate_message(msg)
         
-        if errors:
-            self.error_count += 1
-            self.get_logger().error(f'Validation failed: {", ".join(errors)}')
-            return
-        
-        try:
-            self.publisher.publish(msg)
+        if is_valid:
+            self.publisher_.publish(msg)
+            self.successful_publishes += 1
             self.get_logger().info(
-                f'✓ Published [{self.count}]: {msg.name_robot} | '
-                f'Temp: {msg.temperature}°C | Motor: {msg.motor_ready}'
+                f'✓ Published: {msg.name_robot} | Temp: {msg.temperature}°C | '
+                f'Success Rate: {self.get_success_rate():.1f}%'
             )
-        except Exception as e:
-            self.error_count += 1
-            self.get_logger().error(f'Publishing error: {str(e)}')
-        
-        self.count += 1
-        
-        # Report stats every 10 cycles
-        if self.count % 10 == 0:
-            success_rate = ((self.count - self.error_count) / self.count) * 100
-            self.get_logger().info(
-                f'Stats: Published {self.count - self.error_count}/{self.count} '
-                f'({success_rate:.1f}% success rate)'
+        else:
+            self.failed_publishes += 1
+            self.get_logger().error(
+                f'❌ Validation FAILED: {error_msg} | '
+                f'Failed: {self.failed_publishes}/{self.total_attempts}'
             )
+
+    def get_success_rate(self):
+        """Calculate success percentage"""
+        if self.total_attempts == 0:
+            return 0.0
+        return (self.successful_publishes / self.total_attempts) * 100
 
 
 def main(args=None):
     rclpy.init(args=args)
-    publisher = ValidatedHardwarePublisher()
-    rclpy.spin(publisher)
-    publisher.destroy_node()
-    rclpy.shutdown()
+    node = ValidatedHwPublisher()
+    
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        node.get_logger().info(
+            f'\n📊 Final Statistics:\n'
+            f'  Total Attempts: {node.total_attempts}\n'
+            f'  Successful: {node.successful_publishes}\n'
+            f'  Failed: {node.failed_publishes}\n'
+            f'  Success Rate: {node.get_success_rate():.1f}%'
+        )
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == '__main__':
