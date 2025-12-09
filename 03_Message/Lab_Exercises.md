@@ -75,8 +75,24 @@ By completing this lab, you will be able to:
 ┌─────────────────────────────────────────────┐
 │ Exercise 4: Multi-Robot Monitor             │
 │ Track multiple robots simultaneously (NEW)  │
+└──────────────┬──────────────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────────────┐
+│ Exercise 5: Create Your Own Message         │
+│ Design and implement custom message (NEW)   │
 └─────────────────────────────────────────────┘
 ```
+
+| Exercise | Title | Duration | Difficulty |
+|----------|-------|----------|------------|
+| 1 | Input Validation | 15 min | ⭐⭐ |
+| 2 | Threshold Filtering | 15 min | ⭐⭐ |
+| 3 | Advanced Statistics | 20 min | ⭐⭐⭐ |
+| 4 | Multi-Robot Monitor | 25 min | ⭐⭐⭐ |
+| 5 | Create Custom Message | 30 min | ⭐⭐⭐⭐ |
+
+---
 
 | Exercise | Title | Duration | Difficulty |
 |----------|-------|----------|------------|
@@ -982,6 +998,356 @@ ros2 run ce_robot 03_hw_multi_robot_monitor
 
 ---
 
+## **Exercise 5: Create Your Own Custom Message 📝**
+
+### 🎯 Objective
+Design and implement your **own custom message** for a battery monitoring system from scratch.
+
+### 📖 Background
+**New Skill:** So far, you've used the `HardwareStatus.msg` that was created in the Readme. Now you'll practice the complete workflow:
+1. Design a message structure for a specific use case
+2. Create the `.msg` file
+3. Update build configuration
+4. Build the message
+5. Use it in publisher and subscriber
+
+### 📝 Scenario
+You're building a **battery monitoring system** for a fleet of robots. You need to track:
+- Battery ID
+- Voltage (in volts)
+- Current (in amps)
+- Charge percentage (0-100)
+- Battery health status
+- Time remaining (in minutes)
+
+### Tasks
+
+**Step 1: Design the Message**
+
+Create `BatteryStatus.msg` in `ce_robot_interfaces/msg/`:
+
+```bash
+cd ~/ros2_ws/src/ce_robot_interfaces/msg
+touch BatteryStatus.msg
+```
+
+Define the message structure:
+
+```msg
+# BatteryStatus.msg
+# Message for monitoring robot battery status
+
+string battery_id           # Unique battery identifier (e.g., "BAT-001")
+float32 voltage             # Battery voltage in volts (e.g., 12.0-14.8V)
+float32 current             # Current draw in amps (e.g., 0.0-10.0A)
+uint8 charge_percentage     # Charge level 0-100%
+string health_status        # Battery health: "Good", "Fair", "Poor", "Critical"
+uint16 time_remaining       # Estimated time remaining in minutes
+bool is_charging            # True if battery is currently charging
+int64 timestamp             # Unix timestamp of reading
+```
+
+**Step 2: Update CMakeLists.txt**
+
+Edit `ce_robot_interfaces/CMakeLists.txt` to include the new message:
+
+```cmake
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/HardwareStatus.msg"
+  "msg/BatteryStatus.msg"
+)
+```
+
+**Step 3: Build the New Message**
+
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot_interfaces
+source install/setup.bash
+```
+
+**Step 4: Verify Message Structure**
+
+```bash
+ros2 interface show ce_robot_interfaces/msg/BatteryStatus
+```
+
+**Step 5: Create Battery Publisher**
+
+Create `BatteryStatus_pub.py` in `ce_robot/ce_robot/`:
+
+```python
+#!/usr/bin/env python3
+"""
+Battery Status Publisher
+Publishes battery monitoring data with realistic simulation
+"""
+
+import rclpy
+from rclpy.node import Node
+from ce_robot_interfaces.msg import BatteryStatus
+import random
+import time
+
+
+class BatteryPublisher(Node):
+    def __init__(self):
+        super().__init__('battery_publisher')
+        self.publisher_ = self.create_publisher(BatteryStatus, 'battery_status', 10)
+        self.timer = self.create_timer(2.0, self.publish_battery_status)
+        
+        # Simulate battery discharge
+        self.charge_level = 100.0
+        self.is_charging = False
+        self.cycle_count = 0
+        
+        self.get_logger().info('Battery Publisher started!')
+
+    def get_health_status(self, charge):
+        """Determine health status based on charge level"""
+        if charge > 75:
+            return "Good"
+        elif charge > 50:
+            return "Fair"
+        elif charge > 20:
+            return "Poor"
+        else:
+            return "Critical"
+
+    def publish_battery_status(self):
+        """Publish battery status with realistic simulation"""
+        self.cycle_count += 1
+        
+        msg = BatteryStatus()
+        msg.battery_id = "BAT-001"
+        
+        # Simulate charging/discharging cycle
+        if self.charge_level <= 20:
+            self.is_charging = True
+        elif self.charge_level >= 95:
+            self.is_charging = False
+        
+        # Update charge level
+        if self.is_charging:
+            self.charge_level = min(100.0, self.charge_level + random.uniform(2.0, 5.0))
+        else:
+            self.charge_level = max(0.0, self.charge_level - random.uniform(0.5, 2.0))
+        
+        # Calculate voltage (proportional to charge)
+        msg.voltage = 10.0 + (self.charge_level / 100.0) * 4.8  # 10V-14.8V range
+        
+        # Calculate current
+        if self.is_charging:
+            msg.current = random.uniform(3.0, 5.0)  # Charging current
+        else:
+            msg.current = random.uniform(1.0, 3.0)  # Discharge current
+        
+        msg.charge_percentage = int(self.charge_level)
+        msg.health_status = self.get_health_status(self.charge_level)
+        msg.time_remaining = int(self.charge_level * 1.5)  # Rough estimate in minutes
+        msg.is_charging = self.is_charging
+        msg.timestamp = int(time.time())
+        
+        self.publisher_.publish(msg)
+        
+        status_icon = "🔌" if self.is_charging else "🔋"
+        self.get_logger().info(
+            f'{status_icon} {msg.battery_id} | '
+            f'{msg.voltage:.1f}V | {msg.current:.1f}A | '
+            f'{msg.charge_percentage}% | {msg.health_status} | '
+            f'~{msg.time_remaining}min'
+        )
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = BatteryPublisher()
+    
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+**Step 6: Create Battery Subscriber**
+
+Create `BatteryStatus_sub.py`:
+
+```python
+#!/usr/bin/env python3
+"""
+Battery Status Subscriber
+Monitors battery data and generates alerts
+"""
+
+import rclpy
+from rclpy.node import Node
+from ce_robot_interfaces.msg import BatteryStatus
+from collections import deque
+
+
+class BatterySubscriber(Node):
+    def __init__(self):
+        super().__init__('battery_subscriber')
+        self.subscription = self.create_subscription(
+            BatteryStatus,
+            'battery_status',
+            self.battery_callback,
+            10
+        )
+        
+        self.voltage_history = deque(maxlen=10)
+        self.message_count = 0
+        
+        self.get_logger().info('Battery Subscriber started! Monitoring battery health...')
+
+    def battery_callback(self, msg):
+        """Process battery status and generate alerts"""
+        self.message_count += 1
+        self.voltage_history.append(msg.voltage)
+        
+        # Alert for critical battery
+        if msg.health_status == "Critical":
+            self.get_logger().error(
+                f'⚠️  CRITICAL: {msg.battery_id} at {msg.charge_percentage}%! '
+                f'Immediate action required!'
+            )
+        elif msg.health_status == "Poor":
+            self.get_logger().warn(
+                f'⚡ LOW BATTERY: {msg.battery_id} at {msg.charge_percentage}%'
+            )
+        
+        # Alert for voltage anomalies
+        if len(self.voltage_history) >= 5:
+            avg_voltage = sum(self.voltage_history) / len(self.voltage_history)
+            if abs(msg.voltage - avg_voltage) > 1.5:
+                self.get_logger().warn(
+                    f'⚠️  VOLTAGE SPIKE: {msg.voltage:.1f}V '
+                    f'(avg: {avg_voltage:.1f}V)'
+                )
+        
+        # Normal status logging
+        charge_icon = "🔌" if msg.is_charging else "🔋"
+        self.get_logger().info(
+            f'[{self.message_count}] {charge_icon} {msg.battery_id} | '
+            f'{msg.voltage:.1f}V | {msg.charge_percentage}% | '
+            f'{msg.health_status} | Est: {msg.time_remaining}min'
+        )
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = BatterySubscriber()
+    
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
+```
+
+**Step 7: Make Executable**
+
+```bash
+chmod +x BatteryStatus_pub.py
+chmod +x BatteryStatus_sub.py
+```
+
+**Step 8: Update setup.py**
+
+Add to `ce_robot/setup.py`:
+
+```python
+'03_battery_publisher = ce_robot.BatteryStatus_pub:main',
+'03_battery_subscriber = ce_robot.BatteryStatus_sub:main',
+```
+
+**Step 9: Build and Test**
+
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot --symlink-install
+source install/setup.bash
+```
+
+Run the nodes:
+```bash
+# Terminal 1
+ros2 run ce_robot 03_battery_publisher
+
+# Terminal 2
+ros2 run ce_robot 03_battery_subscriber
+```
+
+### 🔍 Expected Output
+
+**Publisher:**
+```
+[INFO] [battery_publisher]: Battery Publisher started!
+[INFO] [battery_publisher]: 🔋 BAT-001 | 14.3V | 1.8A | 95% | Good | ~142min
+[INFO] [battery_publisher]: 🔋 BAT-001 | 14.2V | 2.1A | 93% | Good | ~139min
+...
+[INFO] [battery_publisher]: 🔌 BAT-001 | 10.8V | 4.2A | 18% | Critical | ~27min
+[INFO] [battery_publisher]: 🔌 BAT-001 | 11.2V | 3.8A | 23% | Poor | ~34min
+```
+
+**Subscriber:**
+```
+[INFO] [battery_subscriber]: Battery Subscriber started! Monitoring battery health...
+[INFO] [battery_subscriber]: [1] 🔋 BAT-001 | 14.3V | 95% | Good | Est: 142min
+[WARN] [battery_subscriber]: ⚡ LOW BATTERY: BAT-001 at 24%
+[ERROR] [battery_subscriber]: ⚠️  CRITICAL: BAT-001 at 18%! Immediate action required!
+[INFO] [battery_subscriber]: [15] 🔌 BAT-001 | 11.2V | 23% | Poor | Est: 34min
+```
+
+### 💡 Key Learning Points
+
+- **Message design** - choosing appropriate data types
+- **Field naming** - descriptive and clear names
+- **Data ranges** - realistic simulation values
+- **Build process** - updating CMakeLists.txt for new messages
+- **Message verification** - using `ros2 interface show`
+- **Complete workflow** - from design to implementation
+
+### ✅ Completion Checklist
+
+- [ ] Created `BatteryStatus.msg` with 8 fields
+- [ ] Updated CMakeLists.txt to include new message
+- [ ] Built message package successfully
+- [ ] Verified message with `ros2 interface show`
+- [ ] Created battery publisher with charging simulation
+- [ ] Created battery subscriber with alerts
+- [ ] Made files executable
+- [ ] Updated setup.py with new entry points
+- [ ] Built ce_robot package successfully
+- [ ] Tested publisher and subscriber together
+- [ ] Observed charging/discharging cycle
+- [ ] Saw critical battery alerts
+
+### 🎓 What You Learned (NEW)
+
+- **Complete message design workflow** from concept to implementation
+- **Choosing data types** - int vs uint, float32 vs float64
+- **Message documentation** - using comments in .msg files
+- **Realistic simulations** - charging/discharging cycles
+- **Alert systems** - different severity levels
+- **Building multiple messages** in one package
+
+---
+
 ## **📂 Final Directory Structure**
 
 ```
@@ -989,7 +1355,8 @@ ros2 run ce_robot 03_hw_multi_robot_monitor
 ├── 📁 src/
 │   ├── 📁 ce_robot_interfaces/
 │   │   ├── 📁 msg/
-│   │   │   └── 📄 HardwareStatus.msg
+│   │   │   ├── 📄 HardwareStatus.msg              # From Readme
+│   │   │   └── 📄 BatteryStatus.msg               # Lab Ex5
 │   │   ├── 📄 package.xml
 │   │   └── 📄 CMakeLists.txt
 │   └── 📁 ce_robot/
@@ -1002,7 +1369,9 @@ ros2 run ce_robot 03_hw_multi_robot_monitor
 │       │   ├── 🐍 HardwareStatus_filter.py           # Lab Ex2 - Filtering
 │       │   ├── 🐍 HardwareStatus_stats.py            # Lab Ex3 - Advanced Stats
 │       │   ├── 🐍 HardwareStatus_multi_robot.py      # Lab Ex4 - Multi-Robot Monitor
-│       │   └── 🐍 HardwareStatus_multi_pub.py        # Lab Ex4 - Multi-Robot Publisher
+│       │   ├── 🐍 HardwareStatus_multi_pub.py        # Lab Ex4 - Multi-Robot Publisher
+│       │   ├── 🐍 BatteryStatus_pub.py               # Lab Ex5 - Battery Publisher
+│       │   └── 🐍 BatteryStatus_sub.py               # Lab Ex5 - Battery Subscriber
 │       ├── 📄 package.xml
 │       ├── 📄 setup.cfg
 │       └── 📄 setup.py
@@ -1024,6 +1393,8 @@ entry_points={
         '03_hw_statistics = ce_robot.HardwareStatus_stats:main',
         '03_hw_multi_robot_monitor = ce_robot.HardwareStatus_multi_robot:main',
         '03_hw_multi_robot_publisher = ce_robot.HardwareStatus_multi_pub:main',
+        '03_battery_publisher = ce_robot.BatteryStatus_pub:main',
+        '03_battery_subscriber = ce_robot.BatteryStatus_sub:main',
     ],
 },
 ```
@@ -1114,14 +1485,27 @@ rqt
 - [ ] Test with 3 simulated robots
 - [ ] **Understand new concept:** tracking multiple entities on shared topic
 
+### Exercise 5: Create Custom Message
+- [ ] Designed `BatteryStatus.msg` with 8 fields
+- [ ] Updated CMakeLists.txt to include new message
+- [ ] Built message package successfully
+- [ ] Verified with `ros2 interface show`
+- [ ] Created `BatteryStatus_pub.py` with charging simulation
+- [ ] Created `BatteryStatus_sub.py` with alerts
+- [ ] Made files executable
+- [ ] Updated setup.py with battery entry points
+- [ ] Built ce_robot package successfully
+- [ ] Tested complete charging/discharging cycle
+- [ ] **Understand new concept:** complete message design workflow
+
 ### Overall Lab
 - [ ] All Python files are executable (`chmod +x`)
-- [ ] All 5 new entry points added to setup.py
-- [ ] Package builds without errors
+- [ ] All 7 new entry points added to setup.py
+- [ ] Both packages build without errors
 - [ ] All nodes run successfully
 - [ ] Can run multiple nodes simultaneously
 - [ ] Tested with `rqt_graph`
-- [ ] **Understand advanced patterns** not in Readme: validation, filtering, rolling windows, multi-entity tracking
+- [ ] **Understand advanced patterns:** validation, filtering, rolling windows, multi-entity tracking, custom message design
 
 ---
 
@@ -1184,11 +1568,20 @@ ros2 topic info /hardware_status
 ✅ Comparative analysis  
 ✅ Entity-specific alerts  
 
+### **NEW from Lab Exercise 5:**
+✅ Complete message design workflow  
+✅ Choosing appropriate data types  
+✅ Message field documentation  
+✅ Building multiple messages in one package  
+✅ Realistic simulation patterns  
+✅ Alert severity levels  
+
 ### **Advanced Best Practices:**
 ✅ Defensive programming with validation  
 ✅ Data quality assurance  
 ✅ Scalable monitoring patterns  
-✅ Production-ready error handlingltering  
+✅ Production-ready error handling  
+✅ Message design for specific use casesltering  
 ✅ Threshold-based monitoring  
 ✅ Statistical calculations  
 ✅ Rolling window analysis  
