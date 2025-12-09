@@ -514,7 +514,7 @@ ros2 run ce_robot 03_robot_status_publisher
 [INFO] [robot_status_publisher]: ❌ Warehouse Bot Alpha | Pos: (3.2, 2.1) | 🛑 0.00 m/s | 🔌 18% | Mission: CHARGING (0%) | Temp: 39.8°C
 ```
 
-![Robot Status Publisher Output](./imgs/06_Robot_Status_Publisher.png)
+![Robot Status Publisher Output](./imgs/Lab_01_Robot_Stats.png)
 
 ### 💡 Key Learning Points
 
@@ -892,7 +892,7 @@ ros2 run ce_robot 03_robot_safety_monitor
    📋 Recent Alerts: 15
 ```
 
-![Safety Monitor Output](./imgs/07_Safety_Monitor.png)
+![Safety Monitor Output](./imgs/Lab_02_Robot_monitor.png)
 
 ### 💡 Key Learning Points
 
