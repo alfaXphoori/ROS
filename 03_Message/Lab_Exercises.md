@@ -155,6 +155,7 @@ string health_status            # Overall: "HEALTHY", "WARNING", "ERROR", "CRITI
 Edit `ce_robot_interfaces/CMakeLists.txt`:
 
 ```cmake
+find_package(rosidl_default_generators REQUIRED)
 find_package(std_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
