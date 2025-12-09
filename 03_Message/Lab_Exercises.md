@@ -397,33 +397,33 @@ class RobotStatusPublisher(Node):
         msg.robot_name = self.robot_name
         
         # Position
-        msg.position_x = self.position_x
-        msg.position_y = self.position_y
-        msg.orientation_z = self.orientation_z
+        msg.position_x = float(self.position_x)
+        msg.position_y = float(self.position_y)
+        msg.orientation_z = float(self.orientation_z)
         
         # Velocity
-        msg.linear_velocity = self.linear_velocity
-        msg.angular_velocity = self.angular_velocity
+        msg.linear_velocity = float(self.linear_velocity)
+        msg.angular_velocity = float(self.angular_velocity)
         
         # Battery
-        msg.battery_voltage = self.battery_voltage
-        msg.battery_percentage = self.battery_percentage
+        msg.battery_voltage = float(self.battery_voltage)
+        msg.battery_percentage = int(self.battery_percentage)
         msg.is_charging = self.is_charging
-        msg.battery_time_remaining = self.battery_time_remaining
+        msg.battery_time_remaining = int(self.battery_time_remaining)
         
         # Safety
         msg.emergency_stop = self.emergency_stop
         msg.obstacle_detected = self.obstacle_detected
-        msg.obstacle_distance = self.obstacle_distance
+        msg.obstacle_distance = float(self.obstacle_distance)
         
         # Mission
         msg.current_mission = self.current_mission
-        msg.mission_progress = self.mission_progress
+        msg.mission_progress = int(self.mission_progress)
         msg.mission_status = self.mission_status
         
         # Health
-        msg.cpu_usage = self.cpu_usage
-        msg.temperature = self.temperature
+        msg.cpu_usage = float(self.cpu_usage)
+        msg.temperature = float(self.temperature)
         msg.motors_enabled = self.motors_enabled
         msg.health_status = self.health_status
         
