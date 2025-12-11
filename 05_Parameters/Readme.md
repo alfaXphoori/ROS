@@ -39,8 +39,20 @@ Parameters in ROS 2 provide a powerful mechanism for configuring nodes without r
 ## **📊 Architecture Diagram**
 
 ```
+┌─────────────────────────────────────────────────────────────┐
+│   Step 1: Message Definition (ce_robot_interfaces)          │
+│   ┌──────────────────────────────────────────────────┐      │
+│   │  RobotTag.msg                                    │      │
+│   │  • robot_id, robot_type, zone_id                 │      │
+│   │  • status, priority_level, max_payload_kg        │      │
+│   │  • current_location, assigned_task               │      │
+│   │  • operation_hours, firmware_version             │      │
+│   │  • safety_certified, error_code                  │      │
+│   └──────────────────────────────────────────────────┘      │
+└─────────────────────────────────────────────────────────────┘
+                         ⬇️
 ┌────────────────────────────────────────────────────────────┐
-│        Warehouse Robot Node (hw_status_publisher)          │
+│   Step 2: Warehouse Robot Node (robot_tag_publisher)       │
 │                                                            │
 │  ┌────────────────────────────────────────────────────┐    │
 │  │ 📋 Parameter Declarations with Validation:         │    │
@@ -93,114 +105,402 @@ Parameters in ROS 2 provide a powerful mechanism for configuring nodes without r
 
 ---
 
-## **Example: Hardware Status Publisher with Parameters**
+## **Step 1: Create Custom Message**
 
-This example demonstrates practical parameter usage: a publisher node that reports robot hardware status with configurable identification, timing, and debug settings.
+Before creating the publisher node, we need to define the custom message type that will carry robot status information.
+
+### **Create Message Interface Package**
+
+First, create a separate package for message definitions:
+
+```bash
+cd ~/ros2_ws/src
+ros2 pkg create --build-type ament_cmake ce_robot_interfaces
+```
+
+### **Define Custom Messages**
+
+Create the message definition file:
+
+#### **File: ce_robot_interfaces/msg/RobotTag.msg**
+
+```
+# Robot Identification Tag
+string robot_id                    # Unique robot identifier (e.g., "WH-BOT-042")
+string robot_type                  # Robot type: "transport", "delivery", "inspection", "loader"
+string zone_id                     # Current operational zone (e.g., "ZONE-A", "LOADING-BAY-3")
+int32 fleet_number                 # Fleet assignment number (1-999)
+
+# Operational Status
+string status                      # Status: "active", "idle", "charging", "maintenance", "error"
+int32 priority_level              # Task priority: 0=lowest, 10=highest
+float32 max_payload_kg            # Maximum payload capacity in kilograms
+
+# Location & Assignment
+string current_location           # Current location (e.g., "SHELF-A-12", "DOCK-5")
+string assigned_task              # Current task ID or description
+string assigned_operator          # Operator/supervisor ID (e.g., "OPR-001", "AUTO")
+
+# Timestamps
+builtin_interfaces/Time last_maintenance    # Last maintenance timestamp
+builtin_interfaces/Time deployment_date     # Robot deployment date
+float32 operation_hours                     # Total operation hours
+
+# Safety & Compliance
+bool safety_certified             # Safety certification status
+string firmware_version           # Current firmware version (e.g., "v2.3.1")
+int32 error_code                  # Error code (0 = no error)
+```
+
+**RobotTag Message Fields:**
+
+**Identification:**
+- `robot_id`: Unique identifier following naming convention (e.g., "WH-BOT-042", "DLV-003")
+- `robot_type`: Classification - transport (heavy loads), delivery (fast movement), inspection (sensors), loader (specialized)
+- `zone_id`: Current operational zone for fleet management
+- `fleet_number`: Fleet group assignment for coordinated operations
+
+**Operational Status:**
+- `status`: Real-time operational state for task allocation
+- `priority_level`: Task priority for scheduling (0-10 scale)
+- `max_payload_kg`: Physical capacity limit for load planning
+
+**Location & Assignment:**
+- `current_location`: Precise location identifier in warehouse grid
+- `assigned_task`: Active task ID for tracking and coordination
+- `assigned_operator`: Human supervisor or "AUTO" for autonomous mode
+
+**Timestamps:**
+- `last_maintenance`: Track maintenance schedules and compliance
+- `deployment_date`: Robot age for lifecycle management
+- `operation_hours`: Usage tracking for predictive maintenance
+
+**Safety & Compliance:**
+- `safety_certified`: Safety inspection status for compliance
+- `firmware_version`: Software version for compatibility checks
+- `error_code`: Diagnostic code for troubleshooting (0 = operational)
+
+### **Configure Message Package**
+
+**Update CMakeLists.txt:**
+
+```cmake
+cmake_minimum_required(VERSION 3.8)
+project(ce_robot_interfaces)
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+# Find dependencies
+find_package(ament_cmake REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(builtin_interfaces REQUIRED)
+
+# Generate message files
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/RobotTag.msg"
+  DEPENDENCIES builtin_interfaces
+)
+
+ament_package()
+```
+
+**Update package.xml:**
+
+```xml
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>ce_robot_interfaces</name>
+  <version>0.0.0</version>
+  <description>Custom message and service interfaces for CE Robot</description>
+  <maintainer email="student@ksu.ac.th">Student</maintainer>
+  <license>Apache License 2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+
+  <depend>builtin_interfaces</depend>
+
+  <exec_depend>rosidl_default_runtime</exec_depend>
+
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
+```
+
+### **Build Message Package**
+
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot_interfaces
+source install/setup.bash
+```
+
+### **Verify Message Creation**
+
+Check that the message was created successfully:
+
+```bash
+# Verify RobotTag message
+ros2 interface show ce_robot_interfaces/msg/RobotTag
+```
+
+**Expected Output:**
+```
+string robot_id
+string robot_type
+string zone_id
+int32 fleet_number
+string status
+int32 priority_level
+float32 max_payload_kg
+string current_location
+string assigned_task
+string assigned_operator
+builtin_interfaces/Time last_maintenance
+builtin_interfaces/Time deployment_date
+float32 operation_hours
+bool safety_certified
+string firmware_version
+int32 error_code
+```
+
+---
+
+## **Example Use Case: RobotTag for Fleet Management**
+
+The `RobotTag` message is ideal for warehouse fleet management systems. Here's how it would be populated for different robot types:
+
+### **Transport Robot Example:**
+```python
+from ce_robot_interfaces.msg import RobotTag
+from builtin_interfaces.msg import Time
+
+tag = RobotTag()
+tag.robot_id = "WH-TRP-042"
+tag.robot_type = "transport"
+tag.zone_id = "WAREHOUSE-A"
+tag.fleet_number = 42
+
+tag.status = "active"
+tag.priority_level = 7
+tag.max_payload_kg = 500.0
+
+tag.current_location = "SHELF-A-15"
+tag.assigned_task = "TASK-8821"
+tag.assigned_operator = "AUTO"
+
+tag.last_maintenance.sec = 1733875200  # Unix timestamp
+tag.deployment_date.sec = 1704067200
+tag.operation_hours = 2847.5
+
+tag.safety_certified = True
+tag.firmware_version = "v2.3.1"
+tag.error_code = 0
+```
+
+### **Delivery Robot Example:**
+```python
+tag = RobotTag()
+tag.robot_id = "DLV-FST-018"
+tag.robot_type = "delivery"
+tag.zone_id = "LOADING-BAY-3"
+tag.fleet_number = 18
+
+tag.status = "active"
+tag.priority_level = 9  # High priority delivery
+tag.max_payload_kg = 50.0
+
+tag.current_location = "DOCK-5"
+tag.assigned_task = "EXPRESS-DELIVERY-445"
+tag.assigned_operator = "OPR-007"
+
+tag.operation_hours = 1523.8
+tag.safety_certified = True
+tag.firmware_version = "v3.0.2"
+tag.error_code = 0
+```
+
+### **Inspection Robot Example:**
+```python
+tag = RobotTag()
+tag.robot_id = "INSP-001"
+tag.robot_type = "inspection"
+tag.zone_id = "QUALITY-CONTROL"
+tag.fleet_number = 1
+
+tag.status = "idle"
+tag.priority_level = 3
+tag.max_payload_kg = 10.0  # Sensor equipment only
+
+tag.current_location = "QC-STATION-2"
+tag.assigned_task = ""  # No current task
+tag.assigned_operator = "OPR-015"
+
+tag.operation_hours = 894.2
+tag.safety_certified = True
+tag.firmware_version = "v2.1.5"
+tag.error_code = 0
+```
+
+### **Maintenance Status Example:**
+```python
+tag = RobotTag()
+tag.robot_id = "WH-TRP-009"
+tag.robot_type = "transport"
+tag.zone_id = "MAINTENANCE-AREA"
+tag.fleet_number = 9
+
+tag.status = "maintenance"  # Under maintenance
+tag.priority_level = 0  # Not operational
+tag.max_payload_kg = 500.0
+
+tag.current_location = "MAINT-BAY-1"
+tag.assigned_task = "MAINT-SCHEDULED-2024"
+tag.assigned_operator = "TECH-003"
+
+tag.operation_hours = 5240.0  # High hours, needs service
+tag.safety_certified = False  # Pending recertification
+tag.firmware_version = "v2.2.8"
+tag.error_code = 204  # Scheduled maintenance code
+```
+
+---
+
+## **Example: Robot Tag Publisher with Parameters**
+
+This example demonstrates practical parameter usage: a publisher node that reports robot fleet management information with configurable identification, timing, and operational settings.
 
 ### **Configuration Parameters:**
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `robot_id` | string | `"warehouse_bot_001"` | Unique robot identifier |
-| `max_speed` | double | `2.5` | Maximum speed in m/s |
-| `battery_warning_level` | int | `20` | Battery warning threshold (%) |
-| `status_publish_rate` | double | `1.0` | Status update frequency (Hz) |
-| `enable_safety_features` | bool | `true` | Enable collision avoidance |
-| `operation_mode` | string | `"autonomous"` | Mode: autonomous/manual/standby |
+| `robot_id` | string | `"WH-BOT-001"` | Unique robot identifier |
+| `robot_type` | string | `"transport"` | Robot type: transport/delivery/inspection/loader |
+| `zone_id` | string | `"WAREHOUSE-A"` | Current operational zone |
+| `fleet_number` | int | `1` | Fleet assignment number (1-999) |
+| `max_payload_kg` | double | `500.0` | Maximum payload capacity in kg |
+| `priority_level` | int | `5` | Task priority (0-10) |
+| `tag_publish_rate` | double | `1.0` | Tag update frequency (Hz) |
+| `firmware_version` | string | `"v2.3.1"` | Current firmware version |
 
-**Use Case:** Configure warehouse robots with realistic operational parameters - speed limits, battery management, safety settings, and operational modes.
+**Use Case:** Configure warehouse robots with comprehensive fleet management parameters - identification, operational zones, payload limits, and task priorities.
 
 ---
 
-## **Step 1: Create Parameterized Publisher Node**
+## **Step 2: Create Parameterized Publisher Node**
 
 The publisher node declares parameters, reads their values, and responds to runtime changes through callbacks.
 
-### **File: HwStatus_para_publish.py**
+### **File: RobotTag_para_publish.py**
 
 ```python
 #!/usr/bin/env python3
 """
-Parameterized Hardware Status Publisher
-Demonstrates parameter declaration, access, and callbacks
+Parameterized Robot Tag Publisher
+Demonstrates parameter declaration, access, and callbacks for fleet management
 """
 
 import rclpy
 from rclpy.node import Node
 from rcl_interfaces.msg import ParameterDescriptor, SetParametersResult
-from ce_robot_interfaces.msg import HardwareStatus
+from ce_robot_interfaces.msg import RobotTag
+from builtin_interfaces.msg import Time
 
 
-class HardwareStatusPublisher(Node):
+class RobotTagPublisher(Node):
     def __init__(self):
-        super().__init__('hw_status_publisher')
+        super().__init__('robot_tag_publisher')
         
         # Declare parameters with defaults and descriptors
         self.declare_parameter(
             'robot_id',
-            'warehouse_bot_001',
+            'WH-BOT-001',
             ParameterDescriptor(
-                description='Unique robot identifier (e.g., warehouse_bot_001)'
+                description='Unique robot identifier (e.g., WH-BOT-042, DLV-003)'
             )
         )
         
         self.declare_parameter(
-            'max_speed',
-            2.5,
+            'robot_type',
+            'transport',
             ParameterDescriptor(
-                description='Maximum robot speed in meters per second (0.1-5.0 m/s)'
+                description='Robot type: transport, delivery, inspection, loader'
             )
         )
         
         self.declare_parameter(
-            'battery_warning_level',
-            20,
+            'zone_id',
+            'WAREHOUSE-A',
             ParameterDescriptor(
-                description='Battery percentage to trigger warning (10-50%)'
+                description='Current operational zone (e.g., ZONE-A, LOADING-BAY-3)'
             )
         )
         
         self.declare_parameter(
-            'status_publish_rate',
+            'fleet_number',
+            1,
+            ParameterDescriptor(
+                description='Fleet assignment number (1-999)'
+            )
+        )
+        
+        self.declare_parameter(
+            'max_payload_kg',
+            500.0,
+            ParameterDescriptor(
+                description='Maximum payload capacity in kilograms (10.0-1000.0)'
+            )
+        )
+        
+        self.declare_parameter(
+            'priority_level',
+            5,
+            ParameterDescriptor(
+                description='Task priority level (0=lowest, 10=highest)'
+            )
+        )
+        
+        self.declare_parameter(
+            'tag_publish_rate',
             1.0,
             ParameterDescriptor(
-                description='Status publishing frequency in Hz (0.1-10.0 Hz)'
+                description='Tag publishing frequency in Hz (0.1-10.0 Hz)'
             )
         )
         
         self.declare_parameter(
-            'enable_safety_features',
-            True,
+            'firmware_version',
+            'v2.3.1',
             ParameterDescriptor(
-                description='Enable collision avoidance and safety systems'
-            )
-        )
-        
-        self.declare_parameter(
-            'operation_mode',
-            'autonomous',
-            ParameterDescriptor(
-                description='Operation mode: autonomous, manual, or standby'
+                description='Current firmware version'
             )
         )
         
         # Get parameter values
         self.robot_id = self.get_parameter('robot_id').value
-        self.max_speed = self.get_parameter('max_speed').value
-        self.battery_warning = self.get_parameter('battery_warning_level').value
-        self.status_rate = self.get_parameter('status_publish_rate').value
-        self.safety_enabled = self.get_parameter('enable_safety_features').value
-        self.operation_mode = self.get_parameter('operation_mode').value
+        self.robot_type = self.get_parameter('robot_type').value
+        self.zone_id = self.get_parameter('zone_id').value
+        self.fleet_number = self.get_parameter('fleet_number').value
+        self.max_payload_kg = self.get_parameter('max_payload_kg').value
+        self.priority_level = self.get_parameter('priority_level').value
+        self.tag_rate = self.get_parameter('tag_publish_rate').value
+        self.firmware_version = self.get_parameter('firmware_version').value
         
         # Create publisher
         self.publisher = self.create_publisher(
-            HardwareStatus,
-            'robot_status',
+            RobotTag,
+            'robot_tag',
             10
         )
         
-        # Create timer based on status_publish_rate
-        timer_period = 1.0 / self.status_rate
+        # Create timer based on tag_publish_rate
+        timer_period = 1.0 / self.tag_rate
         self.timer = self.create_timer(
             timer_period,
             self.timer_callback
@@ -212,48 +512,79 @@ class HardwareStatusPublisher(Node):
         )
         
         self.message_count = 0
+        self.operation_hours = 0.0
         
-        self.get_logger().info('⚙️  Warehouse Robot Status Publisher initialized')
+        self.get_logger().info('🏷️  Robot Tag Publisher initialized')
         self.get_logger().info(f'   Robot ID: {self.robot_id}')
-        self.get_logger().info(f'   Max Speed: {self.max_speed} m/s')
-        self.get_logger().info(f'   Battery Warning: {self.battery_warning}%')
-        self.get_logger().info(f'   Status Rate: {self.status_rate} Hz')
-        self.get_logger().info(f'   Safety Features: {"Enabled" if self.safety_enabled else "Disabled"}')
-        self.get_logger().info(f'   Operation Mode: {self.operation_mode}')
+        self.get_logger().info(f'   Robot Type: {self.robot_type}')
+        self.get_logger().info(f'   Zone: {self.zone_id}')
+        self.get_logger().info(f'   Fleet Number: {self.fleet_number}')
+        self.get_logger().info(f'   Max Payload: {self.max_payload_kg} kg')
+        self.get_logger().info(f'   Priority Level: {self.priority_level}')
+        self.get_logger().info(f'   Tag Rate: {self.tag_rate} Hz')
+        self.get_logger().info(f'   Firmware: {self.firmware_version}')
 
     def timer_callback(self):
-        """Publish robot status message"""
-        msg = HardwareStatus()
-        msg.name_robot = self.robot_id
+        """Publish robot tag message"""
+        tag = RobotTag()
         
-        # Simulate battery drain (starts at 100%, decreases over time)
-        battery_level = 100 - (self.message_count % 100)
-        msg.battery_percentage = battery_level
+        # Robot identification
+        tag.robot_id = self.robot_id
+        tag.robot_type = self.robot_type
+        tag.zone_id = self.zone_id
+        tag.fleet_number = self.fleet_number
         
-        # Simulate temperature (25-35°C range)
-        msg.temperature = 25 + (self.message_count % 10)
+        # Operational status (simulate different states)
+        status_cycle = self.message_count % 100
+        if status_cycle < 80:
+            tag.status = "active"
+        elif status_cycle < 90:
+            tag.status = "idle"
+        elif status_cycle < 95:
+            tag.status = "charging"
+        else:
+            tag.status = "maintenance"
         
-        # Check if robot should operate based on mode and safety
-        msg.motor_ready = (self.operation_mode == 'autonomous' and 
-                          battery_level > self.battery_warning and
-                          self.safety_enabled)
+        tag.priority_level = self.priority_level
+        tag.max_payload_kg = self.max_payload_kg
         
-        msg.debug_message = f'Robot {self.robot_id} - Mode: {self.operation_mode}, Speed Limit: {self.max_speed} m/s'
+        # Location & Assignment (simulate)
+        if tag.status == "active":
+            tag.current_location = f"SHELF-A-{self.message_count % 20 + 1}"
+            tag.assigned_task = f"TASK-{8800 + self.message_count}"
+            tag.assigned_operator = "AUTO"
+        elif tag.status == "maintenance":
+            tag.current_location = "MAINT-BAY-1"
+            tag.assigned_task = "MAINT-SCHEDULED"
+            tag.assigned_operator = "TECH-003"
+        else:
+            tag.current_location = f"DOCK-{self.fleet_number}"
+            tag.assigned_task = ""
+            tag.assigned_operator = "AUTO"
         
-        self.publisher.publish(msg)
+        # Timestamps
+        current_time = self.get_clock().now().to_msg()
+        tag.last_maintenance.sec = current_time.sec - 86400  # 1 day ago
+        tag.deployment_date.sec = current_time.sec - 7776000  # 90 days ago
+        
+        # Increment operation hours (simulated)
+        self.operation_hours += (1.0 / self.tag_rate) / 3600.0  # Convert seconds to hours
+        tag.operation_hours = self.operation_hours
+        
+        # Safety & Compliance
+        tag.safety_certified = (tag.status != "maintenance")
+        tag.firmware_version = self.firmware_version
+        tag.error_code = 0 if tag.status != "maintenance" else 204
+        
+        self.publisher.publish(tag)
         self.message_count += 1
         
-        # Warn if battery low
-        if battery_level <= self.battery_warning:
-            self.get_logger().warn(
-                f'⚠️  Low battery: {battery_level}% (threshold: {self.battery_warning}%)'
-            )
-        
-        # Log status in autonomous mode
-        if self.operation_mode == 'autonomous':
+        # Log status periodically
+        if self.message_count % 5 == 0:
             self.get_logger().info(
-                f'🤖 {self.robot_id}: Battery {battery_level}%, Temp {msg.temperature}°C, '
-                f'Motors {"Ready" if msg.motor_ready else "Standby"}'
+                f'🤖 {self.robot_id} [{self.robot_type}]: '
+                f'Status={tag.status}, Zone={self.zone_id}, '
+                f'Location={tag.current_location}, Hours={tag.operation_hours:.1f}'
             )
 
     def parameter_callback(self, params):
@@ -263,47 +594,59 @@ class HardwareStatusPublisher(Node):
                 self.robot_id = param.value
                 self.get_logger().info(f'✅ Updated robot_id = {self.robot_id}')
                 
-            elif param.name == 'max_speed':
-                # Validate speed range
-                if 0.1 <= param.value <= 5.0:
-                    self.max_speed = param.value
-                    self.get_logger().info(f'✅ Updated max_speed = {self.max_speed} m/s')
+            elif param.name == 'robot_type':
+                # Validate robot type
+                valid_types = ['transport', 'delivery', 'inspection', 'loader']
+                if param.value in valid_types:
+                    self.robot_type = param.value
+                    self.get_logger().info(f'✅ Updated robot_type = {self.robot_type}')
                 else:
-                    self.get_logger().error(f'❌ Invalid speed: {param.value} (must be 0.1-5.0 m/s)')
-                    return SetParametersResult(successful=False, reason='Speed out of valid range')
+                    self.get_logger().error(f'❌ Invalid type: {param.value} (must be {valid_types})')
+                    return SetParametersResult(successful=False, reason='Invalid robot type')
                     
-            elif param.name == 'battery_warning_level':
-                # Validate battery threshold
-                if 10 <= param.value <= 50:
-                    self.battery_warning = param.value
-                    self.get_logger().info(f'✅ Updated battery_warning_level = {self.battery_warning}%')
-                else:
-                    self.get_logger().error(f'❌ Invalid battery level: {param.value} (must be 10-50%)')
-                    return SetParametersResult(successful=False, reason='Battery threshold out of range')
-                    
-            elif param.name == 'enable_safety_features':
-                self.safety_enabled = param.value
-                status = "Enabled" if param.value else "Disabled"
-                self.get_logger().info(f'✅ Safety features {status}')
+            elif param.name == 'zone_id':
+                self.zone_id = param.value
+                self.get_logger().info(f'✅ Updated zone_id = {self.zone_id}')
                 
-            elif param.name == 'operation_mode':
-                # Validate operation mode
-                valid_modes = ['autonomous', 'manual', 'standby']
-                if param.value in valid_modes:
-                    self.operation_mode = param.value
-                    self.get_logger().info(f'✅ Updated operation_mode = {self.operation_mode}')
+            elif param.name == 'fleet_number':
+                # Validate fleet number range
+                if 1 <= param.value <= 999:
+                    self.fleet_number = param.value
+                    self.get_logger().info(f'✅ Updated fleet_number = {self.fleet_number}')
                 else:
-                    self.get_logger().error(f'❌ Invalid mode: {param.value} (must be {valid_modes})')
-                    return SetParametersResult(successful=False, reason='Invalid operation mode')
+                    self.get_logger().error(f'❌ Invalid fleet number: {param.value} (must be 1-999)')
+                    return SetParametersResult(successful=False, reason='Fleet number out of range')
                     
-            elif param.name == 'status_publish_rate':
+            elif param.name == 'max_payload_kg':
+                # Validate payload range
+                if 10.0 <= param.value <= 1000.0:
+                    self.max_payload_kg = param.value
+                    self.get_logger().info(f'✅ Updated max_payload_kg = {self.max_payload_kg} kg')
+                else:
+                    self.get_logger().error(f'❌ Invalid payload: {param.value} (must be 10.0-1000.0 kg)')
+                    return SetParametersResult(successful=False, reason='Payload out of range')
+                    
+            elif param.name == 'priority_level':
+                # Validate priority range
+                if 0 <= param.value <= 10:
+                    self.priority_level = param.value
+                    self.get_logger().info(f'✅ Updated priority_level = {self.priority_level}')
+                else:
+                    self.get_logger().error(f'❌ Invalid priority: {param.value} (must be 0-10)')
+                    return SetParametersResult(successful=False, reason='Priority out of range')
+                    
+            elif param.name == 'firmware_version':
+                self.firmware_version = param.value
+                self.get_logger().info(f'✅ Updated firmware_version = {self.firmware_version}')
+                    
+            elif param.name == 'tag_publish_rate':
                 # Validate publish rate
                 if 0.1 <= param.value <= 10.0:
-                    self.status_rate = param.value
-                    timer_period = 1.0 / self.status_rate
+                    self.tag_rate = param.value
+                    timer_period = 1.0 / self.tag_rate
                     self.timer.cancel()
                     self.timer = self.create_timer(timer_period, self.timer_callback)
-                    self.get_logger().info(f'✅ Updated status_publish_rate = {self.status_rate} Hz')
+                    self.get_logger().info(f'✅ Updated tag_publish_rate = {self.tag_rate} Hz')
                 else:
                     self.get_logger().error(f'❌ Invalid rate: {param.value} (must be 0.1-10.0 Hz)')
                     return SetParametersResult(successful=False, reason='Publish rate out of range')
@@ -313,7 +656,7 @@ class HardwareStatusPublisher(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = HardwareStatusPublisher()
+    node = RobotTagPublisher()
     
     try:
         rclpy.spin(node)
@@ -330,7 +673,7 @@ if __name__ == '__main__':
 
 ---
 
-## **Step 2: Package Configuration**
+## **Step 3: Package Configuration**
 
 ### **Update setup.py**
 
@@ -359,7 +702,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            '05_hw_para = ce_robot.HwStatus_para_publish:main',
+            '05_robot_tag = ce_robot.RobotTag_para_publish:main',
         ],
     },
 )
@@ -403,7 +746,7 @@ source install/setup.bash
 
 ---
 
-## **Step 3: Running with Different Parameter Configurations**
+## **Step 4: Running with Different Parameter Configurations**
 
 ### **Method 1: Default Parameters**
 
@@ -411,19 +754,21 @@ Run the node with built-in default values:
 
 **Terminal 1:**
 ```bash
-ros2 run ce_robot 05_hw_para
+ros2 run ce_robot 05_robot_tag
 ```
 
 **Expected Output:**
 ```
-[INFO] [hw_status_publisher]: ⚙️  Warehouse Robot Status Publisher initialized
-[INFO] [hw_status_publisher]:    Robot ID: warehouse_bot_001
-[INFO] [hw_status_publisher]:    Max Speed: 2.5 m/s
-[INFO] [hw_status_publisher]:    Battery Warning: 20%
-[INFO] [hw_status_publisher]:    Status Rate: 1.0 Hz
-[INFO] [hw_status_publisher]:    Safety Features: Enabled
-[INFO] [hw_status_publisher]:    Operation Mode: autonomous
-[INFO] [hw_status_publisher]: 🤖 warehouse_bot_001: Battery 100%, Temp 25°C, Motors Ready
+[INFO] [robot_tag_publisher]: 🏷️  Robot Tag Publisher initialized
+[INFO] [robot_tag_publisher]:    Robot ID: WH-BOT-001
+[INFO] [robot_tag_publisher]:    Robot Type: transport
+[INFO] [robot_tag_publisher]:    Zone: WAREHOUSE-A
+[INFO] [robot_tag_publisher]:    Fleet Number: 1
+[INFO] [robot_tag_publisher]:    Max Payload: 500.0 kg
+[INFO] [robot_tag_publisher]:    Priority Level: 5
+[INFO] [robot_tag_publisher]:    Tag Rate: 1.0 Hz
+[INFO] [robot_tag_publisher]:    Firmware: v2.3.1
+[INFO] [robot_tag_publisher]: 🤖 WH-BOT-001 [transport]: Status=active, Zone=WAREHOUSE-A, Location=SHELF-A-1, Hours=0.0
 ```
 
 ### **Method 2: Command-Line Parameters**
@@ -432,23 +777,27 @@ Override parameters directly from the command line:
 
 **Terminal 1:**
 ```bash
-ros2 run ce_robot 05_hw_para --ros-args \
-  -p robot_id:=warehouse_bot_042 \
-  -p max_speed:=3.5 \
-  -p battery_warning_level:=25 \
-  -p status_publish_rate:=2.0 \
-  -p operation_mode:=manual
+ros2 run ce_robot 05_robot_tag --ros-args \
+  -p robot_id:=DLV-FST-042 \
+  -p robot_type:=delivery \
+  -p zone_id:=LOADING-BAY-3 \
+  -p fleet_number:=42 \
+  -p max_payload_kg:=50.0 \
+  -p priority_level:=9 \
+  -p tag_publish_rate:=2.0
 ```
 
 **Expected Output:**
 ```
-[INFO] [hw_status_publisher]: ⚙️  Warehouse Robot Status Publisher initialized
-[INFO] [hw_status_publisher]:    Robot ID: warehouse_bot_042
-[INFO] [hw_status_publisher]:    Max Speed: 3.5 m/s
-[INFO] [hw_status_publisher]:    Battery Warning: 25%
-[INFO] [hw_status_publisher]:    Status Rate: 2.0 Hz
-[INFO] [hw_status_publisher]:    Safety Features: Enabled
-[INFO] [hw_status_publisher]:    Operation Mode: manual
+[INFO] [robot_tag_publisher]: 🏷️  Robot Tag Publisher initialized
+[INFO] [robot_tag_publisher]:    Robot ID: DLV-FST-042
+[INFO] [robot_tag_publisher]:    Robot Type: delivery
+[INFO] [robot_tag_publisher]:    Zone: LOADING-BAY-3
+[INFO] [robot_tag_publisher]:    Fleet Number: 42
+[INFO] [robot_tag_publisher]:    Max Payload: 50.0 kg
+[INFO] [robot_tag_publisher]:    Priority Level: 9
+[INFO] [robot_tag_publisher]:    Tag Rate: 2.0 Hz
+[INFO] [robot_tag_publisher]:    Firmware: v2.3.1
 ```
 
 ### **Method 3: Parameter File (.yaml)**
@@ -457,36 +806,40 @@ Create a configuration file for reusable parameter sets.
 
 **Create file: robot_config.yaml**
 ```yaml
-hw_status_publisher:
+robot_tag_publisher:
   ros__parameters:
-    robot_id: "warehouse_delivery_bot"
-    max_speed: 4.0
-    battery_warning_level: 30
-    status_publish_rate: 5.0
-    enable_safety_features: true
-    operation_mode: "autonomous"
+    robot_id: "INSP-001"
+    robot_type: "inspection"
+    zone_id: "QUALITY-CONTROL"
+    fleet_number: 1
+    max_payload_kg: 10.0
+    priority_level: 3
+    tag_publish_rate: 5.0
+    firmware_version: "v2.1.5"
 ```
 
 **Run with parameter file:**
 ```bash
-ros2 run ce_robot 05_hw_para --ros-args --params-file robot_config.yaml
+ros2 run ce_robot 05_robot_tag --ros-args --params-file robot_config.yaml
 ```
 
 **Expected Output:**
 ```
-[INFO] [hw_status_publisher]: ⚙️  Warehouse Robot Status Publisher initialized
-[INFO] [hw_status_publisher]:    Robot ID: warehouse_delivery_bot
-[INFO] [hw_status_publisher]:    Max Speed: 4.0 m/s
-[INFO] [hw_status_publisher]:    Battery Warning: 30%
-[INFO] [hw_status_publisher]:    Status Rate: 5.0 Hz
-[INFO] [hw_status_publisher]:    Safety Features: Enabled
-[INFO] [hw_status_publisher]:    Operation Mode: autonomous
-[INFO] [hw_status_publisher]: 🤖 warehouse_delivery_bot: Battery 100%, Temp 25°C, Motors Ready
+[INFO] [robot_tag_publisher]: 🏷️  Robot Tag Publisher initialized
+[INFO] [robot_tag_publisher]:    Robot ID: INSP-001
+[INFO] [robot_tag_publisher]:    Robot Type: inspection
+[INFO] [robot_tag_publisher]:    Zone: QUALITY-CONTROL
+[INFO] [robot_tag_publisher]:    Fleet Number: 1
+[INFO] [robot_tag_publisher]:    Max Payload: 10.0 kg
+[INFO] [robot_tag_publisher]:    Priority Level: 3
+[INFO] [robot_tag_publisher]:    Tag Rate: 5.0 Hz
+[INFO] [robot_tag_publisher]:    Firmware: v2.1.5
+[INFO] [robot_tag_publisher]: 🤖 INSP-001 [inspection]: Status=active, Zone=QUALITY-CONTROL, Location=SHELF-A-1, Hours=0.0
 ```
 
 ---
 
-## **Step 4: Runtime Parameter Management**
+## **Step 5: Runtime Parameter Management**
 
 ### **List All Parameters**
 
@@ -498,14 +851,16 @@ ros2 param list
 
 **Output:**
 ```
-/hw_status_publisher:
-  battery_warning_level
-  enable_safety_features
-  max_speed
-  operation_mode
+/robot_tag_publisher:
+  firmware_version
+  fleet_number
+  max_payload_kg
+  priority_level
   robot_id
-  status_publish_rate
+  robot_type
+  tag_publish_rate
   use_sim_time
+  zone_id
 ```
 
 ### **Get Parameter Value**
@@ -513,12 +868,12 @@ ros2 param list
 Retrieve the current value of a specific parameter:
 
 ```bash
-ros2 param get /hw_status_publisher robot_id
+ros2 param get /robot_tag_publisher robot_id
 ```
 
 **Output:**
 ```
-String value is: warehouse_bot_042
+String value is: WH-BOT-001
 ```
 
 ### **Set Parameter at Runtime**
@@ -527,7 +882,7 @@ Modify parameter while node is running:
 
 **Terminal 2:**
 ```bash
-ros2 param set /hw_status_publisher operation_mode autonomous
+ros2 param set /robot_tag_publisher zone_id LOADING-BAY-5
 ```
 
 **Output:**
@@ -537,32 +892,32 @@ Set parameter successful
 
 **Node Output (Terminal 1):**
 ```
-[INFO] [hw_status_publisher]: ✅ Updated operation_mode = autonomous
-[INFO] [hw_status_publisher]: 🤖 warehouse_bot_042: Battery 95%, Temp 30°C, Motors Ready
+[INFO] [robot_tag_publisher]: ✅ Updated zone_id = LOADING-BAY-5
+[INFO] [robot_tag_publisher]: 🤖 WH-BOT-001 [transport]: Status=active, Zone=LOADING-BAY-5, Location=SHELF-A-12, Hours=0.5
 ```
 
-### **Change Max Speed at Runtime**
+### **Change Priority Level at Runtime**
 
 ```bash
-ros2 param set /hw_status_publisher max_speed 2.0
+ros2 param set /robot_tag_publisher priority_level 8
 ```
 
 **Node Output:**
 ```
-[INFO] [hw_status_publisher]: ✅ Updated max_speed = 2.0 m/s
+[INFO] [robot_tag_publisher]: ✅ Updated priority_level = 8
 ```
 
 ### **Test Parameter Validation**
 
-Try setting an invalid speed:
+Try setting an invalid robot type:
 
 ```bash
-ros2 param set /hw_status_publisher max_speed 10.0
+ros2 param set /robot_tag_publisher robot_type invalid_type
 ```
 
 **Node Output:**
 ```
-[ERROR] [hw_status_publisher]: ❌ Invalid speed: 10.0 (must be 0.1-5.0 m/s)
+[ERROR] [robot_tag_publisher]: ❌ Invalid type: invalid_type (must be ['transport', 'delivery', 'inspection', 'loader'])
 ```
 
 ### **Get Parameter Description**
@@ -570,14 +925,14 @@ ros2 param set /hw_status_publisher max_speed 10.0
 View parameter metadata:
 
 ```bash
-ros2 param describe /hw_status_publisher max_speed
+ros2 param describe /robot_tag_publisher max_payload_kg
 ```
 
 **Output:**
 ```
-Parameter name: max_speed
+Parameter name: max_payload_kg
   Type: double
-  Description: Maximum robot speed in meters per second (0.1-5.0 m/s)
+  Description: Maximum payload capacity in kilograms (10.0-1000.0)
   Constraints: none
 ```
 
@@ -586,7 +941,7 @@ Parameter name: max_speed
 Save current configuration for later use:
 
 ```bash
-ros2 param dump /hw_status_publisher > current_params.yaml
+ros2 param dump /robot_tag_publisher > current_params.yaml
 ```
 
 ---
