@@ -739,7 +739,8 @@ Build both the interfaces and implementation packages:
 
 ```bash
 cd ~/ros2_ws
-colcon build --packages-select ce_robot_interfaces ce_robot --symlink-install
+colcon build --packages-select ce_robot_interfaces 
+colcon build --packages-select ce_robot --symlink-install
 source install/setup.bash
 ```
 
