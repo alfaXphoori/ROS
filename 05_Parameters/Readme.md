@@ -396,6 +396,26 @@ This example demonstrates practical parameter usage: a publisher node that repor
 
 The publisher node declares parameters, reads their values, and responds to runtime changes through callbacks.
 
+### **📁 File Location**
+
+Navigate to your ROS 2 workspace and create the Python file:
+
+```bash
+cd ~/ros2_ws/src/ce_robot/ce_robot
+touch robot_tag_publisher.py
+chmod +x robot_tag_publisher.py
+```
+
+**Directory Structure:**
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot/
+        └── 📁 ce_robot/
+            ├── 📄 __init__.py
+            └── 🐍 robot_tag_publisher.py    ← Create this file
+```
+
 ### **File: robot_tag_publisher.py**
 
 ```python
