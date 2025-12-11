@@ -753,6 +753,8 @@ ros2 param list
 [INFO] [robot_tag_callback_pub]: 🤖 WH-BOT-001 [delivery]: Status=active, Zone=LOADING-BAY-5, Priority=9, Payload=250.0kg
 ```
 
+![Exercise 2: Dynamic Parameter Updates](imgs/02_Param_Callback.png)
+
 ### **Key Concepts**
 
 - Parameter callbacks with `add_on_set_parameters_callback()` for fleet management
@@ -1170,6 +1172,8 @@ ros2 run ce_robot 05_robot_tag_validated --ros-args \
 [INFO] [robot_tag_validated_pub]: 🤖 WH-TRP-100 [transport] ✓ OPERATIONAL | Zone=WAREHOUSE-FLOOR-2, Priority=7, Payload=750.0kg, Violations=0
 ```
 
+![Exercise 3: YAML Configuration Loading](imgs/03_Param_YAML.png)
+
 **Test 2 - Try invalid robot type (should fail):**
 ```bash
 ros2 param set /robot_tag_validated_pub robot_type invalid_type
@@ -1224,6 +1228,8 @@ ros2 param set /robot_tag_validated_pub priority_level 3
 ros2 param dump /robot_tag_validated_pub > current_fleet_config.yaml
 cat current_fleet_config.yaml
 ```
+
+![Exercise 3: Parameter Validation](imgs/04_Param_Validation.png)
 
 ### **Key Concepts**
 
