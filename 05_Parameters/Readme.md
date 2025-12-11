@@ -837,6 +837,8 @@ robot_tag_publisher:
     firmware_version: "v2.1.5"
 ```
 
+![Parameter Configuration](imgs/01_Param.png)
+
 **Run with parameter file:**
 ```bash
 ros2 run ce_robot 05_robot_tag --ros-args --params-file robot_config.yaml
