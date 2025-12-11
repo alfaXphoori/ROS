@@ -270,12 +270,7 @@ ament_package()
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>ce_robot_interfaces</name>
-  <version>0.0.0</version>
-  <description>Custom message, service, and action interfaces for CE Robot</description>
-  <maintainer email="student@ksu.ac.th">Student</maintainer>
-  <license>Apache License 2.0</license>
-
+  
   <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>rosidl_default_generators</buildtool_depend>
 
@@ -698,8 +693,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'count_until_server = ce_robot.count_until_server:main',
-            'count_until_client = ce_robot.count_until_client:main',
+            '06_count_until_server = ce_robot.count_until_server:main',
+            '06_count_until_client = ce_robot.count_until_client:main',
         ],
     },
 )
@@ -772,8 +767,8 @@ ros2 pkg executables ce_robot
 
 Expected output:
 ```
-ce_robot count_until_server
-ce_robot count_until_client
+ce_robot 06_count_until_server
+ce_robot 06_count_until_client
 ```
 
 ---
@@ -783,7 +778,7 @@ ce_robot count_until_client
 ### **Terminal 1 - Start Action Server**
 
 ```bash
-ros2 run ce_robot count_until_server
+ros2 run ce_robot 06_count_until_server
 ```
 
 **Expected Output:**
@@ -796,7 +791,7 @@ The server is now running and waiting for goals from clients.
 ### **Terminal 2 - Send Goal via Client**
 
 ```bash
-ros2 run ce_robot count_until_client
+ros2 run ce_robot 06_count_until_client
 ```
 
 **Expected Output (Client):**
@@ -969,7 +964,7 @@ Actions can be cancelled mid-execution. Let's test this functionality.
 ### **Terminal 1 - Start Server**
 
 ```bash
-ros2 run ce_robot count_until_server
+ros2 run ce_robot 06_count_until_server
 ```
 
 ### **Terminal 2 - Send Long-Running Goal**
