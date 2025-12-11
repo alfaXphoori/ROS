@@ -57,21 +57,23 @@ Parameters in ROS 2 provide a powerful mechanism for configuring nodes without r
 │  ┌────────────────────────────────────────────────────┐    │
 │  │ 📋 Parameter Declarations with Validation:         │    │
 │  │                                                    │    │
-│  │ • robot_id: string = "warehouse_bot_001"           │    │
-│  │ • max_speed: double = 2.5 m/s (0.1-5.0)            │    │
-│  │ • battery_warning_level: int = 20% (10-50)         │    │
-│  │ • status_publish_rate: double = 1.0 Hz (0.1-10.0)  │    │
-│  │ • enable_safety_features: bool = true              │    │
-│  │ • operation_mode: string = "autonomous"            │    │
-│  │   (autonomous | manual | standby)                  │    │
+│  │ • robot_id: string = "WH-BOT-001"                  │    │
+│  │ • robot_type: string = "transport"                 │    │
+│  │   (transport | delivery | inspection | loader)     │    │
+│  │ • zone_id: string = "WAREHOUSE-A"                  │    │
+│  │ • fleet_number: int = 1 (1-999)                    │    │
+│  │ • max_payload_kg: double = 500.0 kg (10.0-1000.0)  │    │
+│  │ • priority_level: int = 5 (0-10)                   │    │
+│  │ • tag_publish_rate: double = 1.0 Hz (0.1-10.0)     │    │
+│  │ • firmware_version: string = "v2.3.1"              │    │
 │  └────────────────────────────────────────────────────┘    │
 │               │                                            │
 │               ▼                                            │
 │  ┌────────────────────────────────────────────────────┐    │
 │  │ ⚙️  Parameter Callbacks (Runtime Updates):         │    │
 │  │                                                    │    │
-│  │ • Validate ranges (speed, battery, rate)           │    │
-│  │ • Verify operation modes                           │    │
+│  │ • Validate robot type (transport/delivery/etc)     │    │
+│  │ • Validate ranges (fleet, payload, priority, rate) │    │
 │  │ • Update robot behavior immediately                │    │
 │  │ • Reconfigure timers dynamically                   │    │
 │  │ • Log changes with success/error messages          │    │
@@ -79,13 +81,13 @@ Parameters in ROS 2 provide a powerful mechanism for configuring nodes without r
 │               │                                            │
 │               ▼                                            │
 │  ┌────────────────────────────────────────────────────┐    │
-│  │ 🤖 Robot Status Publishing:                        │    │
+│  │ 🤖 Robot Tag Publishing:                           │    │
 │  │                                                    │    │
-│  │ • Battery monitoring (simulated drain)             │    │
-│  │ • Temperature tracking (25-35°C)                   │    │
-│  │ • Motor readiness (based on mode & safety)         │    │
-│  │ • Warning on low battery                           │    │
-│  │ • Speed limit enforcement                          │    │
+│  │ • Status simulation (active/idle/charging/maint)   │    │
+│  │ • Location tracking (SHELF-A-*, DOCK-*, MAINT-*)   │    │
+│  │ • Task assignment (TASK-*, EXPRESS-DELIVERY-*)     │    │
+│  │ • Operation hours tracking (incremental)           │    │
+│  │ • Safety certification & error codes               │    │
 │  └────────────────────────────────────────────────────┘    │
 └──────────────┬─────────────────────────────────────────────┘
                │
@@ -114,8 +116,7 @@ Before creating the publisher node, we need to define the custom message type th
 First, create a separate package for message definitions:
 
 ```bash
-cd ~/ros2_ws/src
-ros2 pkg create --build-type ament_cmake ce_robot_interfaces
+cd ~/ros2_ws/src/ce_robot_interfaces/msg
 ```
 
 ### **Define Custom Messages**
