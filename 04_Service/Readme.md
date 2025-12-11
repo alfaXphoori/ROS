@@ -119,7 +119,6 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/CalRectangle.srv"
 )
 
-ament_package()
 ```
 
 ### **1e. Update package.xml**
@@ -128,13 +127,7 @@ ament_package()
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>ce_robot_interfaces</name>
-  <version>0.0.0</version>
-  <description>Custom ROS 2 service definitions for CE Robot</description>
-  <maintainer email="student@ksu.ac.th">Student</maintainer>
-  <license>Apache License 2.0</license>
-
-  <buildtool_depend>ament_cmake</buildtool_depend>
+  
   <build_depend>rosidl_default_generators</build_depend>
   <exec_depend>rosidl_default_runtime</exec_depend>
   <member_of_group>rosidl_interface_packages</member_of_group>
@@ -236,18 +229,6 @@ if __name__ == '__main__':
     main()
 ```
 
-### **Running the Server**
-
-```bash
-ros2 run ce_robot cal_rect_server
-```
-
-**Expected Output:**
-```
-[INFO] [calrect_server]: Rectangle Calculator Server started
-[INFO] [calrect_server]: Service: /cal_rect
-```
-
 ---
 
 ## **Step 3: Client Implementation**
@@ -331,31 +312,6 @@ if __name__ == '__main__':
     main()
 ```
 
-### **Running the Client**
-
-**Terminal 1 (Server):**
-```bash
-ros2 run ce_robot cal_rect_server
-```
-
-**Terminal 2 (Client):**
-```bash
-ros2 run ce_robot cal_rect_client 22.22 33.34
-```
-
-**Expected Output (Server):**
-```
-[INFO] [calrect_server]: Rectangle Calculator Server started
-[INFO] [calrect_server]: Service: /cal_rect
-[INFO] [calrect_server]: Calculating area: 22.22 × 33.34 = 741.1248
-```
-
-**Expected Output (Client):**
-```
-[INFO] [calrect_client]: Sending request: length=22.22, width=33.34
-[INFO] [calrect_client]: Area: 741.12 m²
-```
-
 ---
 
 ## **Step 4: Package Configuration**
@@ -424,6 +380,50 @@ setup(
 cd ~/ros2_ws
 colcon build --packages-select ce_robot --symlink-install
 source install/setup.bash
+```
+
+---
+
+## **Step 5: Running Server and Client**
+
+### **Start the Server**
+
+**Terminal 1:**
+```bash
+ros2 run ce_robot cal_rect_server
+```
+
+**Expected Output:**
+```
+[INFO] [calrect_server]: Rectangle Calculator Server started
+[INFO] [calrect_server]: Service: /cal_rect
+```
+
+### **Run the Client**
+
+**Terminal 2:**
+```bash
+ros2 run ce_robot cal_rect_client 22.22 33.34
+```
+
+**Expected Output (Server - Terminal 1):**
+```
+[INFO] [calrect_server]: Rectangle Calculator Server started
+[INFO] [calrect_server]: Service: /cal_rect
+[INFO] [calrect_server]: Calculating area: 22.22 × 33.34 = 741.1248
+```
+
+**Expected Output (Client - Terminal 2):**
+```
+[INFO] [calrect_client]: Sending request: length=22.22, width=33.34
+[INFO] [calrect_client]: Area: 741.12 m²
+```
+
+**Try different values:**
+```bash
+ros2 run ce_robot cal_rect_client 5.5 3.2
+ros2 run ce_robot cal_rect_client 10.0 7.5
+ros2 run ce_robot cal_rect_client 2.5 2.5
 ```
 
 ---
