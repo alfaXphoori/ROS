@@ -208,19 +208,21 @@ int32 current_count
 - Sent periodically during execution
 - Allows client to monitor real-time progress
 
-### **Directory Structure**
+### **📁 Directory Structure**
 
-```bash
-ce_robot_interfaces/
-├── action/
-│   └── CountUntil.action          # Action definition
-├── msg/
-│   ├── HardwareStatus.msg
-│   └── RobotTag.msg
-├── srv/
-│   └── CalRectangle.srv
-├── CMakeLists.txt
-└── package.xml
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot_interfaces/
+        ├── 📁 action/
+        │   └── 📄 CountUntil.action    ← Create this file
+        ├── 📁 msg/
+        │   ├── 📄 HardwareStatus.msg
+        │   └── 📄 RobotTag.msg
+        ├── 📁 srv/
+        │   └── 📄 CalRectangle.srv
+        ├── 📄 CMakeLists.txt
+        └── 📄 package.xml
 ```
 
 ### **Configure Action Package**
