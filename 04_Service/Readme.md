@@ -341,8 +341,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'cal_rect_server = ce_robot.CalRect_server:main',
-            'cal_rect_client = ce_robot.CalRect_client:main',
+            '04_CalRect_server = ce_robot.CalRect_server:main',
+            '04_CalRect_client = ce_robot.CalRect_client:main',
         ],
     },
 )
@@ -354,11 +354,6 @@ setup(
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>ce_robot</name>
-  <version>0.0.0</version>
-  <description>CE Robot ROS 2 implementation package</description>
-  <maintainer email="student@ksu.ac.th">Student</maintainer>
-  <license>Apache License 2.0</license>
 
   <depend>rclpy</depend>
   <depend>ce_robot_interfaces</depend>
@@ -390,7 +385,7 @@ source install/setup.bash
 
 **Terminal 1:**
 ```bash
-ros2 run ce_robot cal_rect_server
+ros2 run ce_robot 04_CalRect_server
 ```
 
 **Expected Output:**
@@ -403,7 +398,7 @@ ros2 run ce_robot cal_rect_server
 
 **Terminal 2:**
 ```bash
-ros2 run ce_robot cal_rect_client 22.22 33.34
+ros2 run ce_robot 04_CalRect_client 22.22 33.34
 ```
 
 **Expected Output (Server - Terminal 1):**
@@ -421,10 +416,16 @@ ros2 run ce_robot cal_rect_client 22.22 33.34
 
 **Try different values:**
 ```bash
-ros2 run ce_robot cal_rect_client 5.5 3.2
-ros2 run ce_robot cal_rect_client 10.0 7.5
-ros2 run ce_robot cal_rect_client 2.5 2.5
+ros2 run ce_robot 04_CalRect_client 5.5 3.2
+ros2 run ce_robot 04_CalRect_client 10.0 7.5
+ros2 run ce_robot 04_CalRect_client 2.5 2.5
 ```
+
+### **Example Output Screenshot**
+
+![CalRect Service Running](imgs/01_CalRect.png)
+
+*Figure: Rectangle Area Calculator service in action - Server (top) processing client requests (bottom)*
 
 ---
 

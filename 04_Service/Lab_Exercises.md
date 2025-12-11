@@ -516,6 +516,12 @@ ros2 run ce_robot 04_navigate_client -2.5 4.0 1.57 1.5 true
 ros2 run ce_robot 04_navigate_client 15.0 20.0
 ```
 
+### **Example Output Screenshot**
+
+![Navigation Service Running](imgs/Lab01_Navigate.png)
+
+*Figure: Robot Navigation service in action - Server (top) processing navigation request, Client (bottom) showing successful movement to target position*
+
 ### **💡 Key Learning Points**
 
 - **Position validation** - Check workspace bounds before navigation
@@ -911,6 +917,12 @@ ros2 run ce_robot 04_gripper_client 3 0.4 0.7 true
    Object Detected: True
    Message: ✅ Gripper command complete! Object detected at position 0.40
 ```
+
+### **Example Output Screenshot**
+
+![Gripper Control Service Running](imgs/Lab02_Gripper.png)
+
+*Figure: Gripper Control service in action - Server (top) processing open/close commands, Client (bottom) sending gripper commands and receiving responses*
 
 ### **💡 Key Learning Points**
 
