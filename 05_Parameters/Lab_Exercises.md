@@ -83,6 +83,26 @@ By completing this lab, you will be able to:
 
 Create a publisher node with configurable parameters for warehouse robot fleet identification and publishing rate.
 
+### **📁 File Location**
+
+Navigate to your ROS 2 workspace and create the Python file:
+
+```bash
+cd ~/ros2_ws/src/ce_robot/ce_robot
+touch robot_tag_param_pub.py
+chmod +x robot_tag_param_pub.py
+```
+
+**Directory Structure:**
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot/
+        └── 📁 ce_robot/
+            ├── 📄 __init__.py
+            └── 🐍 robot_tag_param_pub.py    ← Create this file
+```
+
 ### **File: robot_tag_param_pub.py**
 
 ```python
@@ -323,6 +343,27 @@ String value is: DLV-FST-042
 ### **📋 Task**
 
 Create a warehouse robot node with parameter callbacks that dynamically update fleet configuration when parameters change at runtime.
+
+### **📁 File Location**
+
+Navigate to your ROS 2 workspace and create the Python file:
+
+```bash
+cd ~/ros2_ws/src/ce_robot/ce_robot
+touch robot_tag_callback_pub.py
+chmod +x robot_tag_callback_pub.py
+```
+
+**Directory Structure:**
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot/
+        └── 📁 ce_robot/
+            ├── 📄 __init__.py
+            ├── 🐍 robot_tag_param_pub.py
+            └── 🐍 robot_tag_callback_pub.py    ← Create this file
+```
 
 ### **File: robot_tag_callback_pub.py**
 
@@ -645,6 +686,28 @@ ros2 param list
 
 Create a warehouse fleet management node with comprehensive parameter validation and YAML configuration support for multi-robot deployments.
 
+### **📁 File Location**
+
+Navigate to your ROS 2 workspace and create the Python file:
+
+```bash
+cd ~/ros2_ws/src/ce_robot/ce_robot
+touch robot_tag_validated_pub.py
+chmod +x robot_tag_validated_pub.py
+```
+
+**Directory Structure:**
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot/
+        └── 📁 ce_robot/
+            ├── 📄 __init__.py
+            ├── 🐍 robot_tag_param_pub.py
+            ├── 🐍 robot_tag_callback_pub.py
+            └── 🐍 robot_tag_validated_pub.py    ← Create this file
+```
+
 ### **File: robot_tag_validated_pub.py**
 
 ```python
@@ -957,6 +1020,29 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+```
+
+### **📁 Configuration File Location**
+
+Create the YAML configuration file in your workspace root or a config directory:
+
+```bash
+cd ~/ros2_ws
+touch fleet_config.yaml
+```
+
+**Recommended Directory Structure:**
+```
+📁 ros2_ws/
+├── 📄 fleet_config.yaml    ← Create this file (option 1)
+└── 📁 src/
+    └── 📁 ce_robot/
+        ├── 📁 config/
+        │   └── 📄 fleet_config.yaml    ← Or create here (option 2)
+        └── 📁 ce_robot/
+            └── 🐍 robot_tag_validated_pub.py
+```
+
 ### **Create Configuration File: fleet_config.yaml**
 
 ```yaml
