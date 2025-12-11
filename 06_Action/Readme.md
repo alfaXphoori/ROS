@@ -73,7 +73,7 @@ Parameters:  Configuration values (persistent)
 │  │ - Result type   │              │ - /feedback     │    │
 │  │ - Feedback type │              │ - /status       │    │
 │  └─────────────────┘              │ - /result       │    │
-│                                   └─────────────────┘   │
+│                                   └─────────────────┘    │
 │                                                          │
 └──────────────────────────────────────────────────────────┘
 ```

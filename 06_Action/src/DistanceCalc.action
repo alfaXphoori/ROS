@@ -1,0 +1,16 @@
+# Calculate distance between two points
+float32 x1
+float32 y1
+float32 x2
+float32 y2
+
+---
+
+# Result: calculated distance
+float32 distance
+
+---
+
+# Feedback: calculation status
+string status
+float32 progress_percent

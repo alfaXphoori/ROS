@@ -1,72 +1,84 @@
 #!/usr/bin/env python3
-import sys
+"""
+Action Client: Count Until
+Sends goal to server and monitors progress
+"""
+
 import rclpy
-from rclpy.node import Node
 from rclpy.action import ActionClient
-from rclpy.action.client import ClientGoalHandle, GoalStatus
+from rclpy.node import Node
 from ce_robot_interfaces.action import CountUntil
 
-class CountUntilClientNode(Node):
+
+class CountUntilActionClient(Node):
     def __init__(self):
-        super().__init__("count_until_client")
-        self.declare_parameter("topic_name","count_until")
+        super().__init__('count_until_client')
+        
+        self._action_client = ActionClient(
+            self,
+            CountUntil,
+            'count_until'
+        )
+        
+        self.get_logger().info('Count Until Action Client initialized')
 
-        self.topic_name_ = self.get_parameter("topic_name").get_parameter_value().string_value
-        self.count_until_client_ = ActionClient(self, CountUntil, self.topic_name_)
-    
+    def send_goal(self, target, period):
+        """Send goal to action server"""
+        self.get_logger().info(f'Waiting for action server...')
+        self._action_client.wait_for_server()
+        
+        goal_msg = CountUntil.Goal()
+        goal_msg.target = target
+        goal_msg.period = period
+        
+        self.get_logger().info(f'Sending goal: target={target}, period={period}s')
+        
+        self._send_goal_future = self._action_client.send_goal_async(
+            goal_msg,
+            feedback_callback=self.feedback_callback
+        )
+        
+        self._send_goal_future.add_done_callback(self.goal_response_callback)
 
-    # Wait for action server, send a goal, and register a callback for the response
-    # Also register another callback for the optional feedback
-    def send_goal(self, target_number, delay):
-        self.count_until_client_.wait_for_server()
-        goal = CountUntil.Goal()
-        goal.target_number = target_number
-        goal.delay = delay
-        self.count_until_client_.send_goal_async(
-            goal, feedback_callback=self.goal_feedback_callback). \
-            add_done_callback(self.goal_response_callback)
-
-    # Method to send a cancel request for the current goal
-    def cancel_goal(self):
-        self.get_logger().info("Send a cancel goal request")
-        self.goal_handle_.cancel_goal_async()
-
-    # Get the goal response and if accepted, register a callback for the result
     def goal_response_callback(self, future):
-        self.goal_handle_: ClientGoalHandle = future.result()
-        if self.goal_handle_.accepted:
-            self.get_logger().info("Goal got accepted")
-            self.goal_handle_.get_result_async().add_done_callback(self.goal_result_callback)
-        else:
-            self.get_logger().info("Goal got rejected")
+        """Handle server's response to goal"""
+        goal_handle = future.result()
+        
+        if not goal_handle.accepted:
+            self.get_logger().error('Goal rejected by server')
+            return
+        
+        self.get_logger().info('Goal accepted by server')
+        
+        self._get_result_future = goal_handle.get_result_async()
+        self._get_result_future.add_done_callback(self.get_result_callback)
 
-    # Get the goal result and print it
-    def goal_result_callback(self, future):
-        status = future.result().status
+    def feedback_callback(self, feedback_msg):
+        """Receive feedback during execution"""
+        feedback = feedback_msg.feedback
+        self.get_logger().info(f'Feedback: current_count = {feedback.current_count}')
+
+    def get_result_callback(self, future):
+        """Handle final result"""
         result = future.result().result
-        if status == GoalStatus.STATUS_SUCCEEDED:
-            self.get_logger().info("Success")
-        elif status == GoalStatus.STATUS_ABORTED:
-            self.get_logger().error("Aborted")
-        elif status == GoalStatus.STATUS_CANCELED:
-            self.get_logger().warn("Canceled")
-        self.get_logger().info("Result: " + str(result.reached_number))
-
-    # Get the goal feedback and print it
-    def goal_feedback_callback(self, feedback_msg):
-        number = feedback_msg.feedback.current_number
-        self.get_logger().info("Got feedback: " + str(number))
-        # if number >= 2:
-        #    self.cancel_goal()
+        self.get_logger().info(f'Result: total_count = {result.total_count}')
 
 
 def main(args=None):
     rclpy.init(args=args)
-    node = CountUntilClientNode()
-    node.send_goal(int(sys.argv[1]), float(sys.argv[2]))
-    rclpy.spin(node)
-    rclpy.shutdown()
+    action_client = CountUntilActionClient()
+    
+    # Send goal with target=5 and period=1 second
+    action_client.send_goal(target=5, period=1)
+    
+    try:
+        rclpy.spin(action_client)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        action_client.destroy_node()
+        rclpy.shutdown()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

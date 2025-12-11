@@ -1,9 +1,13 @@
-# Goal
-int64 target_number
-float64 delay
+# Goal: What the client wants the server to do
+int32 target
+int32 period
+
 ---
-# Result
-int64 reached_number
+
+# Result: What the server returns when done
+int32 total_count
+
 ---
-# Feedback
-int64 current_number
+
+# Feedback: Periodic updates during execution
+int32 current_count
