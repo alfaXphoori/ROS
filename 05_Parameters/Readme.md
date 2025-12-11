@@ -81,12 +81,14 @@ This example demonstrates practical parameter usage: a publisher node that repor
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `robot_name` | string | `"robot_default"` | Robot identifier/name |
-| `robot_number` | int | `1` | Unique robot ID number |
-| `publish_rate` | double | `1.0` | Publishing frequency (Hz) |
-| `debug_mode` | bool | `false` | Enable verbose logging |
+| `robot_id` | string | `"warehouse_bot_001"` | Unique robot identifier |
+| `max_speed` | double | `2.5` | Maximum speed in m/s |
+| `battery_warning_level` | int | `20` | Battery warning threshold (%) |
+| `status_publish_rate` | double | `1.0` | Status update frequency (Hz) |
+| `enable_safety_features` | bool | `true` | Enable collision avoidance |
+| `operation_mode` | string | `"autonomous"` | Mode: autonomous/manual/standby |
 
-**Use Case:** Configure different robots with unique identities and adjust behavior without code changes.
+**Use Case:** Configure warehouse robots with realistic operational parameters - speed limits, battery management, safety settings, and operational modes.
 
 ---
 
@@ -115,52 +117,70 @@ class HardwareStatusPublisher(Node):
         
         # Declare parameters with defaults and descriptors
         self.declare_parameter(
-            'robot_name',
-            'robot_default',
+            'robot_id',
+            'warehouse_bot_001',
             ParameterDescriptor(
-                description='Name/identifier of the robot'
+                description='Unique robot identifier (e.g., warehouse_bot_001)'
             )
         )
         
         self.declare_parameter(
-            'robot_number',
-            1,
+            'max_speed',
+            2.5,
             ParameterDescriptor(
-                description='Robot ID number (1-1000)'
+                description='Maximum robot speed in meters per second (0.1-5.0 m/s)'
             )
         )
         
         self.declare_parameter(
-            'publish_rate',
+            'battery_warning_level',
+            20,
+            ParameterDescriptor(
+                description='Battery percentage to trigger warning (10-50%)'
+            )
+        )
+        
+        self.declare_parameter(
+            'status_publish_rate',
             1.0,
             ParameterDescriptor(
-                description='Publishing frequency in Hz'
+                description='Status publishing frequency in Hz (0.1-10.0 Hz)'
             )
         )
         
         self.declare_parameter(
-            'debug_mode',
-            False,
+            'enable_safety_features',
+            True,
             ParameterDescriptor(
-                description='Enable debug logging'
+                description='Enable collision avoidance and safety systems'
+            )
+        )
+        
+        self.declare_parameter(
+            'operation_mode',
+            'autonomous',
+            ParameterDescriptor(
+                description='Operation mode: autonomous, manual, or standby'
             )
         )
         
         # Get parameter values
-        self.robot_name = self.get_parameter('robot_name').value
-        self.robot_number = self.get_parameter('robot_number').value
-        publish_rate = self.get_parameter('publish_rate').value
-        self.debug_mode = self.get_parameter('debug_mode').value
+        self.robot_id = self.get_parameter('robot_id').value
+        self.max_speed = self.get_parameter('max_speed').value
+        self.battery_warning = self.get_parameter('battery_warning_level').value
+        self.status_rate = self.get_parameter('status_publish_rate').value
+        self.safety_enabled = self.get_parameter('enable_safety_features').value
+        self.operation_mode = self.get_parameter('operation_mode').value
         
         # Create publisher
         self.publisher = self.create_publisher(
             HardwareStatus,
-            'hardware_status_para',
+            'robot_status',
             10
         )
         
-        # Create timer based on publish_rate
-        timer_period = 1.0 / publish_rate
+        # Create timer based on status_publish_rate
+        timer_period = 1.0 / self.status_rate
         self.timer = self.create_timer(
             timer_period,
             self.timer_callback
@@ -173,49 +193,100 @@ class HardwareStatusPublisher(Node):
         
         self.message_count = 0
         
-        self.get_logger().info('⚙️  Hardware Status Publisher initialized')
-        self.get_logger().info(f'   Robot: {self.robot_name} (ID: {self.robot_number})')
-        self.get_logger().info(f'   Publish Rate: {publish_rate} Hz')
-        self.get_logger().info(f'   Debug Mode: {self.debug_mode}')
+        self.get_logger().info('⚙️  Warehouse Robot Status Publisher initialized')
+        self.get_logger().info(f'   Robot ID: {self.robot_id}')
+        self.get_logger().info(f'   Max Speed: {self.max_speed} m/s')
+        self.get_logger().info(f'   Battery Warning: {self.battery_warning}%')
+        self.get_logger().info(f'   Status Rate: {self.status_rate} Hz')
+        self.get_logger().info(f'   Safety Features: {"Enabled" if self.safety_enabled else "Disabled"}')
+        self.get_logger().info(f'   Operation Mode: {self.operation_mode}')
 
     def timer_callback(self):
-        """Publish HardwareStatus message"""
+        """Publish robot status message"""
         msg = HardwareStatus()
-        msg.name_robot = self.robot_name
-        msg.number_robot = self.robot_number
-        msg.temperature = 25 + (self.message_count % 5)
-        msg.motor_ready = True
-        msg.debug_message = f'Message #{self.message_count} from {self.robot_name}'
+        msg.name_robot = self.robot_id
+        
+        # Simulate battery drain (starts at 100%, decreases over time)
+        battery_level = 100 - (self.message_count % 100)
+        msg.battery_percentage = battery_level
+        
+        # Simulate temperature (25-35°C range)
+        msg.temperature = 25 + (self.message_count % 10)
+        
+        # Check if robot should operate based on mode and safety
+        msg.motor_ready = (self.operation_mode == 'autonomous' and 
+                          battery_level > self.battery_warning and
+                          self.safety_enabled)
+        
+        msg.debug_message = f'Robot {self.robot_id} - Mode: {self.operation_mode}, Speed Limit: {self.max_speed} m/s'
         
         self.publisher.publish(msg)
         self.message_count += 1
         
-        if self.debug_mode:
+        # Warn if battery low
+        if battery_level <= self.battery_warning:
+            self.get_logger().warn(
+                f'⚠️  Low battery: {battery_level}% (threshold: {self.battery_warning}%)'
+            )
+        
+        # Log status in autonomous mode
+        if self.operation_mode == 'autonomous':
             self.get_logger().info(
-                f'📡 Published: {msg.name_robot} - Temp: {msg.temperature}°C'
+                f'🤖 {self.robot_id}: Battery {battery_level}%, Temp {msg.temperature}°C, '
+                f'Motors {"Ready" if msg.motor_ready else "Standby"}'
             )
 
     def parameter_callback(self, params):
-        """Handle parameter changes at runtime"""
+        """Handle parameter changes at runtime with validation"""
         for param in params:
-            if param.name == 'robot_name':
-                self.robot_name = param.value
-                self.get_logger().info(f'✅ Updated robot_name = {self.robot_name}')
+            if param.name == 'robot_id':
+                self.robot_id = param.value
+                self.get_logger().info(f'✅ Updated robot_id = {self.robot_id}')
                 
-            elif param.name == 'robot_number':
-                self.robot_number = param.value
-                self.get_logger().info(f'✅ Updated robot_number = {self.robot_number}')
+            elif param.name == 'max_speed':
+                # Validate speed range
+                if 0.1 <= param.value <= 5.0:
+                    self.max_speed = param.value
+                    self.get_logger().info(f'✅ Updated max_speed = {self.max_speed} m/s')
+                else:
+                    self.get_logger().error(f'❌ Invalid speed: {param.value} (must be 0.1-5.0 m/s)')
+                    return SetParametersResult(successful=False, reason='Speed out of valid range')
+                    
+            elif param.name == 'battery_warning_level':
+                # Validate battery threshold
+                if 10 <= param.value <= 50:
+                    self.battery_warning = param.value
+                    self.get_logger().info(f'✅ Updated battery_warning_level = {self.battery_warning}%')
+                else:
+                    self.get_logger().error(f'❌ Invalid battery level: {param.value} (must be 10-50%)')
+                    return SetParametersResult(successful=False, reason='Battery threshold out of range')
+                    
+            elif param.name == 'enable_safety_features':
+                self.safety_enabled = param.value
+                status = "Enabled" if param.value else "Disabled"
+                self.get_logger().info(f'✅ Safety features {status}')
                 
-            elif param.name == 'debug_mode':
-                self.debug_mode = param.value
-                self.get_logger().info(f'✅ Updated debug_mode = {self.debug_mode}')
-                
-            elif param.name == 'publish_rate':
-                publish_rate = param.value
-                timer_period = 1.0 / publish_rate
-                self.timer.cancel()
-                self.timer = self.create_timer(timer_period, self.timer_callback)
-                self.get_logger().info(f'✅ Updated publish_rate = {publish_rate} Hz')
+            elif param.name == 'operation_mode':
+                # Validate operation mode
+                valid_modes = ['autonomous', 'manual', 'standby']
+                if param.value in valid_modes:
+                    self.operation_mode = param.value
+                    self.get_logger().info(f'✅ Updated operation_mode = {self.operation_mode}')
+                else:
+                    self.get_logger().error(f'❌ Invalid mode: {param.value} (must be {valid_modes})')
+                    return SetParametersResult(successful=False, reason='Invalid operation mode')
+                    
+            elif param.name == 'status_publish_rate':
+                # Validate publish rate
+                if 0.1 <= param.value <= 10.0:
+                    self.status_rate = param.value
+                    timer_period = 1.0 / self.status_rate
+                    self.timer.cancel()
+                    self.timer = self.create_timer(timer_period, self.timer_callback)
+                    self.get_logger().info(f'✅ Updated status_publish_rate = {self.status_rate} Hz')
+                else:
+                    self.get_logger().error(f'❌ Invalid rate: {param.value} (must be 0.1-10.0 Hz)')
+                    return SetParametersResult(successful=False, reason='Publish rate out of range')
         
         return SetParametersResult(successful=True)
 
@@ -325,10 +396,14 @@ ros2 run ce_robot 05_hw_para
 
 **Expected Output:**
 ```
-[INFO] [hw_status_publisher]: ⚙️  Hardware Status Publisher initialized
-[INFO] [hw_status_publisher]:    Robot: robot_default (ID: 1)
-[INFO] [hw_status_publisher]:    Publish Rate: 1.0 Hz
-[INFO] [hw_status_publisher]:    Debug Mode: False
+[INFO] [hw_status_publisher]: ⚙️  Warehouse Robot Status Publisher initialized
+[INFO] [hw_status_publisher]:    Robot ID: warehouse_bot_001
+[INFO] [hw_status_publisher]:    Max Speed: 2.5 m/s
+[INFO] [hw_status_publisher]:    Battery Warning: 20%
+[INFO] [hw_status_publisher]:    Status Rate: 1.0 Hz
+[INFO] [hw_status_publisher]:    Safety Features: Enabled
+[INFO] [hw_status_publisher]:    Operation Mode: autonomous
+[INFO] [hw_status_publisher]: 🤖 warehouse_bot_001: Battery 100%, Temp 25°C, Motors Ready
 ```
 
 ### **Method 2: Command-Line Parameters**
@@ -338,20 +413,22 @@ Override parameters directly from the command line:
 **Terminal 1:**
 ```bash
 ros2 run ce_robot 05_hw_para --ros-args \
-  -p robot_name:=robot_ce6541 \
-  -p robot_number:=6541 \
-  -p publish_rate:=2.0 \
-  -p debug_mode:=true
+  -p robot_id:=warehouse_bot_042 \
+  -p max_speed:=3.5 \
+  -p battery_warning_level:=25 \
+  -p status_publish_rate:=2.0 \
+  -p operation_mode:=manual
 ```
 
 **Expected Output:**
 ```
-[INFO] [hw_status_publisher]: ⚙️  Hardware Status Publisher initialized
-[INFO] [hw_status_publisher]:    Robot: robot_ce6541 (ID: 6541)
-[INFO] [hw_status_publisher]:    Publish Rate: 2.0 Hz
-[INFO] [hw_status_publisher]:    Debug Mode: True
-[INFO] [hw_status_publisher]: 📡 Published: robot_ce6541 - Temp: 25°C
-[INFO] [hw_status_publisher]: 📡 Published: robot_ce6541 - Temp: 26°C
+[INFO] [hw_status_publisher]: ⚙️  Warehouse Robot Status Publisher initialized
+[INFO] [hw_status_publisher]:    Robot ID: warehouse_bot_042
+[INFO] [hw_status_publisher]:    Max Speed: 3.5 m/s
+[INFO] [hw_status_publisher]:    Battery Warning: 25%
+[INFO] [hw_status_publisher]:    Status Rate: 2.0 Hz
+[INFO] [hw_status_publisher]:    Safety Features: Enabled
+[INFO] [hw_status_publisher]:    Operation Mode: manual
 ```
 
 ### **Method 3: Parameter File (.yaml)**
@@ -362,10 +439,12 @@ Create a configuration file for reusable parameter sets.
 ```yaml
 hw_status_publisher:
   ros__parameters:
-    robot_name: "robot_warehouse"
-    robot_number: 100
-    publish_rate: 5.0
-    debug_mode: true
+    robot_id: "warehouse_delivery_bot"
+    max_speed: 4.0
+    battery_warning_level: 30
+    status_publish_rate: 5.0
+    enable_safety_features: true
+    operation_mode: "autonomous"
 ```
 
 **Run with parameter file:**
@@ -375,11 +454,14 @@ ros2 run ce_robot 05_hw_para --ros-args --params-file robot_config.yaml
 
 **Expected Output:**
 ```
-[INFO] [hw_status_publisher]: ⚙️  Hardware Status Publisher initialized
-[INFO] [hw_status_publisher]:    Robot: robot_warehouse (ID: 100)
-[INFO] [hw_status_publisher]:    Publish Rate: 5.0 Hz
-[INFO] [hw_status_publisher]:    Debug Mode: True
-[INFO] [hw_status_publisher]: 📡 Published: robot_warehouse - Temp: 25°C
+[INFO] [hw_status_publisher]: ⚙️  Warehouse Robot Status Publisher initialized
+[INFO] [hw_status_publisher]:    Robot ID: warehouse_delivery_bot
+[INFO] [hw_status_publisher]:    Max Speed: 4.0 m/s
+[INFO] [hw_status_publisher]:    Battery Warning: 30%
+[INFO] [hw_status_publisher]:    Status Rate: 5.0 Hz
+[INFO] [hw_status_publisher]:    Safety Features: Enabled
+[INFO] [hw_status_publisher]:    Operation Mode: autonomous
+[INFO] [hw_status_publisher]: 🤖 warehouse_delivery_bot: Battery 100%, Temp 25°C, Motors Ready
 ```
 
 ---
@@ -397,10 +479,12 @@ ros2 param list
 **Output:**
 ```
 /hw_status_publisher:
-  debug_mode
-  publish_rate
-  robot_name
-  robot_number
+  battery_warning_level
+  enable_safety_features
+  max_speed
+  operation_mode
+  robot_id
+  status_publish_rate
   use_sim_time
 ```
 
@@ -409,12 +493,12 @@ ros2 param list
 Retrieve the current value of a specific parameter:
 
 ```bash
-ros2 param get /hw_status_publisher robot_name
+ros2 param get /hw_status_publisher robot_id
 ```
 
 **Output:**
 ```
-String value is: robot_ce6541
+String value is: warehouse_bot_042
 ```
 
 ### **Set Parameter at Runtime**
@@ -423,7 +507,7 @@ Modify parameter while node is running:
 
 **Terminal 2:**
 ```bash
-ros2 param set /hw_status_publisher debug_mode true
+ros2 param set /hw_status_publisher operation_mode autonomous
 ```
 
 **Output:**
@@ -433,19 +517,32 @@ Set parameter successful
 
 **Node Output (Terminal 1):**
 ```
-[INFO] [hw_status_publisher]: ✅ Updated debug_mode = True
-[INFO] [hw_status_publisher]: 📡 Published: robot_ce6541 - Temp: 27°C
+[INFO] [hw_status_publisher]: ✅ Updated operation_mode = autonomous
+[INFO] [hw_status_publisher]: 🤖 warehouse_bot_042: Battery 95%, Temp 30°C, Motors Ready
 ```
 
-### **Change Publishing Rate at Runtime**
+### **Change Max Speed at Runtime**
 
 ```bash
-ros2 param set /hw_status_publisher publish_rate 10.0
+ros2 param set /hw_status_publisher max_speed 2.0
 ```
 
 **Node Output:**
 ```
-[INFO] [hw_status_publisher]: ✅ Updated publish_rate = 10.0 Hz
+[INFO] [hw_status_publisher]: ✅ Updated max_speed = 2.0 m/s
+```
+
+### **Test Parameter Validation**
+
+Try setting an invalid speed:
+
+```bash
+ros2 param set /hw_status_publisher max_speed 10.0
+```
+
+**Node Output:**
+```
+[ERROR] [hw_status_publisher]: ❌ Invalid speed: 10.0 (must be 0.1-5.0 m/s)
 ```
 
 ### **Get Parameter Description**
@@ -453,14 +550,14 @@ ros2 param set /hw_status_publisher publish_rate 10.0
 View parameter metadata:
 
 ```bash
-ros2 param describe /hw_status_publisher robot_name
+ros2 param describe /hw_status_publisher max_speed
 ```
 
 **Output:**
 ```
-Parameter name: robot_name
-  Type: string
-  Description: Name/identifier of the robot
+Parameter name: max_speed
+  Type: double
+  Description: Maximum robot speed in meters per second (0.1-5.0 m/s)
   Constraints: none
 ```
 
@@ -626,10 +723,16 @@ ros2 run ce_robot 05_hw_para --ros-args \
 - **Solution:** Ensure YAML types match parameter declarations
 ```yaml
 # ❌ Wrong - string for int parameter
-robot_number: "100"
+battery_warning_level: "25"
 
 # ✅ Correct - int for int parameter
-robot_number: 100
+battery_warning_level: 25
+
+# ❌ Wrong - string for double parameter  
+max_speed: "2.5"
+
+# ✅ Correct - double for double parameter
+max_speed: 2.5
 ```
 
 ### **Issue: "Cannot modify parameter at runtime"**
@@ -750,11 +853,18 @@ def parameter_callback(self, params):
 ```python
 def parameter_callback(self, params):
     for param in params:
-        if param.name == 'speed':
-            if param.value < 0 or param.value > 5.0:
+        if param.name == 'max_speed':
+            if param.value < 0.1 or param.value > 5.0:
                 return SetParametersResult(
                     successful=False,
-                    reason='Speed must be 0-5.0 m/s'
+                    reason='Max speed must be 0.1-5.0 m/s'
+                )
+        elif param.name == 'operation_mode':
+            valid_modes = ['autonomous', 'manual', 'standby']
+            if param.value not in valid_modes:
+                return SetParametersResult(
+                    successful=False,
+                    reason=f'Mode must be one of {valid_modes}'
                 )
     return SetParametersResult(successful=True)
 ```
@@ -771,19 +881,38 @@ git commit -m "Updated speed parameters"
 
 3. **Parameter Templates**
 ```yaml
-# Template for warehouse robots
-warehouse_robot:
+# Template for warehouse transport robots
+warehouse_transport_robot:
   ros__parameters:
+    robot_id: "transport_bot_xxx"
     max_speed: 2.5
-    safety_distance: 0.5
-    charging_threshold: 20.0
+    battery_warning_level: 20
+    status_publish_rate: 1.0
+    enable_safety_features: true
+    operation_mode: "autonomous"
+    payload_capacity: 500.0  # kg
 
-# Template for delivery robots  
+# Template for high-speed delivery robots  
 delivery_robot:
   ros__parameters:
-    max_speed: 1.5
-    safety_distance: 1.0
-    delivery_timeout: 300.0
+    robot_id: "delivery_bot_xxx"
+    max_speed: 4.0
+    battery_warning_level: 30
+    status_publish_rate: 2.0
+    enable_safety_features: true
+    operation_mode: "autonomous"
+    delivery_timeout: 300.0  # seconds
+    
+# Template for inspection robots
+inspection_robot:
+  ros__parameters:
+    robot_id: "inspect_bot_xxx"
+    max_speed: 1.0
+    battery_warning_level: 15
+    status_publish_rate: 5.0
+    enable_safety_features: true
+    operation_mode: "manual"
+    camera_resolution: "1080p"
 ```
 
 ### **Hands-On Projects**
