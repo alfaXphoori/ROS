@@ -690,7 +690,7 @@ if __name__ == '__main__':
 
 **Terminal 1 - Run node:**
 ```bash
-ros2 run ce_robot robot_tag_callback_pub --ros-args -p debug_mode:=false
+ros2 run ce_robot 05_robot_tag_callback --ros-args -p debug_mode:=false
 ```
 
 **Terminal 2 - Set fleet parameters at runtime:**
@@ -1148,7 +1148,7 @@ robot_tag_validated_pub:
 
 **Test 1 - Run with YAML configuration file:**
 ```bash
-ros2 run ce_robot robot_tag_validated_pub --ros-args \
+ros2 run ce_robot 05_robot_tag_validated --ros-args \
   --params-file fleet_config.yaml
 ```
 
@@ -1355,7 +1355,7 @@ ls -la fleet_config.yaml
 cat fleet_config.yaml
 
 # Use absolute path if needed
-ros2 run ce_robot node --ros-args --params-file /absolute/path/to/fleet_config.yaml
+ros2 run ce_robot 05_robot_tag_validated --ros-args --params-file /absolute/path/to/fleet_config.yaml
 ```
 
 ### **Issue: Parameter callback not triggered**
