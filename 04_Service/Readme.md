@@ -163,6 +163,26 @@ float64 area_rectangle
 
 The server node listens for service requests and responds with calculated results.
 
+### **📁 File Location**
+
+Navigate to your ROS 2 workspace and create the Python file:
+
+```bash
+cd ~/ros2_ws/src/ce_robot/ce_robot
+touch CalRect_server.py
+chmod +x CalRect_server.py
+```
+
+**Directory Structure:**
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot/
+        └── 📁 ce_robot/
+            ├── 📄 __init__.py
+            └── 🐍 CalRect_server.py    ← Create this file
+```
+
 ### **File: CalRect_server.py**
 
 ```python

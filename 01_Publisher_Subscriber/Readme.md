@@ -53,6 +53,16 @@ touch first_publisher.py
 chmod +x first_publisher.py
 ```
 
+**Directory Structure:**
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot/
+        └── 📁 ce_robot/
+            ├── 📄 __init__.py
+            └── 🐍 first_publisher.py    ← Create this file
+```
+
 ![Publisher File](imgs/1_pub.png)
 
 Write the Python code for the publisher:
@@ -114,6 +124,17 @@ Create a Python file for the Subscriber:
 ```bash
 touch first_subscriber.py
 chmod +x first_subscriber.py
+```
+
+**Directory Structure:**
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot/
+        └── 📁 ce_robot/
+            ├── 📄 __init__.py
+            ├── 🐍 first_publisher.py
+            └── 🐍 first_subscriber.py    ← Create this file
 ```
 
 Write the Python code for the subscriber:

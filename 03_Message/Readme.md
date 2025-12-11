@@ -188,12 +188,18 @@ Navigate to the `ce_robot` package folder:
 
 ```bash
 cd ~/ros2_ws/src/ce_robot/ce_robot
+touch HardwareStatus_publish.py
+chmod +x HardwareStatus_publish.py
 ```
 
-Create the publisher file `HardwareStatus_publish.py`:
-
-```bash
-chmod +x HardwareStatus_publish.py
+**Directory Structure:**
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot/
+        └── 📁 ce_robot/
+            ├── 📄 __init__.py
+            └── 🐍 HardwareStatus_publish.py    ← Create this file
 ```
 
 **File: HardwareStatus_publish.py**

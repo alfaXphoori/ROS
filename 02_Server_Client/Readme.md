@@ -62,6 +62,16 @@ touch add_two_ints_server.py
 chmod +x add_two_ints_server.py
 ```
 
+**Directory Structure:**
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot/
+        └── 📁 ce_robot/
+            ├── 📄 __init__.py
+            └── 🐍 add_two_ints_server.py    ← Create this file
+```
+
 Write the necessary Python code for the server service handler:
 
 ```python
@@ -106,8 +116,19 @@ cd ~/ros2_ws/src/ce_robot/ce_robot
 Create a Python file for the Client:
 
 ```bash
-touch add_two_ints_client.py
-chmod +x add_two_ints_client.py
+touch add_twts_ints_client.py
+chmod +x add_twts_ints_client.py
+```
+
+**Directory Structure:**
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot/
+        └── 📁 ce_robot/
+            ├── 📄 __init__.py
+            ├── 🐍 add_two_ints_server.py
+            └── 🐍 add_twts_ints_client.py    ← Create this file
 ```
 
 Write the necessary Python code for the client:

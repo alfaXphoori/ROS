@@ -158,6 +158,26 @@ ros2 action info /count_until_server
 
 ## **Step 2: Create Action Server**
 
+### **📁 File Location**
+
+Navigate to your ROS 2 workspace and create the Python file:
+
+```bash
+cd ~/ros2_ws/src/ce_robot/ce_robot
+touch count_until_server.py
+chmod +x count_until_server.py
+```
+
+**Directory Structure:**
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot/
+        └── 📁 ce_robot/
+            ├── 📄 __init__.py
+            └── 🐍 count_until_server.py    ← Create this file
+```
+
 ### **File: count_until_server.py**
 
 ```python
