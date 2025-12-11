@@ -162,13 +162,21 @@ Before creating action servers and clients, you need to define the action interf
 
 ### **Create Action Interface Package**
 
-Navigate to your interfaces package:
+Navigate to your interfaces package and create the action directory:
 
 ```bash
-cd ~/ros2_ws/src/ce_robot_interfaces/action/
+cd ~/ros2_ws/src/ce_robot_interfaces
+mkdir -p action
+cd action
 ```
 
 ### **Define Custom Action**
+
+Create the action definition file:
+
+```bash
+touch CountUntil.action
+```
 
 #### **File: CountUntil.action**
 
