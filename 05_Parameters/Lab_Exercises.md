@@ -120,7 +120,9 @@ entry_points={
 
 ---
 
-## **📚 Learning Path Overview**| Exercise | Title | Level | Duration |
+## **📚 Learning Path Overview**
+
+| Exercise | Title | Level | Duration |
 |----------|-------|-------|----------|
 | 1 | Basic Parameter Publisher | Beginner | 25 min |
 | 2 | Dynamic Fleet Configuration | Intermediate | 30 min |
