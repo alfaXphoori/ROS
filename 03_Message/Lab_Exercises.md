@@ -206,7 +206,27 @@ In real warehouse robots, the robot continuously publishes its status including 
 
 **Step 1: Create Robot Status Publisher**
 
-Create `RobotStatus_publisher.py` in `ce_robot/ce_robot/`:
+### **📁 File Location**
+
+Navigate to your ROS 2 workspace and create the Python file:
+
+```bash
+cd ~/ros2_ws/src/ce_robot/ce_robot
+touch RobotStatus_publisher.py
+chmod +x RobotStatus_publisher.py
+```
+
+**Directory Structure:**
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot/
+        └── 📁 ce_robot/
+            ├── 📄 __init__.py
+            └── 🐍 RobotStatus_publisher.py    ← Create this file
+```
+
+Create `RobotStatus_publisher.py`:
 
 ```python
 #!/usr/bin/env python3

@@ -198,7 +198,27 @@ This exercise simulates realistic navigation with path planning, speed control, 
 
 ### **Step 1: Create Navigation Server**
 
-Create `navigate_to_position_server.py` in `ce_robot/ce_robot/`:
+### **📁 File Location**
+
+Navigate to your ROS 2 workspace and create the Python file:
+
+```bash
+cd ~/ros2_ws/src/ce_robot/ce_robot
+touch navigate_to_position_server.py
+chmod +x navigate_to_position_server.py
+```
+
+**Directory Structure:**
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot/
+        └── 📁 ce_robot/
+            ├── 📄 __init__.py
+            └── 🐍 navigate_to_position_server.py    ← Create this file
+```
+
+Create `navigate_to_position_server.py`:
 
 ```python
 #!/usr/bin/env python3

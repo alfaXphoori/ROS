@@ -107,6 +107,26 @@ By completing this lab, you will be able to:
 3. Implement a publisher that sends "Hello from Publisher" every 1 second
 4. Run and verify output
 
+### **📁 File Location**
+
+Navigate to your ROS 2 workspace and create the Python file:
+
+```bash
+cd ~/ros2_ws/src/ce_robot/ce_robot
+touch simple_publisher.py
+chmod +x simple_publisher.py
+```
+
+**Directory Structure:**
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot/
+        └── 📁 ce_robot/
+            ├── 📄 __init__.py
+            └── 🐍 simple_publisher.py    ← Create this file
+```
+
 **File: simple_publisher.py**
 
 ```python

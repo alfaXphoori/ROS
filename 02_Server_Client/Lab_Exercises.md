@@ -84,6 +84,26 @@ By completing this lab, you will be able to:
 3. Create `temp_converter_client.py` with user input
 4. Add input validation for temperature ranges
 
+### **📁 File Location**
+
+Navigate to your ROS 2 workspace and create the Python file:
+
+```bash
+cd ~/ros2_ws/src/ce_robot/ce_robot
+touch temp_converter_server.py
+chmod +x temp_converter_server.py
+```
+
+**Directory Structure:**
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot/
+        └── 📁 ce_robot/
+            ├── 📄 __init__.py
+            └── 🐍 temp_converter_server.py    ← Create this file
+```
+
 **File: temp_converter_server.py**
 
 ```python

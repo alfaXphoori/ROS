@@ -80,6 +80,26 @@ By completing this lab, you will be able to:
 
 Create a basic action that counts from 1 to a target number, publishing feedback at each step and returning the final count.
 
+### **📁 File Location**
+
+Navigate to your ROS 2 workspace and create the Python file:
+
+```bash
+cd ~/ros2_ws/src/ce_robot/ce_robot
+touch count_until_server_ex1.py
+chmod +x count_until_server_ex1.py
+```
+
+**Directory Structure:**
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot/
+        └── 📁 ce_robot/
+            ├── 📄 __init__.py
+            └── 🐍 count_until_server_ex1.py    ← Create this file
+```
+
 ### **Files to Create**
 
 **Server File: count_until_server_ex1.py**
