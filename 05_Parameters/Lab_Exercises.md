@@ -45,7 +45,7 @@ By completing this lab, you will be able to:
 
 ```
 ┌─────────────────────────────────────────────┐
-│ Exercise 1: Basic RobotTag Publisher        │
+│ Exercise 1: Basic Parameter Publisher       │
 │ (Declare & read fleet parameters)           │
 │ • robot_id, robot_type, zone_id             │
 └──────────────┬──────────────────────────────┘
@@ -71,13 +71,13 @@ By completing this lab, you will be able to:
 
 | Exercise | Title | Level | Duration |
 |----------|-------|-------|----------|
-| 1 | Basic RobotTag Publisher | Beginner | 25 min |
+| 1 | Basic Parameter Publisher | Beginner | 25 min |
 | 2 | Dynamic Fleet Configuration | Intermediate | 30 min |
 | 3 | Fleet Management with Validation | Intermediate | 35 min |
 
 ---
 
-## **Exercise 1: Basic RobotTag Publisher (Beginner) 📝**
+## **Exercise 1: Basic Parameter Publisher (Beginner) 📝**
 
 ### **📋 Task**
 
@@ -1096,7 +1096,7 @@ cat config.yaml
 
 ## **✅ Completion Checklist**
 
-- [ ] Exercise 1: Basic RobotTag Publisher completed
+- [ ] Exercise 1: Basic Parameter Publisher completed
   - [ ] Fleet parameters declared with descriptors
   - [ ] Node runs with default parameters
   - [ ] Node runs with command-line fleet parameters
