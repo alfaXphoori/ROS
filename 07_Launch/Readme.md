@@ -772,13 +772,24 @@ source install/setup.bash
 # Error: Executable 'hw_status_pub' not found
 ```
 **Fix:** Check your `setup.py` in ce_robot package:
+
+**Required entry points for 07_Launch (55 total):**
 ```python
 entry_points={
     'console_scripts': [
-        'hw_status_param_pub = ...',  # ← Use EXACT name
+        # 05_Parameters (required for launch files)
+        'hw_status_param_pub = ce_robot.hw_status_param_pub:main',
+        'hw_status_callback_pub = ce_robot.hw_status_callback_pub:main',
+        
+        # 04_Service (alias for launch files)
+        'cal_rect_server = ce_robot.CalRect_server:main',
+        
+        # ... plus 52 other entry points for modules 00-06
     ],
 }
 ```
+
+📝 **Complete setup.py available:** See `99_Test/setup.py` for reference with all 55 entry points
 
 ### **❌ Mistake 3: Python syntax error in launch file**
 ```bash
