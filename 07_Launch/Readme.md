@@ -756,45 +756,6 @@ Node(
 
 ## **⚠️ Common Mistakes & Troubleshooting**
 
-### **❌ ERROR: Package 'ce_robot_launch' not found** 🔴 MOST COMMON!
-
-**Full Error Message:**
-```bash
-Package 'ce_robot_launch' not found: "package 'ce_robot_launch' not found, 
-searching: ['/home/admin/ros2_ws/install/ce_robot', 
-'/home/admin/ros2_ws/install/ce_robot_interfaces', '/opt/ros/jazzy']"
-```
-
-**Cause:** Package hasn't been built yet, or workspace not sourced after building.
-
-**Solution (Step-by-Step):**
-
-```bash
-# Step 1: Build the package
-cd ~/ros2_ws
-colcon build --packages-select ce_robot_launch
-
-# Step 2: Source the workspace (CRITICAL!)
-source install/setup.bash
-
-# Step 3: Verify package is now found
-ros2 pkg list | grep ce_robot_launch
-# Should output: ce_robot_launch
-
-# Step 4: Now try launching
-ros2 launch ce_robot_launch simple_launch.py
-```
-
-**Why this happens:**
-- ROS 2 searches for packages in `install/` folder
-- `colcon build` creates the package in `install/`
-- `source install/setup.bash` tells ROS 2 where to look
-- Without sourcing, ROS 2 doesn't know the package exists!
-
-**Remember:** Every new terminal needs `source install/setup.bash`!
-
----
-
 ### **❌ Mistake 1: Forgot to build**
 ```bash
 # Error: Package 'ce_robot_launch' not found
