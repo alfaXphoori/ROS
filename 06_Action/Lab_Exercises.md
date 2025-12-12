@@ -2,7 +2,7 @@
 
 ## **📌 Project Title**
 
-Hands-On Lab: Master ROS 2 Actions for Long-Running Tasks with Feedback
+Hands-On Lab: Real-Life Robotics Applications with ROS 2 Actions
 
 ## **👤 Authors**
 
@@ -10,16 +10,16 @@ Hands-On Lab: Master ROS 2 Actions for Long-Running Tasks with Feedback
 
 ## **🛠 Overview**
 
-This comprehensive lab demonstrates **action-based asynchronous task execution** in ROS 2:
-- **Action Definitions** - Create custom action interfaces with goal, result, and feedback
-- **Action Servers** - Implement long-running tasks with periodic feedback publishing
-- **Action Clients** - Send goals and monitor execution progress in real-time
-- **Cancellation Handling** - Support mid-execution goal cancellation
-- **Error Management** - Validate inputs and handle execution failures gracefully
+This comprehensive lab demonstrates **real-world robotics applications** using ROS 2 Actions:
+- **Battery Charging** - Simulate robot autonomous charging with progress monitoring
+- **Navigation to Goal** - Move robot to target position with distance feedback
+- **Gripper Control** - Execute pick-and-place operations with cancellation support
+- **Action Definitions** - Create custom action interfaces for robot behaviors
+- **Error Management** - Handle real-world failures (obstacles, low battery, sensor errors)
 
-**Duration:** ~3 hours  
+**Duration:** ~2.5 hours  
 **Level:** Intermediate to Advanced  
-**Prerequisites:** ROS 2 Jazzy installed, Parameters lab completed, understanding of callbacks
+**Prerequisites:** ROS 2 Jazzy installed, Parameters lab completed, understanding of robot systems
 
 ---
 
@@ -27,23 +27,29 @@ This comprehensive lab demonstrates **action-based asynchronous task execution**
 
 ```
 ┌─────────────────────────────────────────────┐
-│ Exercise 1: Basic Count Until Action        │
-│ (Simple goal, feedback, result)             │
-│ • Count from 1 to target with progress      │
+│ Exercise 1: Battery Charging Action 🔋      │
+│ (Autonomous charging with safety checks)    │
+│ • Monitor battery level during charging     │
+│ • Validate battery health & temperature     │
+│ • Report charging progress feedback         │
 └──────────────┬──────────────────────────────┘
                │
                ▼
 ┌─────────────────────────────────────────────┐
-│ Exercise 2: Distance Calculator with Validation │
-│ (Parameter validation, goal rejection)      │
-│ • Input validation & error handling         │
+│ Exercise 2: Navigate to Goal Action 🗺️      │
+│ (Robot movement with obstacle detection)    │
+│ • Move to target (x, y) position           │
+│ • Report distance remaining & ETA           │
+│ • Detect obstacles and request cancellation │
 └──────────────┬──────────────────────────────┘
                │
                ▼
 ┌─────────────────────────────────────────────┐
-│ Exercise 3: Monitored Actions with Cancellation │
-│ (Goal status tracking, cancellation)        │
-│ • Real-time progress monitoring & cancel    │
+│ Exercise 3: Gripper Pick & Place Action 🦾  │
+│ (Manipulation with multi-stage feedback)    │
+│ • Approach → Grasp → Lift → Move → Release │
+│ • Force sensing and slip detection          │
+│ • Cancel on object drop or grasp failure    │
 └─────────────────────────────────────────────┘
 ```
 
@@ -110,17 +116,17 @@ Add entry points for all six nodes (3 servers + 3 clients) under `console_script
 ```python
 entry_points={
     'console_scripts': [
-        # Exercise 1: Basic Count Until
-        '06_count_until_server_ex1 = ce_robot.count_until_server_ex1:main',
-        '06_count_until_client_ex1 = ce_robot.count_until_client_ex1:main',
+        # Exercise 1: Battery Charging
+        '06_battery_charging_server_ex1 = ce_robot.battery_charging_server_ex1:main',
+        '06_battery_charging_client_ex1 = ce_robot.battery_charging_client_ex1:main',
         
-        # Exercise 2: Distance Calculator
-        '06_distance_calc_server_ex2 = ce_robot.distance_calc_server_ex2:main',
-        '06_distance_calc_client_ex2 = ce_robot.distance_calc_client_ex2:main',
+        # Exercise 2: Navigate to Goal
+        '06_navigate_server_ex2 = ce_robot.navigate_server_ex2:main',
+        '06_navigate_client_ex2 = ce_robot.navigate_client_ex2:main',
         
-        # Exercise 3: Monitored Actions
-        '06_monitored_action_server_ex3 = ce_robot.monitored_action_server_ex3:main',
-        '06_monitored_action_client_ex3 = ce_robot.monitored_action_client_ex3:main',
+        # Exercise 3: Gripper Pick & Place
+        '06_gripper_server_ex3 = ce_robot.gripper_server_ex3:main',
+        '06_gripper_client_ex3 = ce_robot.gripper_client_ex3:main',
     ],
 },
 ```
@@ -129,322 +135,55 @@ entry_points={
 
 ## **📚 Learning Path Overview**
 
-| Exercise | Title | Level | Duration |
-|----------|-------|-------|----------|
-| 1 | Basic Count Until Action | Beginner-Intermediate | 45 min |
-| 2 | Distance Calculator with Validation | Intermediate | 50 min |
-| 3 | Monitored Actions with Cancellation | Advanced | 55 min |
+| Exercise | Title | Robot Application | Duration |
+|----------|-------|-------------------|----------|
+| 1 | Battery Charging Action 🔋 | Autonomous charging station | 50 min |
+| 2 | Navigate to Goal Action 🗺️ | Mobile robot navigation | 45 min |
+| 3 | Gripper Pick & Place Action 🦾 | Robotic manipulation | 55 min |
 
 ---
 
-## **Exercise 1: Basic Count Until Action (Beginner-Intermediate) 🔢**
+## **Exercise 1: Battery Charging Action 🔋**
 
 ### **📋 Task**
 
-Create a basic action that counts from 1 to a target number, publishing feedback at each step and returning the final count. This exercise introduces action fundamentals: goal sending, feedback receiving, and result handling.
+Simulate a robot autonomously charging its battery at a charging station. The action monitors battery level, validates battery health, reports charging progress with feedback, and handles charging failures (overheating, connection issues).
 
-### **📁 File Location**
-
-Navigate to your ROS 2 workspace and create the Python file:
-
-```bash
-cd ~/ros2_ws/src/ce_robot/ce_robot
-touch count_until_server_ex1.py
-chmod +x count_until_server_ex1.py
-```
-
-**Directory Structure:**
-```
-📁 ros2_ws/
-└── 📁 src/
-    └── 📁 ce_robot/
-        └── 📁 ce_robot/
-            ├── 📄 __init__.py
-            └── 🐍 count_until_server_ex1.py    ← Create this file
-```
-
-### **Create Server File**
-
-#### **File: count_until_server_ex1.py**
-
-```python
-#!/usr/bin/env python3
-"""
-Exercise 1: Basic Count Until Server
-Counts from 1 to target with simple feedback
-"""
-
-import rclpy
-from rclpy.action import ActionServer
-from rclpy.node import Node
-from ce_robot_interfaces.action import CountUntil
-import time
-
-
-class CountUntilActionServer(Node):
-    def __init__(self):
-        super().__init__('count_until_server_ex1')
-        
-        self._action_server = ActionServer(
-            self,
-            CountUntil,
-            'count_until_ex1',
-            self.execute_callback
-        )
-        
-        self.get_logger().info('Count Until Action Server (Exercise 1) started')
-
-    def execute_callback(self, goal_handle):
-        """Execute the counting task"""
-        target = goal_handle.request.target
-        period = goal_handle.request.period
-        
-        self.get_logger().info(
-            f'[EX1] Executing: count to {target} with {period}s period'
-        )
-        
-        feedback_msg = CountUntil.Feedback()
-        
-        # Count from 1 to target
-        for count in range(1, target + 1):
-            # Publish feedback
-            feedback_msg.current_count = count
-            goal_handle.publish_feedback(feedback_msg)
-            
-            self.get_logger().info(f'[EX1] Count: {count}/{target}')
-            time.sleep(period)
-        
-        # Succeed and return result
-        goal_handle.succeed()
-        result = CountUntil.Result()
-        result.total_count = target
-        
-        self.get_logger().info(f'[EX1] Goal succeeded! Total: {target}')
-        return result
-
-
-def main(args=None):
-    rclpy.init(args=args)
-    server = CountUntilActionServer()
-    rclpy.spin(server)
-
-
-if __name__ == '__main__':
-    main()
-```
-
-### **Create Client File**
-
-#### **File: count_until_client_ex1.py**
-
-```python
-#!/usr/bin/env python3
-"""
-Exercise 1: Basic Count Until Client
-Sends goal and receives feedback and result
-"""
-
-import rclpy
-from rclpy.action import ActionClient
-from rclpy.node import Node
-from ce_robot_interfaces.action import CountUntil
-
-
-class CountUntilActionClient(Node):
-    def __init__(self):
-        super().__init__('count_until_client_ex1')
-        self._action_client = ActionClient(
-            self,
-            CountUntil,
-            'count_until_ex1'
-        )
-        self.get_logger().info('Count Until Action Client (Exercise 1) initialized')
-
-    def send_goal(self, target, period):
-        """Send goal to server"""
-        self.get_logger().info(f'[EX1] Waiting for server...')
-        self._action_client.wait_for_server()
-        
-        goal_msg = CountUntil.Goal()
-        goal_msg.target = target
-        goal_msg.period = period
-        
-        self.get_logger().info(f'[EX1] Sending goal: target={target}, period={period}s')
-        
-        self._send_goal_future = self._action_client.send_goal_async(
-            goal_msg,
-            feedback_callback=self.feedback_callback
-        )
-        self._send_goal_future.add_done_callback(self.goal_response_callback)
-
-    def goal_response_callback(self, future):
-        """Handle goal response"""
-        goal_handle = future.result()
-        
-        if not goal_handle.accepted:
-            self.get_logger().error('[EX1] Goal rejected!')
-            return
-        
-        self.get_logger().info('[EX1] Goal accepted!')
-        self._get_result_future = goal_handle.get_result_async()
-        self._get_result_future.add_done_callback(self.result_callback)
-
-    def feedback_callback(self, feedback_msg):
-        """Receive feedback"""
-        count = feedback_msg.feedback.current_count
-        self.get_logger().info(f'[EX1] Feedback: count={count}')
-
-    def result_callback(self, future):
-        """Receive result"""
-        result = future.result().result
-        self.get_logger().info(f'[EX1] Result: total_count={result.total_count}')
-
-
-def main(args=None):
-    rclpy.init(args=args)
-    client = CountUntilActionClient()
-    client.send_goal(target=5, period=1)
-    rclpy.spin(client)
-
-
-if __name__ == '__main__':
-    main()
-```
-
----
-
-### **Build and Test**
-
-#### **Step 1: Build the Package**
-
-```bash
-cd ~/ros2_ws
-colcon build --packages-select ce_robot_interfaces ce_robot --symlink-install
-source install/setup.bash
-```
-
-#### **Step 2: Run the Nodes**
-
-**Terminal 1 - Start Action Server:**
-```bash
-ros2 run ce_robot 06_count_until_server_ex1
-```
-
-**Terminal 2 - Run Action Client:**
-```bash
-ros2 run ce_robot 06_count_until_client_ex1
-```
-
----
-
-### **Expected Output**
-
-**Server Terminal:**
-```
-[INFO] [count_until_server_ex1]: Count Until Action Server (Exercise 1) started
-[INFO] [count_until_server_ex1]: [EX1] Executing: count to 5 with 1s period
-[INFO] [count_until_server_ex1]: [EX1] Count: 1/5
-[INFO] [count_until_server_ex1]: [EX1] Count: 2/5
-[INFO] [count_until_server_ex1]: [EX1] Count: 3/5
-[INFO] [count_until_server_ex1]: [EX1] Count: 4/5
-[INFO] [count_until_server_ex1]: [EX1] Count: 5/5
-[INFO] [count_until_server_ex1]: [EX1] Goal succeeded! Total: 5
-```
-
-**Client Terminal:**
-```
-[INFO] [count_until_client_ex1]: Count Until Action Client (Exercise 1) initialized
-[INFO] [count_until_client_ex1]: [EX1] Waiting for server...
-[INFO] [count_until_client_ex1]: [EX1] Sending goal: target=5, period=1s
-[INFO] [count_until_client_ex1]: [EX1] Goal accepted!
-[INFO] [count_until_client_ex1]: [EX1] Feedback: count=1
-[INFO] [count_until_client_ex1]: [EX1] Feedback: count=2
-[INFO] [count_until_client_ex1]: [EX1] Feedback: count=3
-[INFO] [count_until_client_ex1]: [EX1] Feedback: count=4
-[INFO] [count_until_client_ex1]: [EX1] Feedback: count=5
-[INFO] [count_until_client_ex1]: [EX1] Result: total_count=5
-```
-
----
-
-### **💡 Key Concepts**
-
-| Concept | Description | Implementation |
-|---------|-------------|----------------|
-| **Action Server** | Executes long-running tasks | `ActionServer(self, CountUntil, 'count_until_ex1', callback)` |
-| **Execute Callback** | Main task execution function | `execute_callback(self, goal_handle)` |
-| **Feedback Publishing** | Send progress updates | `goal_handle.publish_feedback(feedback_msg)` |
-| **Goal Completion** | Mark successful completion | `goal_handle.succeed()` |
-| **Result Return** | Send final result | `return CountUntil.Result(total_count=target)` |
-
----
-
-### **🔍 Testing Variations**
-
-Try modifying the client to test different scenarios:
-
-```python
-# Test 1: Fast counting
-client.send_goal(target=10, period=0.5)
-
-# Test 2: Slow counting
-client.send_goal(target=3, period=2)
-
-# Test 3: Large target
-client.send_goal(target=20, period=0.2)
-```
-
----
-
-### **✅ Exercise 1 Completion Checklist**
-
-- [ ] Created `count_until_server_ex1.py` with ActionServer
-- [ ] Created `count_until_client_ex1.py` with ActionClient
-- [ ] Added entry points to `setup.py`
-- [ ] Built package successfully with `colcon build`
-- [ ] Server starts and logs initialization message
-- [ ] Client connects and sends goal
-- [ ] Feedback messages received at each count
-- [ ] Final result received: `total_count=5`
-- [ ] Tested with different target and period values
-- [ ] Understood goal → feedback → result lifecycle
-
----
-
-## **Exercise 2: Distance Calculator with Validation (Intermediate) ⚠️**
-
-### **📋 Task**
-
-Create an action that calculates the distance between two points with input validation, demonstrating goal rejection, error handling, and progressive feedback with percentage completion.
+**Real-World Applications:**
+- Warehouse robots returning to charging stations
+- Vacuum cleaning robots auto-charging
+- Delivery robots managing power autonomously
 
 ### **Create Custom Action Definition**
 
-First, create the `DistanceCalc.action` file:
+First, create the `BatteryCharging.action` file:
 
 ```bash
 cd ~/ros2_ws/src/ce_robot_interfaces/action
-touch DistanceCalc.action
+touch BatteryCharging.action
 ```
 
-#### **File: DistanceCalc.action**
+#### **File: BatteryCharging.action**
 
 ```
-# Calculate distance between two points
-float32 x1
-float32 y1
-float32 x2
-float32 y2
+# Goal: Target battery level and charging rate
+int32 target_level      # Target battery percentage (0-100)
+float32 charging_rate   # Charging rate in %/second
 
 ---
 
-# Result: calculated distance
-float32 distance
+# Result: Final battery status
+int32 final_level       # Final battery percentage achieved
+float32 charging_time   # Total time spent charging (seconds)
+bool success           # Whether charging completed successfully
+string message         # Status message or error description
 
 ---
 
-# Feedback: calculation status
-string status
-float32 progress_percent
+# Feedback: Charging progress
+int32 current_level     # Current battery percentage
+float32 temperature     # Battery temperature in Celsius
+string status           # Charging status: "Initializing", "Charging", "Balancing", "Complete"
 ```
 
 **Update `CMakeLists.txt`** in `ce_robot_interfaces`:
@@ -455,7 +194,8 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/RobotTag.msg"
   "srv/CalRectangle.srv"
   "action/CountUntil.action"
-  "action/DistanceCalc.action"    # Add this line
+  "action/DistanceCalc.action"
+  "action/BatteryCharging.action"    # Add this line
   DEPENDENCIES builtin_interfaces
 )
 ```
@@ -469,114 +209,179 @@ source install/setup.bash
 
 ---
 
+### **📁 File Location**
+
+```bash
+cd ~/ros2_ws/src/ce_robot/ce_robot
+touch battery_charging_server_ex1.py
+chmod +x battery_charging_server_ex1.py
+```
+
+**Directory Structure:**
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot/
+        └── 📁 ce_robot/
+            ├── 📄 __init__.py
+            └── 🐍 battery_charging_server_ex1.py    ← Create this file
+```
+
+---
+
 ### **Create Server File**
 
-#### **File: distance_calc_server_ex2.py**
+#### **File: battery_charging_server_ex1.py**
 
 ```python
 #!/usr/bin/env python3
 """
-Exercise 2: Distance Calculator Server with Validation
-Calculates distance with input validation
+Exercise 1: Battery Charging Server
+Simulates robot autonomous charging with safety monitoring
 """
 
 import rclpy
 from rclpy.action import ActionServer
 from rclpy.node import Node
-from ce_robot_interfaces.action import DistanceCalc
-import math
+from ce_robot_interfaces.action import BatteryCharging
 import time
+import random
 
 
-class DistanceCalcActionServer(Node):
+class BatteryChargingActionServer(Node):
     def __init__(self):
-        super().__init__('distance_calc_server_ex2')
+        super().__init__('battery_charging_server_ex1')
         
         self._action_server = ActionServer(
             self,
-            DistanceCalc,
-            'distance_calc_ex2',
+            BatteryCharging,
+            'battery_charging_ex1',
             self.execute_callback
         )
         
-        self.get_logger().info('Distance Calculator Server (Exercise 2) started')
+        # Simulate initial battery state
+        self.current_battery = 20  # Start at 20%
+        
+        self.get_logger().info('🔋 Battery Charging Server started')
+        self.get_logger().info(f'Initial battery level: {self.current_battery}%')
 
     def validate_goal(self, goal):
-        """Validate goal parameters"""
+        """Validate charging parameters"""
         errors = []
         
-        # Check for valid numbers (not NaN or infinity)
-        for val, name in [
-            (goal.x1, 'x1'), (goal.y1, 'y1'),
-            (goal.x2, 'x2'), (goal.y2, 'y2')
-        ]:
-            if math.isnan(val) or math.isinf(val):
-                errors.append(f'{name} is invalid (NaN or infinity)')
+        if goal.target_level < 0 or goal.target_level > 100:
+            errors.append('Target level must be 0-100%')
         
-        # Check if points are too far (> 1000)
-        if abs(goal.x1) > 1000 or abs(goal.y1) > 1000:
-            errors.append('Point 1 coordinates too large (|x| or |y| > 1000)')
-        if abs(goal.x2) > 1000 or abs(goal.y2) > 1000:
-            errors.append('Point 2 coordinates too large (|x| or |y| > 1000)')
+        if goal.target_level <= self.current_battery:
+            errors.append(f'Target ({goal.target_level}%) must be > current ({self.current_battery}%)')
+        
+        if goal.charging_rate <= 0 or goal.charging_rate > 10:
+            errors.append('Charging rate must be 0.1-10 %/second')
         
         return errors
 
     def execute_callback(self, goal_handle):
-        """Execute distance calculation with validation"""
+        """Execute battery charging with safety monitoring"""
         goal = goal_handle.request
+        start_time = time.time()
         
         self.get_logger().info(
-            f'[EX2] Calculating distance from ({goal.x1}, {goal.y1}) to ({goal.x2}, {goal.y2})'
+            f'[EX1] 🔌 Starting charge: {self.current_battery}% → {goal.target_level}% at {goal.charging_rate}%/s'
         )
         
         # Validate goal
         errors = self.validate_goal(goal)
         if errors:
-            self.get_logger().error('[EX2] Goal validation failed:')
+            self.get_logger().error('[EX1] ❌ Charging failed - validation errors:')
             for error in errors:
                 self.get_logger().error(f'  - {error}')
             goal_handle.abort()
-            return DistanceCalc.Result(distance=-1.0)
+            return BatteryCharging.Result(
+                final_level=self.current_battery,
+                charging_time=0.0,
+                success=False,
+                message='; '.join(errors)
+            )
         
-        feedback_msg = DistanceCalc.Feedback()
+        feedback_msg = BatteryCharging.Feedback()
         
         try:
-            # Simulate calculation steps
-            for step in range(1, 4):
-                feedback_msg.status = f'Calculating... (step {step}/3)'
-                feedback_msg.progress_percent = (step / 3) * 100
+            # Phase 1: Initialize charging
+            feedback_msg.status = "Initializing"
+            feedback_msg.current_level = self.current_battery
+            feedback_msg.temperature = 25.0
+            goal_handle.publish_feedback(feedback_msg)
+            self.get_logger().info('[EX1] 🔧 Initializing charging connection...')
+            time.sleep(1)
+            
+            # Phase 2: Charging loop
+            feedback_msg.status = "Charging"
+            while self.current_battery < goal.target_level:
+                # Simulate charging increment
+                self.current_battery = min(
+                    self.current_battery + goal.charging_rate,
+                    goal.target_level
+                )
+                
+                # Simulate battery temperature (increases during charging)
+                feedback_msg.temperature = 25.0 + (self.current_battery / 100.0) * 15.0 + random.uniform(-2, 2)
+                
+                # Check for overheating
+                if feedback_msg.temperature > 45.0:
+                    self.get_logger().error(f'[EX1] 🔥 Overheating detected: {feedback_msg.temperature:.1f}°C')
+                    goal_handle.abort()
+                    return BatteryCharging.Result(
+                        final_level=self.current_battery,
+                        charging_time=time.time() - start_time,
+                        success=False,
+                        message=f'Overheating at {feedback_msg.temperature:.1f}°C'
+                    )
+                
+                # Publish feedback
+                feedback_msg.current_level = int(self.current_battery)
                 goal_handle.publish_feedback(feedback_msg)
                 
-                self.get_logger().info(f'[EX2] {feedback_msg.status} ({feedback_msg.progress_percent:.0f}%)')
-                time.sleep(0.5)
+                self.get_logger().info(
+                    f'[EX1] ⚡ Charging: {feedback_msg.current_level}% | Temp: {feedback_msg.temperature:.1f}°C'
+                )
+                time.sleep(1)
             
-            # Calculate distance
-            dx = goal.x2 - goal.x1
-            dy = goal.y2 - goal.y1
-            distance = math.sqrt(dx*dx + dy*dy)
+            # Phase 3: Balancing (final 5% takes longer)
+            if goal.target_level >= 95:
+                feedback_msg.status = "Balancing"
+                goal_handle.publish_feedback(feedback_msg)
+                self.get_logger().info('[EX1] ⚖️  Balancing cells...')
+                time.sleep(2)
             
-            # Final feedback
-            feedback_msg.status = 'Complete'
-            feedback_msg.progress_percent = 100.0
+            # Complete
+            charging_time = time.time() - start_time
+            feedback_msg.status = "Complete"
             goal_handle.publish_feedback(feedback_msg)
             
-            # Return result
             goal_handle.succeed()
-            result = DistanceCalc.Result()
-            result.distance = distance
+            result = BatteryCharging.Result()
+            result.final_level = int(self.current_battery)
+            result.charging_time = charging_time
+            result.success = True
+            result.message = f'Charged to {result.final_level}% in {charging_time:.1f}s'
             
-            self.get_logger().info(f'[EX2] Goal succeeded! Distance: {distance:.2f}')
+            self.get_logger().info(f'[EX1] ✅ Charging complete: {result.message}')
             return result
             
         except Exception as e:
-            self.get_logger().error(f'[EX2] Execution failed: {str(e)}')
+            self.get_logger().error(f'[EX1] ❌ Charging error: {str(e)}')
             goal_handle.abort()
-            return DistanceCalc.Result(distance=-1.0)
+            return BatteryCharging.Result(
+                final_level=self.current_battery,
+                charging_time=time.time() - start_time,
+                success=False,
+                message=f'Error: {str(e)}'
+            )
 
 
 def main(args=None):
     rclpy.init(args=args)
-    server = DistanceCalcActionServer()
+    server = BatteryChargingActionServer()
     rclpy.spin(server)
 
 
@@ -584,44 +389,46 @@ if __name__ == '__main__':
     main()
 ```
 
-### **Client File: distance_calc_client_ex2.py**
+---
+
+### **Create Client File**
+
+#### **File: battery_charging_client_ex1.py**
 
 ```python
 #!/usr/bin/env python3
 """
-Exercise 2: Distance Calculator Client
-Tests validation and error handling
+Exercise 1: Battery Charging Client
+Sends charging goal and monitors progress
 """
 
 import rclpy
 from rclpy.action import ActionClient
 from rclpy.node import Node
-from ce_robot_interfaces.action import DistanceCalc
+from ce_robot_interfaces.action import BatteryCharging
 
 
-class DistanceCalcActionClient(Node):
+class BatteryChargingActionClient(Node):
     def __init__(self):
-        super().__init__('distance_calc_client_ex2')
+        super().__init__('battery_charging_client_ex1')
         self._action_client = ActionClient(
             self,
-            DistanceCalc,
-            'distance_calc_ex2'
+            BatteryCharging,
+            'battery_charging_ex1'
         )
-        self.get_logger().info('Distance Calculator Client (Exercise 2) initialized')
+        self.get_logger().info('🔋 Battery Charging Client initialized')
 
-    def send_goal(self, x1, y1, x2, y2):
-        """Send goal with validation test"""
-        self.get_logger().info(f'[EX2] Waiting for server...')
+    def send_goal(self, target_level, charging_rate):
+        """Send charging goal"""
+        self.get_logger().info('[EX1] 📡 Waiting for charging server...')
         self._action_client.wait_for_server()
         
-        goal_msg = DistanceCalc.Goal()
-        goal_msg.x1 = x1
-        goal_msg.y1 = y1
-        goal_msg.x2 = x2
-        goal_msg.y2 = y2
+        goal_msg = BatteryCharging.Goal()
+        goal_msg.target_level = target_level
+        goal_msg.charging_rate = charging_rate
         
         self.get_logger().info(
-            f'[EX2] Sending goal: ({x1}, {y1}) to ({x2}, {y2})'
+            f'[EX1] 🎯 Requesting charge to {target_level}% at {charging_rate}%/s'
         )
         
         self._send_goal_future = self._action_client.send_goal_async(
@@ -635,33 +442,39 @@ class DistanceCalcActionClient(Node):
         goal_handle = future.result()
         
         if not goal_handle.accepted:
-            self.get_logger().error('[EX2] Goal rejected by server!')
+            self.get_logger().error('[EX1] ❌ Charging goal rejected!')
             return
         
-        self.get_logger().info('[EX2] Goal accepted!')
+        self.get_logger().info('[EX1] ✅ Charging goal accepted!')
         self._get_result_future = goal_handle.get_result_async()
         self._get_result_future.add_done_callback(self.result_callback)
 
     def feedback_callback(self, feedback_msg):
-        """Receive feedback"""
+        """Receive charging feedback"""
         fb = feedback_msg.feedback
-        self.get_logger().info(f'[EX2] {fb.status} ({fb.progress_percent:.0f}%)')
+        self.get_logger().info(
+            f'[EX1] 📊 {fb.status}: {fb.current_level}% | {fb.temperature:.1f}°C'
+        )
 
     def result_callback(self, future):
-        """Receive result or error"""
+        """Receive final result"""
         result = future.result().result
-        if result.distance < 0:
-            self.get_logger().error('[EX2] Goal failed or aborted')
+        if result.success:
+            self.get_logger().info(
+                f'[EX1] ✅ {result.message}'
+            )
         else:
-            self.get_logger().info(f'[EX2] Distance: {result.distance:.2f} units')
+            self.get_logger().error(
+                f'[EX1] ❌ Charging failed: {result.message}'
+            )
 
 
 def main(args=None):
     rclpy.init(args=args)
-    client = DistanceCalcActionClient()
+    client = BatteryChargingActionClient()
     
-    # Test 1: Valid goal
-    client.send_goal(0.0, 0.0, 3.0, 4.0)
+    # Request: Charge to 80% at 5%/second
+    client.send_goal(target_level=80, charging_rate=5.0)
     rclpy.spin(client)
 
 
@@ -669,32 +482,61 @@ if __name__ == '__main__':
     main()
 ```
 
-### **Testing Exercise 2**
+---
 
-**Build and run:**
+### **Build and Test**
+
+#### **Step 1: Build the Packages**
+
 ```bash
 cd ~/ros2_ws
-colcon build --packages-select ce_robot_interfaces ce_robot --symlink-install
+colcon build --packages-select ce_robot_interfaces
+colcon build --packages-select ce_robot --symlink-install
 source install/setup.bash
-
-# Terminal 1
-ros2 run ce_robot distance_calc_server_ex2
-
-# Terminal 2
-ros2 run ce_robot distance_calc_client_ex2
 ```
 
-**Expected Output:**
+#### **Step 2: Run the Nodes**
+
+**Terminal 1 - Start Charging Server:**
+```bash
+ros2 run ce_robot 06_battery_charging_server_ex1
 ```
-Server: [EX2] Calculating distance from (0.0, 0.0) to (3.0, 4.0)
-Server: [EX2] Calculating... (step 1/3) (33%)
-Client: [EX2] Calculating... (step 1/3) (33%)
-Server: [EX2] Calculating... (step 2/3) (67%)
-Client: [EX2] Calculating... (step 2/3) (67%)
-Server: [EX2] Calculating... (step 3/3) (100%)
-Client: [EX2] Calculating... (step 3/3) (100%)
-Server: [EX2] Goal succeeded! Distance: 5.00
-Client: [EX2] Distance: 5.00 units
+
+**Terminal 2 - Run Charging Client:**
+```bash
+ros2 run ce_robot 06_battery_charging_client_ex1
+```
+
+---
+
+### **Expected Output**
+
+**Server Terminal:**
+```
+[INFO] [battery_charging_server_ex1]: 🔋 Battery Charging Server started
+[INFO] [battery_charging_server_ex1]: Initial battery level: 20%
+[INFO] [battery_charging_server_ex1]: [EX1] 🔌 Starting charge: 20% → 80% at 5.0%/s
+[INFO] [battery_charging_server_ex1]: [EX1] 🔧 Initializing charging connection...
+[INFO] [battery_charging_server_ex1]: [EX1] ⚡ Charging: 25% | Temp: 28.3°C
+[INFO] [battery_charging_server_ex1]: [EX1] ⚡ Charging: 30% | Temp: 29.7°C
+[INFO] [battery_charging_server_ex1]: [EX1] ⚡ Charging: 35% | Temp: 31.2°C
+...
+[INFO] [battery_charging_server_ex1]: [EX1] ⚡ Charging: 80% | Temp: 37.4°C
+[INFO] [battery_charging_server_ex1]: [EX1] ✅ Charging complete: Charged to 80% in 13.2s
+```
+
+**Client Terminal:**
+```
+[INFO] [battery_charging_client_ex1]: 🔋 Battery Charging Client initialized
+[INFO] [battery_charging_client_ex1]: [EX1] 📡 Waiting for charging server...
+[INFO] [battery_charging_client_ex1]: [EX1] 🎯 Requesting charge to 80% at 5.0%/s
+[INFO] [battery_charging_client_ex1]: [EX1] ✅ Charging goal accepted!
+[INFO] [battery_charging_client_ex1]: [EX1] 📊 Initializing: 20% | 25.0°C
+[INFO] [battery_charging_client_ex1]: [EX1] 📊 Charging: 25% | 28.3°C
+[INFO] [battery_charging_client_ex1]: [EX1] 📊 Charging: 30% | 29.7°C
+...
+[INFO] [battery_charging_client_ex1]: [EX1] 📊 Complete: 80% | 37.4°C
+[INFO] [battery_charging_client_ex1]: [EX1] ✅ Charged to 80% in 13.2s
 ```
 
 ---
@@ -703,50 +545,529 @@ Client: [EX2] Distance: 5.00 units
 
 | Concept | Description | Implementation |
 |---------|-------------|----------------|
-| **Input Validation** | Check parameters before execution | `validate_goal()` function |
-| **Goal Rejection** | Abort invalid requests | `goal_handle.abort()` |
-| **Error Handling** | Try-except for exceptions | `try: ... except Exception as e:` |
-| **Progress Feedback** | Multi-step progress updates | `feedback_msg.progress_percent` |
-| **Result with Error** | Negative value indicates error | `DistanceCalc.Result(distance=-1.0)` |
-| **Action States** | State transitions | PENDING → ACTIVE → SUCCEEDED/ABORTED |
+| **Real Robot Task** | Autonomous charging simulation | Battery monitoring + safety checks |
+| **Goal Validation** | Verify parameters before execution | `validate_goal()` function |
+| **Multi-Phase Execution** | Initialize → Charge → Balance | Status: "Initializing", "Charging", "Balancing" |
+| **Safety Monitoring** | Temperature and overheating detection | Abort if temp > 45°C |
+| **Progress Feedback** | Real-time battery level + temperature | `feedback_msg.current_level`, `temperature` |
+| **Failure Handling** | Graceful error recovery | `goal_handle.abort()` with error message |
 
 ---
 
 ### **🔍 Testing Variations**
 
-Test different scenarios by modifying the client's `main()`:
+Test different charging scenarios by modifying the client's `main()`:
 
 ```python
-# Test 1: Valid distance (3-4-5 triangle)
-client.send_goal(0.0, 0.0, 3.0, 4.0)  # Expected: 5.0
+# Test 1: Normal charging (20% → 80%)
+client.send_goal(target_level=80, charging_rate=5.0)
 
-# Test 2: Invalid coordinates (too large)
-client.send_goal(0.0, 0.0, 2000.0, 0.0)  # Expected: Goal rejected
+# Test 2: Fast charging (higher rate)
+client.send_goal(target_level=60, charging_rate=8.0)
 
-# Test 3: Same point (distance = 0)
-client.send_goal(10.0, 10.0, 10.0, 10.0)  # Expected: 0.0
+# Test 3: Full charge with balancing (95%+)
+client.send_goal(target_level=100, charging_rate=3.0)
 
-# Test 4: Diagonal distance
-client.send_goal(-5.0, -5.0, 5.0, 5.0)  # Expected: 14.14
+# Test 4: Invalid goal (target < current)
+client.send_goal(target_level=10, charging_rate=5.0)  # Should reject
+
+# Test 5: Invalid rate
+client.send_goal(target_level=80, charging_rate=15.0)  # Should reject
+```
+
+---
+
+### **✅ Exercise 1 Completion Checklist**
+
+- [ ] Created `BatteryCharging.action` definition
+- [ ] Updated `CMakeLists.txt` and rebuilt interfaces
+- [ ] Created `battery_charging_server_ex1.py` with safety monitoring
+- [ ] Created `battery_charging_client_ex1.py`
+- [ ] Added entry points to `setup.py`
+- [ ] Built packages successfully with `colcon build`
+- [ ] Server validates charging parameters
+- [ ] Server monitors battery temperature
+- [ ] Feedback shows charging progress (level + temperature)
+- [ ] Normal charging (20% → 80%) completes successfully
+- [ ] Invalid goals (target < current, invalid rate) rejected
+- [ ] Overheating detection aborts charging
+- [ ] Understood real robot autonomous charging pattern
+
+---
+
+## **Exercise 2: Navigate to Goal Action 🗺️**
+
+### **📋 Task**
+
+Simulate a mobile robot navigating to a target (x, y) position. The action calculates distance remaining, estimates time of arrival (ETA), reports progress feedback, and handles obstacles that require cancellation.
+
+**Real-World Applications:**
+- Warehouse robots navigating to shelves
+- Delivery robots moving to target locations
+- Service robots approaching customers
+- AGVs (Automated Guided Vehicles) in factories
+
+### **Create Custom Action Definition**
+
+First, create the `NavigateToGoal.action` file:
+
+```bash
+cd ~/ros2_ws/src/ce_robot_interfaces/action
+touch NavigateToGoal.action
+```
+
+#### **File: NavigateToGoal.action**
+
+```
+# Goal: Target position for robot navigation
+float32 target_x        # Target x coordinate (meters)
+float32 target_y        # Target y coordinate (meters)
+float32 speed           # Movement speed (m/s)
+
+---
+
+# Result: Navigation outcome
+bool success            # Whether robot reached goal
+float32 final_x         # Final x position achieved
+float32 final_y         # Final y position achieved
+float32 travel_time     # Total navigation time (seconds)
+string message          # Status message or error description
+
+---
+
+# Feedback: Navigation progress
+float32 current_x       # Current x position
+float32 current_y       # Current y position
+float32 distance_remaining  # Distance to goal (meters)
+float32 eta_seconds     # Estimated time of arrival (seconds)
+string status           # Status: "Moving", "Avoiding Obstacle", "Near Goal"
+```
+
+**Update `CMakeLists.txt`** in `ce_robot_interfaces`:
+
+```cmake
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/HardwareStatus.msg"
+  "msg/RobotTag.msg"
+  "srv/CalRectangle.srv"
+  "action/CountUntil.action"
+  "action/BatteryCharging.action"
+  "action/NavigateToGoal.action"    # Add this line
+  DEPENDENCIES builtin_interfaces
+)
+```
+
+**Rebuild interfaces:**
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot_interfaces
+source install/setup.bash
+```
+
+---
+
+### **📁 File Location**
+
+```bash
+cd ~/ros2_ws/src/ce_robot/ce_robot
+touch navigate_server_ex2.py
+chmod +x navigate_server_ex2.py
+```
+
+---
+
+### **Create Server File**
+
+#### **File: navigate_server_ex2.py**
+
+```python
+#!/usr/bin/env python3
+"""
+Exercise 2: Navigate to Goal Server
+Simulates mobile robot navigation with obstacle detection
+"""
+
+import rclpy
+from rclpy.action import ActionServer
+from rclpy.node import Node
+from ce_robot_interfaces.action import NavigateToGoal
+import math
+import time
+import random
+
+
+class NavigateToGoalActionServer(Node):
+    def __init__(self):
+        super().__init__('navigate_server_ex2')
+        
+        self._action_server = ActionServer(
+            self,
+            NavigateToGoal,
+            'navigate_to_goal_ex2',
+            self.execute_callback
+        )
+        
+        # Robot starting position
+        self.robot_x = 0.0
+        self.robot_y = 0.0
+        
+        self.get_logger().info('🗺️  Navigate to Goal Server started')
+        self.get_logger().info(f'Robot initial position: ({self.robot_x:.2f}, {self.robot_y:.2f})')
+
+    def validate_goal(self, goal):
+        """Validate navigation goal"""
+        errors = []
+        
+        if math.isnan(goal.target_x) or math.isnan(goal.target_y):
+            errors.append('Target coordinates contain NaN')
+        
+        if abs(goal.target_x) > 100 or abs(goal.target_y) > 100:
+            errors.append('Target too far from workspace (max ±100m)')
+        
+        if goal.speed <= 0 or goal.speed > 2.0:
+            errors.append('Speed must be 0.1-2.0 m/s')
+        
+        # Check if already at goal
+        dist = math.sqrt((goal.target_x - self.robot_x)**2 + (goal.target_y - self.robot_y)**2)
+        if dist < 0.1:
+            errors.append(f'Already at goal (distance: {dist:.3f}m)')
+        
+        return errors
+
+    def execute_callback(self, goal_handle):
+        """Execute navigation to goal"""
+        goal = goal_handle.request
+        start_time = time.time()
+        
+        self.get_logger().info(
+            f'[EX2] 🚀 Navigating from ({self.robot_x:.2f}, {self.robot_y:.2f}) '
+            f'to ({goal.target_x:.2f}, {goal.target_y:.2f}) at {goal.speed}m/s'
+        )
+        
+        # Validate goal
+        errors = self.validate_goal(goal)
+        if errors:
+            self.get_logger().error('[EX2] ❌ Navigation failed - validation errors:')
+            for error in errors:
+                self.get_logger().error(f'  - {error}')
+            goal_handle.abort()
+            return NavigateToGoal.Result(
+                success=False,
+                final_x=self.robot_x,
+                final_y=self.robot_y,
+                travel_time=0.0,
+                message='; '.join(errors)
+            )
+        
+        feedback_msg = NavigateToGoal.Feedback()
+        
+        try:
+            # Calculate initial distance
+            total_distance = math.sqrt(
+                (goal.target_x - self.robot_x)**2 + (goal.target_y - self.robot_y)**2
+            )
+            
+            self.get_logger().info(f'[EX2] 📏 Total distance: {total_distance:.2f}m')
+            
+            # Navigation loop
+            while True:
+                # Calculate remaining distance
+                distance_remaining = math.sqrt(
+                    (goal.target_x - self.robot_x)**2 + (goal.target_y - self.robot_y)**2
+                )
+                
+                # Check if goal reached
+                if distance_remaining < 0.1:
+                    feedback_msg.status = "Goal Reached"
+                    break
+                
+                # Simulate obstacle detection (5% chance per iteration)
+                if random.random() < 0.05:
+                    self.get_logger().warn('[EX2] ⚠️  Obstacle detected! Stopping navigation.')
+                    goal_handle.abort()
+                    return NavigateToGoal.Result(
+                        success=False,
+                        final_x=self.robot_x,
+                        final_y=self.robot_y,
+                        travel_time=time.time() - start_time,
+                        message=f'Obstacle detected at ({self.robot_x:.2f}, {self.robot_y:.2f})'
+                    )
+                
+                # Move robot toward goal
+                dx = goal.target_x - self.robot_x
+                dy = goal.target_y - self.robot_y
+                angle = math.atan2(dy, dx)
+                
+                # Move distance per iteration (speed * time_step)
+                step_distance = min(goal.speed * 0.5, distance_remaining)
+                self.robot_x += step_distance * math.cos(angle)
+                self.robot_y += step_distance * math.sin(angle)
+                
+                # Calculate ETA
+                eta = distance_remaining / goal.speed if goal.speed > 0 else 0
+                
+                # Determine status
+                if distance_remaining < 1.0:
+                    feedback_msg.status = "Near Goal"
+                else:
+                    feedback_msg.status = "Moving"
+                
+                # Publish feedback
+                feedback_msg.current_x = self.robot_x
+                feedback_msg.current_y = self.robot_y
+                feedback_msg.distance_remaining = distance_remaining
+                feedback_msg.eta_seconds = eta
+                goal_handle.publish_feedback(feedback_msg)
+                
+                self.get_logger().info(
+                    f'[EX2] 📍 Position: ({self.robot_x:.2f}, {self.robot_y:.2f}) | '
+                    f'Remaining: {distance_remaining:.2f}m | ETA: {eta:.1f}s | {feedback_msg.status}'
+                )
+                
+                time.sleep(0.5)
+            
+            # Success
+            travel_time = time.time() - start_time
+            goal_handle.succeed()
+            
+            self.get_logger().info(
+                f'[EX2] ✅ Navigation complete! '
+                f'Reached ({self.robot_x:.2f}, {self.robot_y:.2f}) in {travel_time:.1f}s'
+            )
+            
+            return NavigateToGoal.Result(
+                success=True,
+                final_x=self.robot_x,
+                final_y=self.robot_y,
+                travel_time=travel_time,
+                message=f'Reached goal in {travel_time:.1f}s'
+            )
+            
+        except Exception as e:
+            self.get_logger().error(f'[EX2] ❌ Navigation error: {str(e)}')
+            goal_handle.abort()
+            return NavigateToGoal.Result(
+                success=False,
+                final_x=self.robot_x,
+                final_y=self.robot_y,
+                travel_time=time.time() - start_time,
+                message=f'Error: {str(e)}'
+            )
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    server = NavigateToGoalActionServer()
+    rclpy.spin(server)
+
+
+if __name__ == '__main__':
+    main()
+```
+
+---
+
+### **Create Client File**
+
+#### **File: navigate_client_ex2.py**
+
+```python
+#!/usr/bin/env python3
+"""
+Exercise 2: Navigate to Goal Client
+Sends navigation goal and monitors progress
+"""
+
+import rclpy
+from rclpy.action import ActionClient
+from rclpy.node import Node
+from ce_robot_interfaces.action import NavigateToGoal
+
+
+class NavigateToGoalActionClient(Node):
+    def __init__(self):
+        super().__init__('navigate_client_ex2')
+        self._action_client = ActionClient(
+            self,
+            NavigateToGoal,
+            'navigate_to_goal_ex2'
+        )
+        self.get_logger().info('🗺️  Navigate to Goal Client initialized')
+
+    def send_goal(self, target_x, target_y, speed):
+        """Send navigation goal"""
+        self.get_logger().info('[EX2] 📡 Waiting for navigation server...')
+        self._action_client.wait_for_server()
+        
+        goal_msg = NavigateToGoal.Goal()
+        goal_msg.target_x = target_x
+        goal_msg.target_y = target_y
+        goal_msg.speed = speed
+        
+        self.get_logger().info(
+            f'[EX2] 🎯 Requesting navigation to ({target_x:.2f}, {target_y:.2f}) at {speed}m/s'
+        )
+        
+        self._send_goal_future = self._action_client.send_goal_async(
+            goal_msg,
+            feedback_callback=self.feedback_callback
+        )
+        self._send_goal_future.add_done_callback(self.goal_response_callback)
+
+    def goal_response_callback(self, future):
+        """Handle goal response"""
+        goal_handle = future.result()
+        
+        if not goal_handle.accepted:
+            self.get_logger().error('[EX2] ❌ Navigation goal rejected!')
+            return
+        
+        self.get_logger().info('[EX2] ✅ Navigation goal accepted!')
+        self._get_result_future = goal_handle.get_result_async()
+        self._get_result_future.add_done_callback(self.result_callback)
+
+    def feedback_callback(self, feedback_msg):
+        """Receive navigation feedback"""
+        fb = feedback_msg.feedback
+        self.get_logger().info(
+            f'[EX2] 📊 {fb.status}: ({fb.current_x:.2f}, {fb.current_y:.2f}) | '
+            f'{fb.distance_remaining:.2f}m remaining | ETA: {fb.eta_seconds:.1f}s'
+        )
+
+    def result_callback(self, future):
+        """Receive final result"""
+        result = future.result().result
+        if result.success:
+            self.get_logger().info(
+                f'[EX2] ✅ {result.message}'
+            )
+        else:
+            self.get_logger().error(
+                f'[EX2] ❌ Navigation failed: {result.message}'
+            )
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    client = NavigateToGoalActionClient()
+    
+    # Navigate to position (5.0, 5.0) at 1.0 m/s
+    client.send_goal(target_x=5.0, target_y=5.0, speed=1.0)
+    rclpy.spin(client)
+
+
+if __name__ == '__main__':
+    main()
+```
+
+---
+
+### **Build and Test**
+
+#### **Step 1: Build the Packages**
+
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot_interfaces
+colcon build --packages-select ce_robot --symlink-install
+source install/setup.bash
+```
+
+#### **Step 2: Run the Nodes**
+
+**Terminal 1 - Start Navigation Server:**
+```bash
+ros2 run ce_robot 06_navigate_server_ex2
+```
+
+**Terminal 2 - Run Navigation Client:**
+```bash
+ros2 run ce_robot 06_navigate_client_ex2
+```
+
+---
+
+### **Expected Output**
+
+**Server Terminal:**
+```
+[INFO] [navigate_server_ex2]: 🗺️  Navigate to Goal Server started
+[INFO] [navigate_server_ex2]: Robot initial position: (0.00, 0.00)
+[INFO] [navigate_server_ex2]: [EX2] 🚀 Navigating from (0.00, 0.00) to (5.00, 5.00) at 1.0m/s
+[INFO] [navigate_server_ex2]: [EX2] 📏 Total distance: 7.07m
+[INFO] [navigate_server_ex2]: [EX2] 📍 Position: (0.35, 0.35) | Remaining: 6.57m | ETA: 6.6s | Moving
+[INFO] [navigate_server_ex2]: [EX2] 📍 Position: (0.71, 0.71) | Remaining: 6.07m | ETA: 6.1s | Moving
+[INFO] [navigate_server_ex2]: [EX2] 📍 Position: (1.06, 1.06) | Remaining: 5.57m | ETA: 5.6s | Moving
+...
+[INFO] [navigate_server_ex2]: [EX2] 📍 Position: (4.82, 4.82) | Remaining: 0.25m | ETA: 0.3s | Near Goal
+[INFO] [navigate_server_ex2]: [EX2] ✅ Navigation complete! Reached (5.00, 5.00) in 7.2s
+```
+
+**Client Terminal:**
+```
+[INFO] [navigate_client_ex2]: 🗺️  Navigate to Goal Client initialized
+[INFO] [navigate_client_ex2]: [EX2] 📡 Waiting for navigation server...
+[INFO] [navigate_client_ex2]: [EX2] 🎯 Requesting navigation to (5.00, 5.00) at 1.0m/s
+[INFO] [navigate_client_ex2]: [EX2] ✅ Navigation goal accepted!
+[INFO] [navigate_client_ex2]: [EX2] 📊 Moving: (0.35, 0.35) | 6.57m remaining | ETA: 6.6s
+[INFO] [navigate_client_ex2]: [EX2] 📊 Moving: (0.71, 0.71) | 6.07m remaining | ETA: 6.1s
+...
+[INFO] [navigate_client_ex2]: [EX2] 📊 Near Goal: (4.82, 4.82) | 0.25m remaining | ETA: 0.3s
+[INFO] [navigate_client_ex2]: [EX2] ✅ Reached goal in 7.2s
+```
+
+---
+
+### **💡 Key Concepts**
+
+| Concept | Description | Implementation |
+|---------|-------------|----------------|
+| **Real Robot Navigation** | Mobile robot path planning | Position tracking + distance calculation |
+| **Goal Validation** | Verify reachable targets | Check coordinates within workspace bounds |
+| **Progress Monitoring** | Real-time position feedback | `current_x`, `current_y`, `distance_remaining`, `ETA` |
+| **Obstacle Detection** | Environment awareness | Random obstacle simulation (5% chance) |
+| **Dynamic Status** | Contextual feedback | "Moving", "Near Goal", "Avoiding Obstacle" |
+| **Failure Handling** | Abort on obstacles | `goal_handle.abort()` with obstacle message |
+
+---
+
+### **🔍 Testing Variations**
+
+Test different navigation scenarios by modifying the client's `main()`:
+
+```python
+# Test 1: Short distance navigation
+client.send_goal(target_x=2.0, target_y=2.0, speed=1.0)
+
+# Test 2: Fast navigation (higher speed)
+client.send_goal(target_x=10.0, target_y=0.0, speed=2.0)
+
+# Test 3: Diagonal navigation
+client.send_goal(target_x=-5.0, target_y=5.0, speed=0.5)
+
+# Test 4: Invalid goal (already at position)
+client.send_goal(target_x=0.0, target_y=0.0, speed=1.0)  # Should reject
+
+# Test 5: Out of workspace bounds
+client.send_goal(target_x=150.0, target_y=150.0, speed=1.0)  # Should reject
 ```
 
 ---
 
 ### **✅ Exercise 2 Completion Checklist**
 
-- [ ] Created `DistanceCalc.action` definition
-- [ ] Updated `CMakeLists.txt` to include new action
-- [ ] Rebuilt `ce_robot_interfaces` package
-- [ ] Created `distance_calc_server_ex2.py` with validation
-- [ ] Created `distance_calc_client_ex2.py`
+- [ ] Created `NavigateToGoal.action` definition
+- [ ] Updated `CMakeLists.txt` and rebuilt interfaces
+- [ ] Created `navigate_server_ex2.py` with obstacle detection
+- [ ] Created `navigate_client_ex2.py`
 - [ ] Added entry points to `setup.py`
-- [ ] Built package successfully with `colcon build`
-- [ ] Server validates input and logs validation results
-- [ ] Client receives progressive feedback (33%, 67%, 100%)
-- [ ] Valid goal (3-4-5 triangle) returns distance: 5.00
-- [ ] Invalid goal (large coordinates) triggers abort
-- [ ] Tested error handling with invalid inputs
-- [ ] Understood `goal_handle.abort()` for errors
+- [ ] Built packages successfully with `colcon build`
+- [ ] Server validates navigation parameters
+- [ ] Feedback shows position, distance remaining, and ETA
+- [ ] Robot successfully navigates to (5.0, 5.0)
+- [ ] Obstacle detection triggers abort (test multiple times)
+- [ ] Invalid goals rejected (out of bounds, already at goal)
+- [ ] Understood real robot navigation patterns
 
 ---
 
