@@ -38,7 +38,7 @@ This comprehensive lab demonstrates **real-world robotics applications** using R
 ┌─────────────────────────────────────────────┐
 │ Exercise 2: Navigate to Goal Action 🗺️      │
 │ (Robot movement with obstacle detection)    │
-│ • Move to target (x, y) position           │
+│ • Move to target (x, y) position            │
 │ • Report distance remaining & ETA           │
 │ • Detect obstacles and request cancellation │
 └──────────────┬──────────────────────────────┘
@@ -47,7 +47,7 @@ This comprehensive lab demonstrates **real-world robotics applications** using R
 ┌─────────────────────────────────────────────┐
 │ Exercise 3: Gripper Pick & Place Action 🦾  │
 │ (Manipulation with multi-stage feedback)    │
-│ • Approach → Grasp → Lift → Move → Release │
+│ • Approach → Grasp → Lift → Move → Release  │
 │ • Force sensing and slip detection          │
 │ • Cancel on object drop or grasp failure    │
 └─────────────────────────────────────────────┘
@@ -117,16 +117,16 @@ Add entry points for all six nodes (3 servers + 3 clients) under `console_script
 entry_points={
     'console_scripts': [
         # Exercise 1: Battery Charging
-        '06_battery_charging_server_ex1 = ce_robot.battery_charging_server_ex1:main',
-        '06_battery_charging_client_ex1 = ce_robot.battery_charging_client_ex1:main',
+        '06_battery_charging_server = ce_robot.battery_charging_server:main',
+        '06_battery_charging_client = ce_robot.battery_charging_client:main',
         
         # Exercise 2: Navigate to Goal
-        '06_navigate_server_ex2 = ce_robot.navigate_server_ex2:main',
-        '06_navigate_client_ex2 = ce_robot.navigate_client_ex2:main',
+        '06_navigate_server = ce_robot.navigate_server:main',
+        '06_navigate_client = ce_robot.navigate_client:main',
         
         # Exercise 3: Gripper Pick & Place
-        '06_gripper_server_ex3 = ce_robot.gripper_server_ex3:main',
-        '06_gripper_client_ex3 = ce_robot.gripper_client_ex3:main',
+        '06_gripper_server = ce_robot.gripper_server:main',
+        '06_gripper_client = ce_robot.gripper_client:main',
     ],
 },
 ```
