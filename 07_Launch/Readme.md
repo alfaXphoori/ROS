@@ -159,17 +159,19 @@ mkdir launch
 
 ### **Directory Structure**
 
-```bash
-ce_robot_launch/
-├── launch/
-│   ├── ce_boot_launch.py
-│   ├── simple_launch.py
-│   ├── config/
-│   │   └── robot_config.yaml
-│   └── params/
-│       └── parameters.yaml
-├── CMakeLists.txt
-└── package.xml
+```
+📁 ros2_ws/
+└── 📁 src/
+    └── 📁 ce_robot_launch/
+        ├── 📁 launch/
+        │   ├── 🐍 ce_boot_launch.py       ← Create this
+        │   ├── 🐍 simple_launch.py        ← Create this
+        │   ├── 📁 config/
+        │   │   └── 📄 robot_config.yaml
+        │   └── 📁 params/
+        │       └── 📄 parameters.yaml
+        ├── 📄 CMakeLists.txt               ← Update this
+        └── 📄 package.xml                  ← Update this
 ```
 
 ### **Update CMakeLists.txt**
