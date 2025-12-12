@@ -55,47 +55,6 @@ This comprehensive lab demonstrates **real-world robotics applications** using R
 
 ---
 
-## **⚙️ Package Configuration**
-
-Before starting the exercises, ensure your package is properly configured:
-
-```bash
-cd ~/ros2_ws/src/ce_robot
-```
-
-### 📌 Updating `package.xml`
-
-Verify dependencies exist in `package.xml`:
-
-```xml
-<depend>rclpy</depend>
-<depend>ce_robot_interfaces</depend>
-```
-
-### 📌 Updating `setup.py`
-
-Add entry points for all six nodes (3 servers + 3 clients) under `console_scripts`:
-
-```python
-entry_points={
-    'console_scripts': [
-        # Exercise 1: Battery Charging
-        '06_battery_charging_server = ce_robot.battery_charging_server:main',
-        '06_battery_charging_client = ce_robot.battery_charging_client:main',
-        
-        # Exercise 2: Navigate to Goal
-        '06_navigate_server = ce_robot.navigate_server:main',
-        '06_navigate_client = ce_robot.navigate_client:main',
-        
-        # Exercise 3: Gripper Pick & Place
-        '06_gripper_server = ce_robot.gripper_server:main',
-        '06_gripper_client = ce_robot.gripper_client:main',
-    ],
-},
-```
-
----
-
 ## **📚 Learning Path Overview**
 
 | Exercise | Title | Robot Application | Duration |
@@ -116,6 +75,39 @@ Simulate a robot autonomously charging its battery at a charging station. The ac
 - Warehouse robots returning to charging stations
 - Vacuum cleaning robots auto-charging
 - Delivery robots managing power autonomously
+
+### **⚙️ Package Configuration**
+
+Before starting, ensure your package is properly configured:
+
+```bash
+cd ~/ros2_ws/src/ce_robot
+```
+
+#### **Updating `package.xml`**
+
+Verify dependencies exist in `package.xml`:
+
+```xml
+<depend>rclpy</depend>
+<depend>ce_robot_interfaces</depend>
+```
+
+#### **Updating `setup.py`**
+
+Add entry points for Exercise 1 nodes under `console_scripts`:
+
+```python
+entry_points={
+    'console_scripts': [
+        # Exercise 1: Battery Charging
+        '06_battery_charging_server = ce_robot.battery_charging_server:main',
+        '06_battery_charging_client = ce_robot.battery_charging_client:main',
+    ],
+},
+```
+
+---
 
 ### **Create Custom Action Definition**
 
@@ -569,6 +561,28 @@ Simulate a mobile robot navigating to a target (x, y) position. The action calcu
 - Delivery robots moving to target locations
 - Service robots approaching customers
 - AGVs (Automated Guided Vehicles) in factories
+
+### **⚙️ Package Configuration**
+
+#### **Updating `setup.py`**
+
+Add entry points for Exercise 2 nodes under `console_scripts`:
+
+```python
+entry_points={
+    'console_scripts': [
+        # Exercise 1: Battery Charging
+        '06_battery_charging_server = ce_robot.battery_charging_server:main',
+        '06_battery_charging_client = ce_robot.battery_charging_client:main',
+        
+        # Exercise 2: Navigate to Goal
+        '06_navigate_server = ce_robot.navigate_server:main',
+        '06_navigate_client = ce_robot.navigate_client:main',
+    ],
+},
+```
+
+---
 
 ### **Create Custom Action Definition**
 
@@ -1045,6 +1059,32 @@ Simulate a robotic gripper performing a pick-and-place operation with multiple s
 - Warehouse sorting and packing systems
 - Collaborative robots (cobots) in assembly lines
 - Robotic arms in research labs
+
+### **⚙️ Package Configuration**
+
+#### **Updating `setup.py`**
+
+Add entry points for Exercise 3 nodes under `console_scripts`:
+
+```python
+entry_points={
+    'console_scripts': [
+        # Exercise 1: Battery Charging
+        '06_battery_charging_server = ce_robot.battery_charging_server:main',
+        '06_battery_charging_client = ce_robot.battery_charging_client:main',
+        
+        # Exercise 2: Navigate to Goal
+        '06_navigate_server = ce_robot.navigate_server:main',
+        '06_navigate_client = ce_robot.navigate_client:main',
+        
+        # Exercise 3: Gripper Pick & Place
+        '06_gripper_server = ce_robot.gripper_server:main',
+        '06_gripper_client = ce_robot.gripper_client:main',
+    ],
+},
+```
+
+---
 
 ### **Create Custom Action Definition**
 
