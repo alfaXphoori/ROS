@@ -261,13 +261,15 @@ def generate_launch_description():
     # Define nodes to launch
     publisher_node = Node(
         package='ce_robot',
-        executable='hw_status_param_pub',
-        name='hw_publisher',
+        executable='05_robot_tag_param',
+        name='robot_tag_publisher',
         output='screen',
         parameters=[
-            {'robot_name': 'robot_simple'},
-            {'robot_number': 1},
-            {'publish_rate': 2.0},
+            {'robot_id': 'ROBOT-SIMPLE-001'},
+            {'robot_type': 'transport'},
+            {'zone_id': 'WAREHOUSE-A'},
+            {'fleet_number': 1},
+            {'tag_publish_rate': 2.0},
         ]
     )
     
@@ -289,14 +291,16 @@ def generate_launch_description():
     
     # 3. Declare each node
     publisher_node = Node(
-        package='ce_robot',              # Which package?
-        executable='hw_status_param_pub', # Which node executable? (from setup.py, file: 05_Parameters/src/hw_status_param_pub.py)
-        name='hw_publisher',              # What to call it?
-        output='screen',                  # Show output in terminal
-        parameters=[                      # Set parameters
-            {'robot_name': 'robot_simple'},
-            {'robot_number': 1},
-            {'publish_rate': 2.0},
+        package='ce_robot',                   # Which package?
+        executable='05_robot_tag_param',      # Which node executable? (from setup.py entry_points)
+        name='robot_tag_publisher',           # What to call it?
+        output='screen',                      # Show output in terminal
+        parameters=[                          # Set parameters
+            {'robot_id': 'ROBOT-SIMPLE-001'},
+            {'robot_type': 'transport'},
+            {'zone_id': 'WAREHOUSE-A'},
+            {'fleet_number': 1},
+            {'tag_publish_rate': 2.0},
         ]
     )
     
@@ -320,16 +324,20 @@ ros2 launch ce_robot_launch simple_launch.py
 
 **Expected Output:**
 ```
-[INFO] [hw_publisher]: Robot Name: robot_simple
-[INFO] [hw_publisher]: Robot Number: 1
-[INFO] [hw_publisher]: Publishing at 2.0 Hz
+[INFO] [robot_tag_publisher]: 🏷️  Robot Tag Publisher initialized
+[INFO] [robot_tag_publisher]:    Robot ID: ROBOT-SIMPLE-001
+[INFO] [robot_tag_publisher]:    Robot Type: transport
+[INFO] [robot_tag_publisher]:    Zone: WAREHOUSE-A
+[INFO] [robot_tag_publisher]:    Fleet Number: 1
+[INFO] [robot_tag_publisher]:    Publish Rate: 2.0 Hz
+[INFO] [robot_tag_publisher]: 🤖 ROBOT-SIMPLE-001 [transport]: Status=active, Zone=WAREHOUSE-A
 ```
 
 **Verify in another terminal:**
 ```bash
-ros2 node list          # Should see /hw_publisher
-ros2 topic list         # Should see /hardware_status
-ros2 topic echo /hardware_status  # See messages
+ros2 node list               # Should see /robot_tag_publisher
+ros2 topic list              # Should see /robot_tag
+ros2 topic echo /robot_tag   # See RobotTag messages
 ```
 
 ---
@@ -374,10 +382,10 @@ def generate_launch_description():
     ce_robot_launch_dir = get_package_share_directory('ce_robot_launch')
     
     # Declare launch arguments
-    robot_name_arg = DeclareLaunchArgument(
-        'robot_name',
-        default_value='robot_bootup',
-        description='Name of the robot'
+    robot_id_arg = DeclareLaunchArgument(
+        'robot_id',
+        default_value='ROBOT-BOOT-100',
+        description='Robot identifier'
     )
     
     publish_rate_arg = DeclareLaunchArgument(
@@ -387,50 +395,48 @@ def generate_launch_description():
     )
     
     # Get launch configuration values
-    robot_name = LaunchConfiguration('robot_name')
+    robot_id = LaunchConfiguration('robot_id')
     publish_rate = LaunchConfiguration('publish_rate')
     
     # Define nodes
-    hw_publisher = Node(
+    robot_tag_publisher = Node(
         package='ce_robot',
-        executable='hw_status_param_pub',
-        name='hw_publisher',
+        executable='05_robot_tag_param',
+        name='robot_tag_publisher',
         output='screen',
         parameters=[
-            {'robot_name': robot_name},
-            {'robot_number': 100},
-            {'publish_rate': publish_rate},
-        ]
-    )
-    
-    hw_subscriber = Node(
-        package='ce_robot',
-        executable='hw_status_callback_pub',
-        name='hw_subscriber',
-        output='screen',
-        parameters=[
-            {'robot_name': 'hw_monitor'},
-            {'debug_mode': True},
+            {'robot_id': robot_id},
+            {'robot_type': 'transport'},
+            {'zone_id': 'WAREHOUSE-A'},
+            {'fleet_number': 100},
+            {'tag_publish_rate': publish_rate},
         ]
     )
     
     rect_server = Node(
         package='ce_robot',
-        executable='cal_rect_server',
+        executable='04_CalRect_server',
         name='rect_server',
+        output='screen'
+    )
+    
+    action_server = Node(
+        package='ce_robot',
+        executable='06_count_until_server',
+        name='count_server',
         output='screen'
     )
     
     # Return launch description
     return LaunchDescription([
         # Arguments
-        robot_name_arg,
+        robot_id_arg,
         publish_rate_arg,
         
         # Nodes
-        hw_publisher,
-        hw_subscriber,
+        robot_tag_publisher,
         rect_server,
+        action_server,
     ])
 ```
 
@@ -441,18 +447,18 @@ def generate_launch_description():
 robot_name_arg = DeclareLaunchArgument(
     'robot_name',                    # Argument name
     default_value='robot_bootup',    # Default if not provided
-    description='Name of the robot'  # Help text
+    description='Robot identifier'  # Help text
 )
 
 # Step 2: Get the value (even if from command line)
-robot_name = LaunchConfiguration('robot_name')
+robot_id = LaunchConfiguration('robot_id')
 
 # Step 3: Use it in your node
 Node(
     package='ce_robot',
-    executable='hw_status_param_pub',
+    executable='05_robot_tag_param',
     parameters=[
-        {'robot_name': robot_name},  # Uses the argument value!
+        {'robot_id': robot_id},  # Uses the argument value!
     ]
 )
 ```
@@ -469,16 +475,16 @@ source install/setup.bash
 ros2 launch ce_robot_launch ce_boot_launch.py
 ```
 
-**Expected: 3 nodes start (hw_publisher, hw_subscriber, rect_server)**
+**Expected: 3 nodes start (robot_tag_publisher, rect_server, count_server)**
 
 ```bash
 # Test 2: Override arguments
 ros2 launch ce_robot_launch ce_boot_launch.py \
-  robot_name:=warehouse_bot \
+  robot_id:=ROBOT-CUSTOM-999 \
   publish_rate:=5.0
 ```
 
-**Expected: Same nodes, but robot_name="warehouse_bot", rate=5.0 Hz**
+**Expected: Same nodes, but robot_id="ROBOT-CUSTOM-999", rate=5.0 Hz**
 
 ```bash
 # Test 3: Check what arguments are available
@@ -488,9 +494,9 @@ ros2 launch ce_robot_launch ce_boot_launch.py --show-args
 **Expected Output:**
 ```
 Arguments (pass arguments as '<name>:=<value>'):
-    'robot_name':
-        Name of the robot
-        (default: 'robot_bootup')
+    'robot_id':
+        Robot identifier
+        (default: 'ROBOT-BOOT-100')
     'publish_rate':
         Publishing rate in Hz
         (default: '1.0')
@@ -500,18 +506,13 @@ Arguments (pass arguments as '<name>:=<value>'):
 
 ```yaml
 # Global parameters configuration
-hw_publisher:
+robot_tag_publisher:
   ros__parameters:
-    robot_name: "robot_bootup"
-    robot_number: 100
-    publish_rate: 2.0
-    debug_mode: false
-
-hw_subscriber:
-  ros__parameters:
-    robot_name: "hw_monitor"
-    debug_mode: true
-    temperature_offset: 0
+    robot_id: "ROBOT-BOOT-100"
+    robot_type: "transport"
+    zone_id: "WAREHOUSE-A"
+    fleet_number: 100
+    tag_publish_rate: 2.0
 
 rect_server:
   ros__parameters:
