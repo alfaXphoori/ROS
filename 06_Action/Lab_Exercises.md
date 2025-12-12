@@ -213,8 +213,8 @@ source install/setup.bash
 
 ```bash
 cd ~/ros2_ws/src/ce_robot/ce_robot
-touch battery_charging_server_ex1.py
-chmod +x battery_charging_server_ex1.py
+touch battery_charging_server.py
+chmod +x battery_charging_server.py
 ```
 
 **Directory Structure:**
@@ -224,14 +224,14 @@ chmod +x battery_charging_server_ex1.py
     └── 📁 ce_robot/
         └── 📁 ce_robot/
             ├── 📄 __init__.py
-            └── 🐍 battery_charging_server_ex1.py    ← Create this file
+            └── 🐍 battery_charging_server.py    ← Create this file
 ```
 
 ---
 
 ### **Create Server File**
 
-#### **File: battery_charging_server_ex1.py**
+#### **File: battery_charging_server.py**
 
 ```python
 #!/usr/bin/env python3
@@ -250,7 +250,7 @@ import random
 
 class BatteryChargingActionServer(Node):
     def __init__(self):
-        super().__init__('battery_charging_server_ex1')
+        super().__init__('battery_charging_server')
         
         self._action_server = ActionServer(
             self,
@@ -393,7 +393,7 @@ if __name__ == '__main__':
 
 ### **Create Client File**
 
-#### **File: battery_charging_client_ex1.py**
+#### **File: battery_charging_client.py**
 
 ```python
 #!/usr/bin/env python3
@@ -410,7 +410,7 @@ from ce_robot_interfaces.action import BatteryCharging
 
 class BatteryChargingActionClient(Node):
     def __init__(self):
-        super().__init__('battery_charging_client_ex1')
+        super().__init__('battery_charging_client')
         self._action_client = ActionClient(
             self,
             BatteryCharging,
@@ -499,12 +499,12 @@ source install/setup.bash
 
 **Terminal 1 - Start Charging Server:**
 ```bash
-ros2 run ce_robot 06_battery_charging_server_ex1
+ros2 run ce_robot 06_battery_charging_server
 ```
 
 **Terminal 2 - Run Charging Client:**
 ```bash
-ros2 run ce_robot 06_battery_charging_client_ex1
+ros2 run ce_robot 06_battery_charging_client
 ```
 
 ---
@@ -513,30 +513,30 @@ ros2 run ce_robot 06_battery_charging_client_ex1
 
 **Server Terminal:**
 ```
-[INFO] [battery_charging_server_ex1]: 🔋 Battery Charging Server started
-[INFO] [battery_charging_server_ex1]: Initial battery level: 20%
-[INFO] [battery_charging_server_ex1]: [EX1] 🔌 Starting charge: 20% → 80% at 5.0%/s
-[INFO] [battery_charging_server_ex1]: [EX1] 🔧 Initializing charging connection...
-[INFO] [battery_charging_server_ex1]: [EX1] ⚡ Charging: 25% | Temp: 28.3°C
-[INFO] [battery_charging_server_ex1]: [EX1] ⚡ Charging: 30% | Temp: 29.7°C
-[INFO] [battery_charging_server_ex1]: [EX1] ⚡ Charging: 35% | Temp: 31.2°C
+[INFO] [battery_charging_server]: 🔋 Battery Charging Server started
+[INFO] [battery_charging_server]: Initial battery level: 20%
+[INFO] [battery_charging_server]: [EX1] 🔌 Starting charge: 20% → 80% at 5.0%/s
+[INFO] [battery_charging_server]: [EX1] 🔧 Initializing charging connection...
+[INFO] [battery_charging_server]: [EX1] ⚡ Charging: 25% | Temp: 28.3°C
+[INFO] [battery_charging_server]: [EX1] ⚡ Charging: 30% | Temp: 29.7°C
+[INFO] [battery_charging_server]: [EX1] ⚡ Charging: 35% | Temp: 31.2°C
 ...
-[INFO] [battery_charging_server_ex1]: [EX1] ⚡ Charging: 80% | Temp: 37.4°C
-[INFO] [battery_charging_server_ex1]: [EX1] ✅ Charging complete: Charged to 80% in 13.2s
+[INFO] [battery_charging_server]: [EX1] ⚡ Charging: 80% | Temp: 37.4°C
+[INFO] [battery_charging_server]: [EX1] ✅ Charging complete: Charged to 80% in 13.2s
 ```
 
 **Client Terminal:**
 ```
-[INFO] [battery_charging_client_ex1]: 🔋 Battery Charging Client initialized
-[INFO] [battery_charging_client_ex1]: [EX1] 📡 Waiting for charging server...
-[INFO] [battery_charging_client_ex1]: [EX1] 🎯 Requesting charge to 80% at 5.0%/s
-[INFO] [battery_charging_client_ex1]: [EX1] ✅ Charging goal accepted!
-[INFO] [battery_charging_client_ex1]: [EX1] 📊 Initializing: 20% | 25.0°C
-[INFO] [battery_charging_client_ex1]: [EX1] 📊 Charging: 25% | 28.3°C
-[INFO] [battery_charging_client_ex1]: [EX1] 📊 Charging: 30% | 29.7°C
+[INFO] [battery_charging_client]: 🔋 Battery Charging Client initialized
+[INFO] [battery_charging_client]: [EX1] 📡 Waiting for charging server...
+[INFO] [battery_charging_client]: [EX1] 🎯 Requesting charge to 80% at 5.0%/s
+[INFO] [battery_charging_client]: [EX1] ✅ Charging goal accepted!
+[INFO] [battery_charging_client]: [EX1] 📊 Initializing: 20% | 25.0°C
+[INFO] [battery_charging_client]: [EX1] 📊 Charging: 25% | 28.3°C
+[INFO] [battery_charging_client]: [EX1] 📊 Charging: 30% | 29.7°C
 ...
-[INFO] [battery_charging_client_ex1]: [EX1] 📊 Complete: 80% | 37.4°C
-[INFO] [battery_charging_client_ex1]: [EX1] ✅ Charged to 80% in 13.2s
+[INFO] [battery_charging_client]: [EX1] 📊 Complete: 80% | 37.4°C
+[INFO] [battery_charging_client]: [EX1] ✅ Charged to 80% in 13.2s
 ```
 
 ---
@@ -581,8 +581,8 @@ client.send_goal(target_level=80, charging_rate=15.0)  # Should reject
 
 - [ ] Created `BatteryCharging.action` definition
 - [ ] Updated `CMakeLists.txt` and rebuilt interfaces
-- [ ] Created `battery_charging_server_ex1.py` with safety monitoring
-- [ ] Created `battery_charging_client_ex1.py`
+- [ ] Created `battery_charging_server.py` with safety monitoring
+- [ ] Created `battery_charging_client.py`
 - [ ] Added entry points to `setup.py`
 - [ ] Built packages successfully with `colcon build`
 - [ ] Server validates charging parameters
@@ -670,15 +670,15 @@ source install/setup.bash
 
 ```bash
 cd ~/ros2_ws/src/ce_robot/ce_robot
-touch navigate_server_ex2.py
-chmod +x navigate_server_ex2.py
+touch navigate_server.py
+chmod +x navigate_server.py
 ```
 
 ---
 
 ### **Create Server File**
 
-#### **File: navigate_server_ex2.py**
+#### **File: navigate_server.py**
 
 ```python
 #!/usr/bin/env python3
@@ -698,7 +698,7 @@ import random
 
 class NavigateToGoalActionServer(Node):
     def __init__(self):
-        super().__init__('navigate_server_ex2')
+        super().__init__('navigate_server')
         
         self._action_server = ActionServer(
             self,
@@ -869,7 +869,7 @@ if __name__ == '__main__':
 
 ### **Create Client File**
 
-#### **File: navigate_client_ex2.py**
+#### **File: navigate_client.py**
 
 ```python
 #!/usr/bin/env python3
@@ -886,7 +886,7 @@ from ce_robot_interfaces.action import NavigateToGoal
 
 class NavigateToGoalActionClient(Node):
     def __init__(self):
-        super().__init__('navigate_client_ex2')
+        super().__init__('navigate_client')
         self._action_client = ActionClient(
             self,
             NavigateToGoal,
@@ -977,12 +977,12 @@ source install/setup.bash
 
 **Terminal 1 - Start Navigation Server:**
 ```bash
-ros2 run ce_robot 06_navigate_server_ex2
+ros2 run ce_robot 06_navigate_server
 ```
 
 **Terminal 2 - Run Navigation Client:**
 ```bash
-ros2 run ce_robot 06_navigate_client_ex2
+ros2 run ce_robot 06_navigate_client
 ```
 
 ---
@@ -991,29 +991,29 @@ ros2 run ce_robot 06_navigate_client_ex2
 
 **Server Terminal:**
 ```
-[INFO] [navigate_server_ex2]: 🗺️  Navigate to Goal Server started
-[INFO] [navigate_server_ex2]: Robot initial position: (0.00, 0.00)
-[INFO] [navigate_server_ex2]: [EX2] 🚀 Navigating from (0.00, 0.00) to (5.00, 5.00) at 1.0m/s
-[INFO] [navigate_server_ex2]: [EX2] 📏 Total distance: 7.07m
-[INFO] [navigate_server_ex2]: [EX2] 📍 Position: (0.35, 0.35) | Remaining: 6.57m | ETA: 6.6s | Moving
-[INFO] [navigate_server_ex2]: [EX2] 📍 Position: (0.71, 0.71) | Remaining: 6.07m | ETA: 6.1s | Moving
-[INFO] [navigate_server_ex2]: [EX2] 📍 Position: (1.06, 1.06) | Remaining: 5.57m | ETA: 5.6s | Moving
+[INFO] [navigate_server]: 🗺️  Navigate to Goal Server started
+[INFO] [navigate_server]: Robot initial position: (0.00, 0.00)
+[INFO] [navigate_server]: [EX2] 🚀 Navigating from (0.00, 0.00) to (5.00, 5.00) at 1.0m/s
+[INFO] [navigate_server]: [EX2] 📏 Total distance: 7.07m
+[INFO] [navigate_server]: [EX2] 📍 Position: (0.35, 0.35) | Remaining: 6.57m | ETA: 6.6s | Moving
+[INFO] [navigate_server]: [EX2] 📍 Position: (0.71, 0.71) | Remaining: 6.07m | ETA: 6.1s | Moving
+[INFO] [navigate_server]: [EX2] 📍 Position: (1.06, 1.06) | Remaining: 5.57m | ETA: 5.6s | Moving
 ...
-[INFO] [navigate_server_ex2]: [EX2] 📍 Position: (4.82, 4.82) | Remaining: 0.25m | ETA: 0.3s | Near Goal
-[INFO] [navigate_server_ex2]: [EX2] ✅ Navigation complete! Reached (5.00, 5.00) in 7.2s
+[INFO] [navigate_server]: [EX2] 📍 Position: (4.82, 4.82) | Remaining: 0.25m | ETA: 0.3s | Near Goal
+[INFO] [navigate_server]: [EX2] ✅ Navigation complete! Reached (5.00, 5.00) in 7.2s
 ```
 
 **Client Terminal:**
 ```
-[INFO] [navigate_client_ex2]: 🗺️  Navigate to Goal Client initialized
-[INFO] [navigate_client_ex2]: [EX2] 📡 Waiting for navigation server...
-[INFO] [navigate_client_ex2]: [EX2] 🎯 Requesting navigation to (5.00, 5.00) at 1.0m/s
-[INFO] [navigate_client_ex2]: [EX2] ✅ Navigation goal accepted!
-[INFO] [navigate_client_ex2]: [EX2] 📊 Moving: (0.35, 0.35) | 6.57m remaining | ETA: 6.6s
-[INFO] [navigate_client_ex2]: [EX2] 📊 Moving: (0.71, 0.71) | 6.07m remaining | ETA: 6.1s
+[INFO] [navigate_client]: 🗺️  Navigate to Goal Client initialized
+[INFO] [navigate_client]: [EX2] 📡 Waiting for navigation server...
+[INFO] [navigate_client]: [EX2] 🎯 Requesting navigation to (5.00, 5.00) at 1.0m/s
+[INFO] [navigate_client]: [EX2] ✅ Navigation goal accepted!
+[INFO] [navigate_client]: [EX2] 📊 Moving: (0.35, 0.35) | 6.57m remaining | ETA: 6.6s
+[INFO] [navigate_client]: [EX2] 📊 Moving: (0.71, 0.71) | 6.07m remaining | ETA: 6.1s
 ...
-[INFO] [navigate_client_ex2]: [EX2] 📊 Near Goal: (4.82, 4.82) | 0.25m remaining | ETA: 0.3s
-[INFO] [navigate_client_ex2]: [EX2] ✅ Reached goal in 7.2s
+[INFO] [navigate_client]: [EX2] 📊 Near Goal: (4.82, 4.82) | 0.25m remaining | ETA: 0.3s
+[INFO] [navigate_client]: [EX2] ✅ Reached goal in 7.2s
 ```
 
 ---
@@ -1058,8 +1058,8 @@ client.send_goal(target_x=150.0, target_y=150.0, speed=1.0)  # Should reject
 
 - [ ] Created `NavigateToGoal.action` definition
 - [ ] Updated `CMakeLists.txt` and rebuilt interfaces
-- [ ] Created `navigate_server_ex2.py` with obstacle detection
-- [ ] Created `navigate_client_ex2.py`
+- [ ] Created `navigate_server.py` with obstacle detection
+- [ ] Created `navigate_client.py`
 - [ ] Added entry points to `setup.py`
 - [ ] Built packages successfully with `colcon build`
 - [ ] Server validates navigation parameters
@@ -1147,15 +1147,15 @@ source install/setup.bash
 
 ```bash
 cd ~/ros2_ws/src/ce_robot/ce_robot
-touch gripper_server_ex3.py
-chmod +x gripper_server_ex3.py
+touch gripper_server.py
+chmod +x gripper_server.py
 ```
 
 ---
 
 ### **Create Server File**
 
-#### **File: gripper_server_ex3.py**
+#### **File: gripper_server.py**
 
 ```python
 #!/usr/bin/env python3
@@ -1174,7 +1174,7 @@ import random
 
 class GripperPickPlaceActionServer(Node):
     def __init__(self):
-        super().__init__('gripper_server_ex3')
+        super().__init__('gripper_server')
         
         self._action_server = ActionServer(
             self,
@@ -1363,7 +1363,7 @@ if __name__ == '__main__':
 
 ### **Create Client File**
 
-#### **File: gripper_client_ex3.py**
+#### **File: gripper_client.py**
 
 ```python
 #!/usr/bin/env python3
@@ -1382,7 +1382,7 @@ import time
 
 class GripperPickPlaceActionClient(Node):
     def __init__(self):
-        super().__init__('gripper_client_ex3')
+        super().__init__('gripper_client')
         self._action_client = ActionClient(
             self,
             GripperPickPlace,
@@ -1506,12 +1506,12 @@ source install/setup.bash
 
 **Terminal 1 - Start Gripper Server:**
 ```bash
-ros2 run ce_robot 06_gripper_server_ex3
+ros2 run ce_robot 06_gripper_server
 ```
 
 **Terminal 2 - Run Gripper Client:**
 ```bash
-ros2 run ce_robot 06_gripper_client_ex3
+ros2 run ce_robot 06_gripper_client
 ```
 
 ---
@@ -1520,34 +1520,34 @@ ros2 run ce_robot 06_gripper_client_ex3
 
 **Server Terminal (Normal Operation):**
 ```
-[INFO] [gripper_server_ex3]: 🤖 Gripper Pick & Place Server started
-[INFO] [gripper_server_ex3]: [EX3] 📋 Received goal for object: Box_A
-[INFO] [gripper_server_ex3]: [EX3:#1] 🚀 Starting pick-and-place: Box_A → (3.00, 2.00) with 15.0N force
-[INFO] [gripper_server_ex3]: [EX3] Approaching 0%
-[INFO] [gripper_server_ex3]: [EX3] Approaching 10%
+[INFO] [gripper_server]: 🤖 Gripper Pick & Place Server started
+[INFO] [gripper_server]: [EX3] 📋 Received goal for object: Box_A
+[INFO] [gripper_server]: [EX3:#1] 🚀 Starting pick-and-place: Box_A → (3.00, 2.00) with 15.0N force
+[INFO] [gripper_server]: [EX3] Approaching 0%
+[INFO] [gripper_server]: [EX3] Approaching 10%
 ...
-[INFO] [gripper_server_ex3]: [EX3] Grasping 50%
-[INFO] [gripper_server_ex3]: [EX3] Grasping 100%
-[INFO] [gripper_server_ex3]: [EX3] Lifting 0%
+[INFO] [gripper_server]: [EX3] Grasping 50%
+[INFO] [gripper_server]: [EX3] Grasping 100%
+[INFO] [gripper_server]: [EX3] Lifting 0%
 ...
-[INFO] [gripper_server_ex3]: [EX3] Moving 100%
-[INFO] [gripper_server_ex3]: [EX3] Releasing 100%
-[INFO] [gripper_server_ex3]: [EX3:#1] ✅ Pick-and-place complete! Box_A moved to (3.00, 2.00) in 8.6s
+[INFO] [gripper_server]: [EX3] Moving 100%
+[INFO] [gripper_server]: [EX3] Releasing 100%
+[INFO] [gripper_server]: [EX3:#1] ✅ Pick-and-place complete! Box_A moved to (3.00, 2.00) in 8.6s
 ```
 
 **Client Terminal:**
 ```
-[INFO] [gripper_client_ex3]: 🤖 Gripper Pick & Place Client initialized
-[INFO] [gripper_client_ex3]: [EX3] 📡 Waiting for gripper server...
-[INFO] [gripper_client_ex3]: [EX3] 🎯 Requesting pick-and-place: Box_A → (3.00, 2.00) at 15.0N
-[INFO] [gripper_client_ex3]: [EX3] ✅ Goal accepted!
-[INFO] [gripper_client_ex3]: [EX3] 📊 Approaching (10%) | Force: 15.0N | ❌ No object
-[INFO] [gripper_client_ex3]: [EX3] 📊 Grasping (50%) | Force: 7.5N | ❌ No object
-[INFO] [gripper_client_ex3]: [EX3] 📊 Grasping (100%) | Force: 15.0N | ✅ Held
-[INFO] [gripper_client_ex3]: [EX3] 📊 Lifting (50%) | Force: 15.0N | ✅ Held
-[INFO] [gripper_client_ex3]: [EX3] 📊 Moving (80%) | Force: 15.0N | ✅ Held
-[INFO] [gripper_client_ex3]: [EX3] 📊 Releasing (100%) | Force: 0.0N | ✅ Held
-[INFO] [gripper_client_ex3]: [EX3] ✅ SUCCESS: Completed in 8.6s
+[INFO] [gripper_client]: 🤖 Gripper Pick & Place Client initialized
+[INFO] [gripper_client]: [EX3] 📡 Waiting for gripper server...
+[INFO] [gripper_client]: [EX3] 🎯 Requesting pick-and-place: Box_A → (3.00, 2.00) at 15.0N
+[INFO] [gripper_client]: [EX3] ✅ Goal accepted!
+[INFO] [gripper_client]: [EX3] 📊 Approaching (10%) | Force: 15.0N | ❌ No object
+[INFO] [gripper_client]: [EX3] 📊 Grasping (50%) | Force: 7.5N | ❌ No object
+[INFO] [gripper_client]: [EX3] 📊 Grasping (100%) | Force: 15.0N | ✅ Held
+[INFO] [gripper_client]: [EX3] 📊 Lifting (50%) | Force: 15.0N | ✅ Held
+[INFO] [gripper_client]: [EX3] 📊 Moving (80%) | Force: 15.0N | ✅ Held
+[INFO] [gripper_client]: [EX3] 📊 Releasing (100%) | Force: 0.0N | ✅ Held
+[INFO] [gripper_client]: [EX3] ✅ SUCCESS: Completed in 8.6s
 ```
 
 **With Cancellation (change `cancel_after=4.0` in client):**
@@ -1605,8 +1605,8 @@ for i in range(10):
 
 - [ ] Created `GripperPickPlace.action` definition
 - [ ] Updated `CMakeLists.txt` and rebuilt interfaces
-- [ ] Created `gripper_server_ex3.py` with multi-stage execution
-- [ ] Created `gripper_client_ex3.py` with cancellation support
+- [ ] Created `gripper_server.py` with multi-stage execution
+- [ ] Created `gripper_client.py` with cancellation support
 - [ ] Added entry points to `setup.py`
 - [ ] Built packages successfully with `colcon build`
 - [ ] Server implements goal_callback and cancel_callback
@@ -1669,7 +1669,7 @@ ros2 action send_goal /gripper_pick_place_ex3 \
 ros2 node list | grep _ex
 
 # View node info
-ros2 node info /battery_charging_server_ex1
+ros2 node info /battery_charging_server
 
 # Monitor action topics
 ros2 topic list | grep battery_charging_ex1
