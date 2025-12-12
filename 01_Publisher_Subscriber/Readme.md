@@ -197,7 +197,6 @@ Add the following lines under `console_scripts`:
 ```python
 entry_points={
     'console_scripts': [
-        '00_first_node = ce_robot.first_node:main',
         "01_first_pub = ce_robot.first_publisher:main",
         "01_first_sub = ce_robot.first_subscriber:main",
     ],

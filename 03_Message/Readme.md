@@ -278,16 +278,7 @@ Add the following lines under `console_scripts`:
 ```python
 entry_points={
     'console_scripts': [
-        '00_first_node = ce_robot.first_node:main',
-        "01_first_pub = ce_robot.first_publisher:main",
-        "01_first_sub = ce_robot.first_subscriber:main",
-        "02_add_two_server = ce_robot.add_two_ints_server:main",
-        "02_add_two_client = ce_robot.add_two_ints_client:main",
         "03_hw_status_publisher = ce_robot.HardwareStatus_publish:main",
-        "06_navigate_server = ce_robot.navigate_server:main",
-        "06_navigate_client = ce_robot.navigate_client:main",
-        "06_gripper_server = ce_robot.gripper_server:main",
-        "06_gripper_client = ce_robot.gripper_client:main",
     ],
 },
 ```
