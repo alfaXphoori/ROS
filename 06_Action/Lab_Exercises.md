@@ -97,8 +97,6 @@ Verify dependencies exist in `package.xml`:
 
 Add entry points for Exercise 1 nodes under `console_scripts`:
 
-> 💡 **Note:** See [06_Action/Readme.md](Readme.md) for complete setup.py with all 45 entry points.
-
 ```python
 entry_points={
     'console_scripts': [

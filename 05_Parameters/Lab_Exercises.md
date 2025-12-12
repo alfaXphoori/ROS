@@ -111,15 +111,9 @@ Add entry points for all three exercises under `console_scripts`:
 ```python
 entry_points={
     'console_scripts': [
-        '00_first_node = ce_robot.first_node:main',
-        "01_first_pub = ce_robot.first_publisher:main",
-        "01_first_sub = ce_robot.first_subscriber:main",
-        "02_add_two_server = ce_robot.add_two_ints_server:main",
-        "02_add_two_client = ce_robot.add_two_ints_client:main",
-        "03_hw_status_publisher = ce_robot.HardwareStatus_publish:main",
-        "04_CalRect_server = ce_robot.CalRect_server:main",
-        "04_CalRect_client = ce_robot.CalRect_client:main",
         "05_robot_tag_param = ce_robot.robot_tag_param_pub:main",
+        "05_robot_tag_callback = ce_robot.robot_tag_callback_pub:main",
+        "05_robot_tag_validated = ce_robot.robot_tag_validated_pub:main",
     ],
 },
 ```
