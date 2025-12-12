@@ -109,6 +109,37 @@ entry_points={
 
 ---
 
+### **📂 Directory Structure**
+
+Here's the complete workspace organization for Exercise 1:
+
+```
+📁 ros2_ws/
+├── 📁 src/
+│   ├── 📁 ce_robot_interfaces/
+│   │   ├── 📁 action/
+│   │   │   ├── CountUntil.action
+│   │   │   ├── DistanceCalc.action
+│   │   │   └── BatteryCharging.action    ← Create this
+│   │   ├── 📁 msg/
+│   │   ├── 📁 srv/
+│   │   ├── CMakeLists.txt                 ← Update this
+│   │   └── package.xml
+│   │
+│   └── 📁 ce_robot/
+│       ├── 📁 ce_robot/
+│       │   ├── __init__.py
+│       │   ├── battery_charging_server.py    ← Create this
+│       │   └── battery_charging_client.py    ← Create this
+│       ├── setup.py                          ← Update this
+│       └── package.xml                       ← Check dependencies
+│
+└── 📁 install/
+    └── (built packages)
+```
+
+---
+
 ### **Create Custom Action Definition**
 
 First, create the `BatteryCharging.action` file:
@@ -580,6 +611,37 @@ entry_points={
         '06_navigate_client = ce_robot.navigate_client:main',
     ],
 },
+```
+
+---
+
+### **📂 Directory Structure**
+
+Here's the complete workspace organization for Exercise 2:
+
+```
+📁 ros2_ws/
+├── 📁 src/
+│   ├── 📁 ce_robot_interfaces/
+│   │   ├── 📁 action/
+│   │   │   ├── CountUntil.action
+│   │   │   ├── BatteryCharging.action
+│   │   │   └── NavigateToGoal.action      ← Create this
+│   │   ├── CMakeLists.txt                 ← Update this
+│   │   └── package.xml
+│   │
+│   └── 📁 ce_robot/
+│       ├── 📁 ce_robot/
+│       │   ├── __init__.py
+│       │   ├── battery_charging_server.py
+│       │   ├── battery_charging_client.py
+│       │   ├── navigate_server.py         ← Create this
+│       │   └── navigate_client.py         ← Create this
+│       ├── setup.py                       ← Update this
+│       └── package.xml
+│
+└── 📁 install/
+    └── (built packages)
 ```
 
 ---
@@ -1082,6 +1144,40 @@ entry_points={
         '06_gripper_client = ce_robot.gripper_client:main',
     ],
 },
+```
+
+---
+
+### **📂 Directory Structure**
+
+Here's the complete workspace organization for Exercise 3:
+
+```
+📁 ros2_ws/
+├── 📁 src/
+│   ├── 📁 ce_robot_interfaces/
+│   │   ├── 📁 action/
+│   │   │   ├── CountUntil.action
+│   │   │   ├── BatteryCharging.action
+│   │   │   ├── NavigateToGoal.action
+│   │   │   └── GripperPickPlace.action    ← Create this
+│   │   ├── CMakeLists.txt                 ← Update this
+│   │   └── package.xml
+│   │
+│   └── 📁 ce_robot/
+│       ├── 📁 ce_robot/
+│       │   ├── __init__.py
+│       │   ├── battery_charging_server.py
+│       │   ├── battery_charging_client.py
+│       │   ├── navigate_server.py
+│       │   ├── navigate_client.py
+│       │   ├── gripper_server.py          ← Create this
+│       │   └── gripper_client.py          ← Create this
+│       ├── setup.py                       ← Update this
+│       └── package.xml
+│
+└── 📁 install/
+    └── (built packages)
 ```
 
 ---
