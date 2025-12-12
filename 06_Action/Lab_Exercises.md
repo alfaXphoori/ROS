@@ -55,43 +55,6 @@ This comprehensive lab demonstrates **real-world robotics applications** using R
 
 ---
 
-## **Understanding Actions 📖**
-
-ROS 2 actions provide a communication pattern for long-running, asynchronous tasks that require periodic feedback and can be cancelled. Unlike services (which block) or topics (which stream without acknowledgment), actions offer goal-oriented execution with progress monitoring.
-
-### 📝 Task
-1. List all action commands:
-```bash
-ros2 action --help
-```
-
-2. Examine action operations:
-```bash
-ros2 action list
-ros2 action info /action_name
-ros2 action send_goal /action_name action_type "goal_data" --feedback
-```
-
-3. Understand action lifecycle: PENDING → ACTIVE → SUCCEEDED/CANCELED/ABORTED
-
-### 💡 Key Concepts
-- **Goal**: What the client requests the server to do (sent once at start)
-- **Result**: Final outcome returned when complete (sent once at end)
-- **Feedback**: Periodic progress updates during execution (sent multiple times)
-- **Cancellation**: Client can request goal termination mid-execution
-- **Goal States**: PENDING, ACTIVE, SUCCEEDED, CANCELED, ABORTED
-- **Non-Blocking**: Client continues running while server executes goal
-
-### 🔍 Expected Output
-```
-Comparison of Action vs Service vs Topic:
-- Actions: Long-running tasks (navigation, manipulation) - async with feedback
-- Services: Quick calculations (add numbers, query data) - sync blocking
-- Topics: Continuous streaming (sensor data, status) - one-way publish
-```
-
----
-
 ## **⚙️ Package Configuration**
 
 Before starting the exercises, ensure your package is properly configured:
