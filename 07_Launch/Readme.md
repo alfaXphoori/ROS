@@ -290,7 +290,7 @@ def generate_launch_description():
     # 3. Declare each node
     publisher_node = Node(
         package='ce_robot',              # Which package?
-        executable='hw_status_param_pub', # Which node executable? (from setup.py entry_points)
+        executable='hw_status_param_pub', # Which node executable? (from setup.py, file: 05_Parameters/src/hw_status_param_pub.py)
         name='hw_publisher',              # What to call it?
         output='screen',                  # Show output in terminal
         parameters=[                      # Set parameters
