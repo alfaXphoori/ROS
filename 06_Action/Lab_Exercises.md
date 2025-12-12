@@ -525,6 +525,10 @@ ros2 run ce_robot 06_battery_charging_client
 [INFO] [battery_charging_client]: [EX1] ✅ Charged to 80% in 13.2s
 ```
 
+**Screenshot: Battery Charging Action (20% → 80% at 5.0%/s)**
+
+![Battery Charging - Server and Client](imgs/Lba01_Batt.png)
+
 ---
 
 ### **💡 Key Concepts**
@@ -1054,6 +1058,10 @@ ros2 run ce_robot 06_navigate_client
 [INFO] [navigate_client]: [EX2] 📊 Near Goal: (4.82, 4.82) | 0.25m remaining | ETA: 0.3s
 [INFO] [navigate_client]: [EX2] ✅ Reached goal in 7.2s
 ```
+
+**Screenshot: Navigate to Goal Action (0,0) → (5.0, 5.0) at 1.0m/s**
+
+![Navigate to Goal - Server and Client](imgs/Lab02_Nav.png)
 
 ---
 
@@ -1656,6 +1664,10 @@ Client: [EX3] 🛑 Requesting cancellation...
 Client: [EX3] ✅ Cancellation accepted
 Client: [EX3] 🛑 Operation CANCELLED at Lifting
 ```
+
+**Screenshot: Gripper Pick & Place Action (Box_A → 3.0, 2.0 at 15.0N)**
+
+![Gripper Pick & Place - Server and Client](imgs/Lab03_Grip.png)
 
 ---
 

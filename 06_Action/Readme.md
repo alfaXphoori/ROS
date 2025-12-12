@@ -820,6 +820,14 @@ ros2 run ce_robot 06_count_until_client
 [INFO] [1733875245.465] [count_until_server]: Goal completed successfully
 ```
 
+**Screenshot: Count to 5 with 1s period**
+
+![Count Until 5 - Server and Client](imgs/01_Count5_1.png)
+
+**Screenshot: Count to 10 with 2s period (using command line)**
+
+![Count Until 10 - Command Line](imgs/02_Count10_1.png)
+
 **What's Happening:**
 1. Client sends goal (target=5, period=1)
 2. Server accepts goal and starts execution
