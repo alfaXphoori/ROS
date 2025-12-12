@@ -527,7 +527,7 @@ ros2 run ce_robot 06_battery_charging_client
 
 **Screenshot: Battery Charging Action (20% → 80% at 5.0%/s)**
 
-![Battery Charging - Server and Client](imgs/Lba01_Batt.png)
+![Battery Charging - Server and Client](imgs/Lab01_Batt.png)
 
 ---
 
