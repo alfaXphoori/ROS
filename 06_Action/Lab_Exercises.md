@@ -1071,100 +1071,287 @@ client.send_goal(target_x=150.0, target_y=150.0, speed=1.0)  # Should reject
 
 ---
 
-## **Exercise 3: Battery Charging Simulator with Cancellation (Advanced) 🚀**
+## **Exercise 3: Gripper Pick & Place Action 🤖**
 
 ### **📋 Task**
 
-Implement a battery charging simulator that demonstrates cancellation handling, state management, multi-threaded execution, and graceful shutdown support. This exercise covers advanced action patterns used in real robotics applications.
+Simulate a robotic gripper performing a pick-and-place operation with multiple stages: Approach → Grasp → Lift → Move → Release. The action demonstrates cancellation handling (object drop detection), force sensing, and multi-stage manipulation feedback.
+
+**Real-World Applications:**
+- Manufacturing pick-and-place robots
+- Warehouse sorting and packing systems
+- Collaborative robots (cobots) in assembly lines
+- Robotic arms in research labs
+
+### **Create Custom Action Definition**
+
+First, create the `GripperPickPlace.action` file:
+
+```bash
+cd ~/ros2_ws/src/ce_robot_interfaces/action
+touch GripperPickPlace.action
+```
+
+#### **File: GripperPickPlace.action**
+
+```
+# Goal: Object to pick and target location
+string object_id        # ID of object to pick
+float32 target_x        # Drop-off x coordinate
+float32 target_y        # Drop-off y coordinate
+float32 grip_force      # Gripping force (Newtons)
+
+---
+
+# Result: Operation outcome
+bool success            # Whether pick-and-place succeeded
+string final_stage      # Last completed stage
+float32 execution_time  # Total execution time (seconds)
+string message          # Status message or error description
+
+---
+
+# Feedback: Multi-stage progress
+string stage            # Current stage: "Approaching", "Grasping", "Lifting", "Moving", "Releasing"
+float32 progress_percent    # Stage progress (0-100%)
+float32 gripper_force   # Current gripper force (Newtons)
+bool object_detected    # Whether object is in gripper
+string status_message   # Detailed status
+```
+
+**Update `CMakeLists.txt`** in `ce_robot_interfaces`:
+
+```cmake
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/HardwareStatus.msg"
+  "msg/RobotTag.msg"
+  "srv/CalRectangle.srv"
+  "action/CountUntil.action"
+  "action/BatteryCharging.action"
+  "action/NavigateToGoal.action"
+  "action/GripperPickPlace.action"    # Add this line
+  DEPENDENCIES builtin_interfaces
+)
+```
+
+**Rebuild interfaces:**
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot_interfaces
+source install/setup.bash
+```
+
+---
+
+### **📁 File Location**
+
+```bash
+cd ~/ros2_ws/src/ce_robot/ce_robot
+touch gripper_server_ex3.py
+chmod +x gripper_server_ex3.py
+```
 
 ---
 
 ### **Create Server File**
 
-#### **File: monitored_action_server_ex3.py**
+#### **File: gripper_server_ex3.py**
 
 ```python
 #!/usr/bin/env python3
 """
-Exercise 3: Monitored Action Server with Cancellation
-Supports goal cancellation and state tracking
+Exercise 3: Gripper Pick & Place Server
+Simulates robotic gripper manipulation with cancellation
 """
 
 import rclpy
-from rclpy.action import ActionServer
+from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.node import Node
-from ce_robot_interfaces.action import CountUntil
+from ce_robot_interfaces.action import GripperPickPlace
 import time
+import random
 
 
-class MonitoredActionServer(Node):
+class GripperPickPlaceActionServer(Node):
     def __init__(self):
-        super().__init__('monitored_action_server_ex3')
+        super().__init__('gripper_server_ex3')
         
         self._action_server = ActionServer(
             self,
-            CountUntil,
-            'monitored_action_ex3',
-            self.execute_callback
+            GripperPickPlace,
+            'gripper_pick_place_ex3',
+            self.execute_callback,
+            goal_callback=self.goal_callback,
+            cancel_callback=self.cancel_callback
         )
         
         self.goal_counter = 0
-        self.get_logger().info('Monitored Action Server (Exercise 3) started')
+        self.get_logger().info('🤖 Gripper Pick & Place Server started')
+
+    def goal_callback(self, goal_request):
+        """Accept or reject goal based on validation"""
+        self.get_logger().info(f'[EX3] 📋 Received goal for object: {goal_request.object_id}')
+        
+        # Validate grip force
+        if goal_request.grip_force < 1.0 or goal_request.grip_force > 50.0:
+            self.get_logger().error('[EX3] ❌ Invalid grip force (must be 1-50N)')
+            return GoalResponse.REJECT
+        
+        return GoalResponse.ACCEPT
+
+    def cancel_callback(self, goal_handle):
+        """Handle cancellation request"""
+        self.get_logger().info('[EX3] 🛑 Cancellation requested')
+        return CancelResponse.ACCEPT
+
+    def validate_goal(self, goal):
+        """Validate goal parameters"""
+        errors = []
+        
+        if not goal.object_id or len(goal.object_id) == 0:
+            errors.append('Object ID cannot be empty')
+        
+        if abs(goal.target_x) > 10 or abs(goal.target_y) > 10:
+            errors.append('Target position out of reach (max ±10m)')
+        
+        return errors
+
+    def execute_stage(self, goal_handle, stage_name, duration, feedback_msg):
+        """Execute a single manipulation stage with cancellation check"""
+        steps = 10
+        for step in range(steps + 1):
+            # Check for cancellation
+            if goal_handle.is_cancel_requested:
+                self.get_logger().warn(f'[EX3] 🛑 Cancelled during {stage_name}')
+                goal_handle.canceled()
+                return False
+            
+            # Update progress
+            progress = (step / steps) * 100
+            feedback_msg.stage = stage_name
+            feedback_msg.progress_percent = progress
+            feedback_msg.status_message = f'{stage_name} {progress:.0f}%'
+            
+            # Simulate force sensing
+            if stage_name == "Grasping":
+                feedback_msg.gripper_force = (step / steps) * feedback_msg.gripper_force
+                feedback_msg.object_detected = (step > 5)
+            elif stage_name in ["Lifting", "Moving"]:
+                feedback_msg.object_detected = True
+                # Simulate object drop (2% chance per step)
+                if random.random() < 0.02:
+                    self.get_logger().error('[EX3] ⚠️  Object slipped! Aborting...')
+                    goal_handle.abort()
+                    return False
+            
+            goal_handle.publish_feedback(feedback_msg)
+            self.get_logger().info(f'[EX3] {feedback_msg.status_message}')
+            time.sleep(duration / steps)
+        
+        return True
 
     def execute_callback(self, goal_handle):
-        """Execute with cancellation support"""
+        """Execute pick-and-place operation"""
         self.goal_counter += 1
         goal_id = self.goal_counter
-        
-        target = goal_handle.request.target
-        period = goal_handle.request.period
+        goal = goal_handle.request
+        start_time = time.time()
         
         self.get_logger().info(
-            f'[EX3:#{goal_id}] START: count to {target} with {period}s period'
+            f'[EX3:#{goal_id}] 🚀 Starting pick-and-place: {goal.object_id} → '
+            f'({goal.target_x:.2f}, {goal.target_y:.2f}) with {goal.grip_force}N force'
         )
         
-        feedback_msg = CountUntil.Feedback()
-        cancelled = False
+        # Validate goal
+        errors = self.validate_goal(goal)
+        if errors:
+            self.get_logger().error('[EX3] ❌ Validation failed:')
+            for error in errors:
+                self.get_logger().error(f'  - {error}')
+            goal_handle.abort()
+            return GripperPickPlace.Result(
+                success=False,
+                final_stage="Validation",
+                execution_time=0.0,
+                message='; '.join(errors)
+            )
+        
+        feedback_msg = GripperPickPlace.Feedback()
+        feedback_msg.gripper_force = goal.grip_force
+        feedback_msg.object_detected = False
         
         try:
-            # Count from 1 to target
-            for count in range(1, target + 1):
-                # Check for cancellation request
-                if goal_handle.is_cancel_requested:
-                    self.get_logger().info(f'[EX3:#{goal_id}] CANCELLED at count {count}')
-                    goal_handle.canceled()
-                    cancelled = True
-                    break
-                
-                # Publish feedback
-                feedback_msg.current_count = count
-                goal_handle.publish_feedback(feedback_msg)
-                
-                self.get_logger().info(f'[EX3:#{goal_id}] Count: {count}/{target}')
-                time.sleep(period)
+            # Stage 1: Approach object
+            if not self.execute_stage(goal_handle, "Approaching", 2.0, feedback_msg):
+                return self._create_result(goal_handle, False, "Approaching", start_time, "Cancelled")
             
-            if not cancelled:
-                # Normal completion
-                goal_handle.succeed()
-                result = CountUntil.Result()
-                result.total_count = target
-                self.get_logger().info(f'[EX3:#{goal_id}] SUCCEEDED: completed {target} counts')
-                return result
-            else:
-                # Return partial result for cancelled goal
-                result = CountUntil.Result()
-                result.total_count = feedback_msg.current_count
-                return result
-                
+            # Stage 2: Grasp object
+            if not self.execute_stage(goal_handle, "Grasping", 1.5, feedback_msg):
+                return self._create_result(goal_handle, False, "Grasping", start_time, "Cancelled")
+            
+            # Check if object grasped
+            if not feedback_msg.object_detected:
+                self.get_logger().error('[EX3] ❌ Failed to grasp object')
+                goal_handle.abort()
+                return GripperPickPlace.Result(
+                    success=False,
+                    final_stage="Grasping",
+                    execution_time=time.time() - start_time,
+                    message="Object grasp failed"
+                )
+            
+            # Stage 3: Lift object
+            if not self.execute_stage(goal_handle, "Lifting", 1.0, feedback_msg):
+                return self._create_result(goal_handle, False, "Lifting", start_time, "Object dropped")
+            
+            # Stage 4: Move to target
+            if not self.execute_stage(goal_handle, "Moving", 3.0, feedback_msg):
+                return self._create_result(goal_handle, False, "Moving", start_time, "Object dropped")
+            
+            # Stage 5: Release object
+            feedback_msg.gripper_force = 0.0
+            if not self.execute_stage(goal_handle, "Releasing", 1.0, feedback_msg):
+                return self._create_result(goal_handle, False, "Releasing", start_time, "Cancelled")
+            
+            # Success
+            execution_time = time.time() - start_time
+            goal_handle.succeed()
+            
+            self.get_logger().info(
+                f'[EX3:#{goal_id}] ✅ Pick-and-place complete! '
+                f'{goal.object_id} moved to ({goal.target_x:.2f}, {goal.target_y:.2f}) in {execution_time:.1f}s'
+            )
+            
+            return GripperPickPlace.Result(
+                success=True,
+                final_stage="Releasing",
+                execution_time=execution_time,
+                message=f'Completed in {execution_time:.1f}s'
+            )
+            
         except Exception as e:
-            self.get_logger().error(f'[EX3:#{goal_id}] ABORTED: {str(e)}')
+            self.get_logger().error(f'[EX3:#{goal_id}] ❌ Execution error: {str(e)}')
             goal_handle.abort()
-            return CountUntil.Result(total_count=-1)
+            return GripperPickPlace.Result(
+                success=False,
+                final_stage="Error",
+                execution_time=time.time() - start_time,
+                message=f'Error: {str(e)}'
+            )
+
+    def _create_result(self, goal_handle, success, stage, start_time, message):
+        """Helper to create result with current state"""
+        return GripperPickPlace.Result(
+            success=success,
+            final_stage=stage,
+            execution_time=time.time() - start_time,
+            message=message
+        )
 
 
 def main(args=None):
     rclpy.init(args=args)
-    server = MonitoredActionServer()
+    server = GripperPickPlaceActionServer()
     rclpy.spin(server)
 
 
@@ -1176,44 +1363,49 @@ if __name__ == '__main__':
 
 ### **Create Client File**
 
-#### **File: monitored_action_client_ex3.py**
+#### **File: gripper_client_ex3.py**
 
 ```python
 #!/usr/bin/env python3
 """
-Exercise 3: Monitored Action Client with Cancellation
-Tests cancellation handling and goal tracking
+Exercise 3: Gripper Pick & Place Client
+Tests manipulation with cancellation support
 """
 
 import rclpy
 from rclpy.action import ActionClient
 from rclpy.node import Node
-from ce_robot_interfaces.action import CountUntil
+from ce_robot_interfaces.action import GripperPickPlace
 import threading
 import time
 
 
-class MonitoredActionClient(Node):
+class GripperPickPlaceActionClient(Node):
     def __init__(self):
-        super().__init__('monitored_action_client_ex3')
+        super().__init__('gripper_client_ex3')
         self._action_client = ActionClient(
             self,
-            CountUntil,
-            'monitored_action_ex3'
+            GripperPickPlace,
+            'gripper_pick_place_ex3'
         )
         self.goal_handle = None
-        self.get_logger().info('Monitored Action Client (Exercise 3) initialized')
+        self.get_logger().info('🤖 Gripper Pick & Place Client initialized')
 
-    def send_goal(self, target, period):
-        """Send goal to server"""
-        self.get_logger().info(f'[EX3] Waiting for server...')
+    def send_goal(self, object_id, target_x, target_y, grip_force, cancel_after=None):
+        """Send pick-and-place goal"""
+        self.cancel_after = cancel_after
+        self.get_logger().info('[EX3] 📡 Waiting for gripper server...')
         self._action_client.wait_for_server()
         
-        goal_msg = CountUntil.Goal()
-        goal_msg.target = target
-        goal_msg.period = period
+        goal_msg = GripperPickPlace.Goal()
+        goal_msg.object_id = object_id
+        goal_msg.target_x = target_x
+        goal_msg.target_y = target_y
+        goal_msg.grip_force = grip_force
         
-        self.get_logger().info(f'[EX3] Sending goal: target={target}, period={period}s')
+        self.get_logger().info(
+            f'[EX3] 🎯 Requesting pick-and-place: {object_id} → ({target_x:.2f}, {target_y:.2f}) at {grip_force}N'
+        )
         
         self._send_goal_future = self._action_client.send_goal_async(
             goal_msg,
@@ -1226,19 +1418,400 @@ class MonitoredActionClient(Node):
         self.goal_handle = future.result()
         
         if not self.goal_handle.accepted:
-            self.get_logger().error('[EX3] Goal rejected!')
+            self.get_logger().error('[EX3] ❌ Goal rejected!')
             return
         
-        self.get_logger().info('[EX3] Goal accepted!')
+        self.get_logger().info('[EX3] ✅ Goal accepted!')
         
         self._get_result_future = self.goal_handle.get_result_async()
         self._get_result_future.add_done_callback(self.result_callback)
         
-        # Schedule cancellation after 3 seconds (for testing)
-        threading.Thread(target=self._cancel_after_delay, daemon=True).start()
+        # Schedule cancellation if requested
+        if self.cancel_after:
+            threading.Thread(target=self._cancel_after_delay, daemon=True).start()
 
     def _cancel_after_delay(self):
         """Cancel goal after delay for testing"""
+        time.sleep(self.cancel_after)
+        if self.goal_handle:
+            self.get_logger().info('[EX3] 🛑 Requesting cancellation...')
+            self._cancel_future = self.goal_handle.cancel_goal_async()
+            self._cancel_future.add_done_callback(self.cancel_callback)
+
+    def cancel_callback(self, future):
+        """Handle cancellation response"""
+        cancel_response = future.result()
+        if cancel_response.return_code == 0:
+            self.get_logger().info('[EX3] ✅ Cancellation accepted')
+        else:
+            self.get_logger().warn('[EX3] ❌ Cancellation rejected')
+
+    def feedback_callback(self, feedback_msg):
+        """Receive manipulation feedback"""
+        fb = feedback_msg.feedback
+        obj_status = "✅ Held" if fb.object_detected else "❌ No object"
+        self.get_logger().info(
+            f'[EX3] 📊 {fb.stage} ({fb.progress_percent:.0f}%) | '
+            f'Force: {fb.gripper_force:.1f}N | {obj_status}'
+        )
+
+    def result_callback(self, future):
+        """Receive final result"""
+        result = future.result()
+        res = result.result
+        
+        if result.status == 4:  # CANCELED
+            self.get_logger().info(f'[EX3] 🛑 Operation CANCELLED at {res.final_stage}')
+        elif result.status == 5:  # ABORTED
+            self.get_logger().error(f'[EX3] ❌ Operation ABORTED: {res.message}')
+        elif res.success:
+            self.get_logger().info(f'[EX3] ✅ SUCCESS: {res.message}')
+        else:
+            self.get_logger().error(f'[EX3] ❌ FAILED: {res.message}')
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    client = GripperPickPlaceActionClient()
+    
+    # Test 1: Normal operation (no cancellation)
+    client.send_goal(
+        object_id="Box_A",
+        target_x=3.0,
+        target_y=2.0,
+        grip_force=15.0,
+        cancel_after=None  # Change to 4.0 to test cancellation
+    )
+    rclpy.spin(client)
+
+
+if __name__ == '__main__':
+    main()
+```
+
+---
+
+### **Build and Test**
+
+#### **Step 1: Build the Packages**
+
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot_interfaces
+colcon build --packages-select ce_robot --symlink-install
+source install/setup.bash
+```
+
+#### **Step 2: Run the Nodes**
+
+**Terminal 1 - Start Gripper Server:**
+```bash
+ros2 run ce_robot 06_gripper_server_ex3
+```
+
+**Terminal 2 - Run Gripper Client:**
+```bash
+ros2 run ce_robot 06_gripper_client_ex3
+```
+
+---
+
+### **Expected Output**
+
+**Server Terminal (Normal Operation):**
+```
+[INFO] [gripper_server_ex3]: 🤖 Gripper Pick & Place Server started
+[INFO] [gripper_server_ex3]: [EX3] 📋 Received goal for object: Box_A
+[INFO] [gripper_server_ex3]: [EX3:#1] 🚀 Starting pick-and-place: Box_A → (3.00, 2.00) with 15.0N force
+[INFO] [gripper_server_ex3]: [EX3] Approaching 0%
+[INFO] [gripper_server_ex3]: [EX3] Approaching 10%
+...
+[INFO] [gripper_server_ex3]: [EX3] Grasping 50%
+[INFO] [gripper_server_ex3]: [EX3] Grasping 100%
+[INFO] [gripper_server_ex3]: [EX3] Lifting 0%
+...
+[INFO] [gripper_server_ex3]: [EX3] Moving 100%
+[INFO] [gripper_server_ex3]: [EX3] Releasing 100%
+[INFO] [gripper_server_ex3]: [EX3:#1] ✅ Pick-and-place complete! Box_A moved to (3.00, 2.00) in 8.6s
+```
+
+**Client Terminal:**
+```
+[INFO] [gripper_client_ex3]: 🤖 Gripper Pick & Place Client initialized
+[INFO] [gripper_client_ex3]: [EX3] 📡 Waiting for gripper server...
+[INFO] [gripper_client_ex3]: [EX3] 🎯 Requesting pick-and-place: Box_A → (3.00, 2.00) at 15.0N
+[INFO] [gripper_client_ex3]: [EX3] ✅ Goal accepted!
+[INFO] [gripper_client_ex3]: [EX3] 📊 Approaching (10%) | Force: 15.0N | ❌ No object
+[INFO] [gripper_client_ex3]: [EX3] 📊 Grasping (50%) | Force: 7.5N | ❌ No object
+[INFO] [gripper_client_ex3]: [EX3] 📊 Grasping (100%) | Force: 15.0N | ✅ Held
+[INFO] [gripper_client_ex3]: [EX3] 📊 Lifting (50%) | Force: 15.0N | ✅ Held
+[INFO] [gripper_client_ex3]: [EX3] 📊 Moving (80%) | Force: 15.0N | ✅ Held
+[INFO] [gripper_client_ex3]: [EX3] 📊 Releasing (100%) | Force: 0.0N | ✅ Held
+[INFO] [gripper_client_ex3]: [EX3] ✅ SUCCESS: Completed in 8.6s
+```
+
+**With Cancellation (change `cancel_after=4.0` in client):**
+```
+Server: [EX3] 🛑 Cancelled during Lifting
+Client: [EX3] 🛑 Requesting cancellation...
+Client: [EX3] ✅ Cancellation accepted
+Client: [EX3] 🛑 Operation CANCELLED at Lifting
+```
+
+---
+
+### **💡 Key Concepts**
+
+| Concept | Description | Implementation |
+|---------|-------------|----------------|
+| **Multi-Stage Execution** | Sequential manipulation phases | Approach → Grasp → Lift → Move → Release |
+| **Goal/Cancel Callbacks** | Pre-execution validation | `goal_callback()`, `cancel_callback()` |
+| **Cancellation Handling** | Mid-execution termination | `is_cancel_requested`, `goal_handle.canceled()` |
+| **Force Sensing** | Gripper force feedback | `feedback_msg.gripper_force` |
+| **Object Detection** | Grasp success verification | `feedback_msg.object_detected` |
+| **Failure Simulation** | Object drop detection (2% chance) | Random abort during lift/move |
+| **Status Codes** | Operation outcomes | SUCCEEDED (4), CANCELED (5), ABORTED (6) |
+
+---
+
+### **🔍 Testing Variations**
+
+Test different manipulation scenarios by modifying the client's `main()`:
+
+```python
+# Test 1: Normal operation (full success)
+client.send_goal("Box_A", 3.0, 2.0, 15.0, cancel_after=None)
+
+# Test 2: Cancel during lifting
+client.send_goal("Box_B", 5.0, 1.0, 20.0, cancel_after=4.0)
+
+# Test 3: Cancel during moving
+client.send_goal("Box_C", 8.0, 8.0, 12.0, cancel_after=6.0)
+
+# Test 4: Invalid grip force (should reject goal)
+client.send_goal("Box_D", 3.0, 2.0, 60.0, cancel_after=None)  # Force > 50N
+
+# Test 5: Out of reach target (should reject)
+client.send_goal("Box_E", 15.0, 15.0, 15.0, cancel_after=None)  # Beyond ±10m
+
+# Test 6: Run multiple times to trigger object drop (2% chance)
+for i in range(10):
+    client.send_goal(f"Box_{i}", 3.0, 2.0, 15.0, cancel_after=None)
+```
+
+---
+
+### **✅ Exercise 3 Completion Checklist**
+
+- [ ] Created `GripperPickPlace.action` definition
+- [ ] Updated `CMakeLists.txt` and rebuilt interfaces
+- [ ] Created `gripper_server_ex3.py` with multi-stage execution
+- [ ] Created `gripper_client_ex3.py` with cancellation support
+- [ ] Added entry points to `setup.py`
+- [ ] Built packages successfully with `colcon build`
+- [ ] Server implements goal_callback and cancel_callback
+- [ ] Multi-stage feedback: Approaching, Grasping, Lifting, Moving, Releasing
+- [ ] Object detection toggles during grasping
+- [ ] Normal operation completes all 5 stages successfully
+- [ ] Cancellation works during any stage
+- [ ] Object drop simulation triggers abort (run multiple times)
+- [ ] Invalid goals rejected (force, target position)
+- [ ] Understood advanced action patterns (goal/cancel callbacks, multi-stage)
+
+---
+
+## **📚 Commands Reference**
+
+### **Action Introspection**
+
+```bash
+# List all available action servers
+ros2 action list
+
+# Get detailed information about an action
+ros2 action info /battery_charging_ex1
+ros2 action info /navigate_to_goal_ex2
+ros2 action info /gripper_pick_place_ex3
+
+# Show action type definition
+ros2 interface show ce_robot_interfaces/action/BatteryCharging
+ros2 interface show ce_robot_interfaces/action/NavigateToGoal
+ros2 interface show ce_robot_interfaces/action/GripperPickPlace
+```
+
+### **Sending Goals from Command Line**
+
+```bash
+# Exercise 1: Battery Charging
+ros2 action send_goal /battery_charging_ex1 \
+  ce_robot_interfaces/action/BatteryCharging \
+  "{target_level: 80, charging_rate: 5.0}" \
+  --feedback
+
+# Exercise 2: Navigate to Goal
+ros2 action send_goal /navigate_to_goal_ex2 \
+  ce_robot_interfaces/action/NavigateToGoal \
+  "{target_x: 5.0, target_y: 5.0, speed: 1.0}" \
+  --feedback
+
+# Exercise 3: Gripper Pick & Place
+ros2 action send_goal /gripper_pick_place_ex3 \
+  ce_robot_interfaces/action/GripperPickPlace \
+  "{object_id: 'TestBox', target_x: 3.0, target_y: 2.0, grip_force: 15.0}" \
+  --feedback
+# Press Ctrl+C to cancel during execution
+```
+
+### **Debugging Commands**
+
+```bash
+# Check if action server is running
+ros2 node list | grep _ex
+
+# View node info
+ros2 node info /battery_charging_server_ex1
+
+# Monitor action topics
+ros2 topic list | grep battery_charging_ex1
+ros2 topic echo /_action/battery_charging_ex1/feedback
+
+# Check action interface definition
+ros2 interface proto ce_robot_interfaces/action/BatteryCharging
+```
+
+---
+
+## **✅ Complete Lab Completion Checklist**
+
+### **Exercise 1: Battery Charging Action** 🔋
+- [ ] Created `BatteryCharging.action` definition
+- [ ] Implemented autonomous charging with safety monitoring
+- [ ] Multi-phase execution (Initialize, Charge, Balance)
+- [ ] Temperature tracking and overheating detection
+- [ ] Successfully tested normal charging (20% → 80%)
+- [ ] Validated error handling (invalid parameters, overheating)
+- [ ] Understood real robot power management patterns
+
+### **Exercise 2: Navigate to Goal Action** 🗺️
+- [ ] Created `NavigateToGoal.action` definition
+- [ ] Implemented mobile robot navigation simulation
+- [ ] Real-time ETA calculation and distance tracking
+- [ ] Obstacle detection triggering abort
+- [ ] Successfully navigated to target position
+- [ ] Tested various speeds and target locations
+- [ ] Understood autonomous navigation patterns
+
+### **Exercise 3: Gripper Pick & Place Action** 🤖
+- [ ] Created `GripperPickPlace.action` definition
+- [ ] Implemented multi-stage manipulation (5 stages)
+- [ ] Goal and cancel callbacks for validation
+- [ ] Force sensing and object detection feedback
+- [ ] Object drop simulation (failure handling)
+- [ ] Cancellation works at any stage
+- [ ] Understood advanced manipulation patterns
+
+### **Overall Understanding** 🎓
+- [ ] Can explain real-world robotics applications of actions
+- [ ] Understand when to use Actions for robot tasks
+- [ ] Can implement action servers with multi-stage execution
+- [ ] Know how to handle robot-specific errors (obstacles, drops, overheating)
+- [ ] Understand cancellation for safety-critical operations
+- [ ] Can debug robot actions using ros2 command line tools
+- [ ] Ready to implement actions in production robot systems
+
+---
+
+## **💡 Tips & Best Practices**
+
+### **Design Guidelines for Robot Actions**
+1. **Use Actions for physical operations** (charging, navigation, manipulation)
+2. **Validate robot state** before execution (battery, position, sensors)
+3. **Check cancellation for safety** (user abort, emergency stop)
+4. **Provide rich feedback** (position, progress, sensor data)
+5. **Handle failures gracefully** (obstacles, drops, timeouts)
+
+### **Common Robot Action Patterns**
+```python
+# Pattern 1: Multi-stage robot operation
+stages = ["Initialize", "Execute", "Verify", "Complete"]
+for stage in stages:
+    if not execute_stage(stage):
+        return abort_with_state()
+
+# Pattern 2: With sensor monitoring
+while not goal_reached():
+    if goal_handle.is_cancel_requested:
+        safe_stop()
+        return canceled()
+    if sensor_detects_problem():
+        return abort_with_error()
+    move_towards_goal()
+
+# Pattern 3: With safety validation
+def goal_callback(goal):
+    if not is_safe(goal):
+        return GoalResponse.REJECT
+    return GoalResponse.ACCEPT
+```
+
+### **Debugging Robot Actions**
+- Use `ros2 action list` to verify servers are running
+- Use `ros2 topic echo` to monitor feedback in real-time
+- Add detailed logging at each stage
+- Test failure scenarios (obstacles, drops, errors)
+- Use visualization tools (rviz2) for spatial tasks
+
+---
+
+## **🎯 Next Steps**
+
+After completing these robotics exercises:
+
+1. **Integrate with Real Hardware:**
+   - Connect to actual robot controllers
+   - Use real sensors (force, proximity, encoders)
+   - Interface with motor drivers
+   - Add safety interlocks
+
+2. **Advanced Robot Behaviors:**
+   - Multi-robot coordination (fleet management)
+   - Adaptive behaviors (learning from failures)
+   - Complex manipulation (assembly tasks)
+   - Autonomous mission planning
+
+3. **Production Robotics:**
+   - Add comprehensive safety checks
+   - Implement recovery behaviors
+   - Create robot-specific action libraries
+   - Add performance monitoring and logging
+
+4. **Integration with ROS 2 Ecosystem:**
+   - Combine with nav2 for real navigation
+   - Use MoveIt2 for real manipulation
+   - Integrate with tf2 for coordinate transforms
+   - Add rviz2 visualization for debugging
+
+---
+
+## **📖 Summary**
+
+Congratulations! You've completed all three real-world robotics action exercises:
+
+- ✅ **Exercise 1:** Battery charging with safety monitoring 🔋
+- ✅ **Exercise 2:** Robot navigation with obstacle detection 🗺️
+- ✅ **Exercise 3:** Gripper manipulation with multi-stage execution 🤖
+
+**Key Takeaways:**
+- Actions enable **real robotics applications** (charging, navigation, manipulation)
+- **Multi-stage execution** mirrors actual robot operations
+- **Safety monitoring** (temperature, obstacles, force) is critical
+- **Cancellation support** enables emergency stops and user control
+- **Rich feedback** provides visibility into robot state
+- Actions are the foundation for **professional robot systems**
+
+You now have practical skills to implement action-based behaviors in real robots! 🎉🤖
+
+---
         time.sleep(3)
         if self.goal_handle:
             self.get_logger().info('[EX3] Requesting cancellation...')
@@ -1364,167 +1937,7 @@ Modify the client to test different scenarios:
 # Comment out the cancellation threading code
 client.send_goal(target=5, period=1)
 
-# Test 2: Immediate cancellation
-def _cancel_after_delay(self):
-    time.sleep(0.5)  # Cancel after 0.5 seconds
-    ...
-
-# Test 3: Late cancellation (after completion)
-def _cancel_after_delay(self):
-    time.sleep(15)  # Try to cancel after completion
-    ...
-```
-
-**Testing Goal Status with ros2 command line:**
-```bash
-# Send goal with feedback display
-ros2 action send_goal /monitored_action_ex3 \
-  ce_robot_interfaces/action/CountUntil \
-  "{target: 5, period: 1}" \
-  --feedback
-
-# Cancel during execution (Ctrl+C in the terminal)
-```
-
 ---
-
-### **✅ Exercise 3 Completion Checklist**
-
-- [ ] Created `monitored_action_server_ex3.py` with cancellation support
-- [ ] Created `monitored_action_client_ex3.py` with cancel request
-- [ ] Added entry points to `setup.py`
-- [ ] Built package successfully with `colcon build`
-- [ ] Server checks `is_cancel_requested` during execution
-- [ ] Client sends cancellation request after 3 seconds
-- [ ] Server logs "CANCELLED at count X" message
-- [ ] Client receives cancellation confirmation
-- [ ] Partial result returned with current count
-- [ ] Tested goal status codes (SUCCEEDED, CANCELED)
-- [ ] Understood cleanup on cancellation
-- [ ] Tested variations (no cancel, late cancel)
-
----
-
-## **📚 Commands Reference**
-
-### **Action Introspection**
-
-```bash
-# List all available action servers
-ros2 action list
-
-# Get detailed information about an action
-ros2 action info /count_until_ex1
-ros2 action info /distance_calc_ex2
-ros2 action info /monitored_action_ex3
-
-# Show action type definition
-ros2 interface show ce_robot_interfaces/action/CountUntil
-ros2 interface show ce_robot_interfaces/action/DistanceCalc
-```
-
-### **Sending Goals from Command Line**
-
-```bash
-# Exercise 1: Count Until (basic)
-ros2 action send_goal /count_until_ex1 \
-  ce_robot_interfaces/action/CountUntil \
-  "{target: 5, period: 1}" \
-  --feedback
-
-# Exercise 2: Distance Calculator
-ros2 action send_goal /distance_calc_ex2 \
-  ce_robot_interfaces/action/DistanceCalc \
-  "{x1: 0.0, y1: 0.0, x2: 3.0, y2: 4.0}" \
-  --feedback
-
-# Exercise 3: Monitored Action
-ros2 action send_goal /monitored_action_ex3 \
-  ce_robot_interfaces/action/CountUntil \
-  "{target: 10, period: 1}" \
-  --feedback
-# Press Ctrl+C to cancel during execution
-```
-
-### **Debugging Commands**
-
-```bash
-# Check if action server is running
-ros2 node list | grep server_ex
-
-# View node info
-ros2 node info /count_until_server_ex1
-
-# Monitor action topics
-ros2 topic list | grep count_until_ex1
-ros2 topic echo /_action/count_until_ex1/feedback
-
-# Check action interface definition
-ros2 interface proto ce_robot_interfaces/action/CountUntil
-```
-
----
-
-## **✅ Complete Lab Completion Checklist**
-
-### **Exercise 1: Basic Actions** ✅
-- [ ] Created `count_until_server_ex1.py` and `count_until_client_ex1.py`
-- [ ] Server implements `execute_callback()` with feedback publishing
-- [ ] Client implements feedback and result callbacks
-- [ ] Successfully tested goal → feedback → result flow
-- [ ] Understood action lifecycle fundamentals
-
-### **Exercise 2: Validation & Error Handling** ⚠️
-- [ ] Created `DistanceCalc.action` custom action definition
-- [ ] Updated `CMakeLists.txt` and rebuilt interfaces
-- [ ] Created `distance_calc_server_ex2.py` with `validate_goal()`
-- [ ] Created `distance_calc_client_ex2.py`
-- [ ] Tested valid goal execution (3-4-5 triangle → 5.0)
-- [ ] Tested invalid goal rejection (large coordinates)
-- [ ] Understood `goal_handle.abort()` for error handling
-- [ ] Implemented progressive feedback with percentage
-
-### **Exercise 3: Cancellation & Advanced Patterns** 🚀
-- [ ] Created `monitored_action_server_ex3.py` with cancellation check
-- [ ] Created `monitored_action_client_ex3.py` with cancel request
-- [ ] Server checks `is_cancel_requested` in execution loop
-- [ ] Client sends cancellation after 3 seconds
-- [ ] Server responds with `goal_handle.canceled()`
-- [ ] Partial results returned on cancellation
-- [ ] Tested goal status codes (SUCCEEDED, CANCELED, ABORTED)
-- [ ] Understood threading for async operations
-
-### **Overall Understanding** 🎓
-- [ ] Can explain Goal-Feedback-Result pattern
-- [ ] Understand when to use Actions vs Services
-- [ ] Can implement action servers and clients
-- [ ] Know how to handle errors and validation
-- [ ] Understand cancellation and cleanup
-- [ ] Can debug actions using ros2 command line tools
-- [ ] Ready to implement actions in real robotics applications
-
----
-
-## **💡 Tips & Best Practices**
-
-### **Design Guidelines**
-1. **Use Actions for long-running tasks** (> 1 second)
-2. **Validate goals early** before starting execution
-3. **Check cancellation frequently** in execution loops
-4. **Provide meaningful feedback** with progress information
-5. **Handle errors gracefully** with proper cleanup
-
-### **Common Patterns**
-```python
-# Pattern 1: Basic execution with feedback
-for i in range(target):
-    feedback.value = i
-    goal_handle.publish_feedback(feedback)
-    time.sleep(period)
-goal_handle.succeed()
-
-# Pattern 2: With cancellation check
-for i in range(target):
     if goal_handle.is_cancel_requested:
         goal_handle.canceled()
         return partial_result
