@@ -523,8 +523,8 @@ ros2 service list
 
 ### **Test Rectangle Service**
 
-```bash
 # Test the CalRectangle service from rect_server
+```bash
 ros2 service call /calculate_rectangle ce_robot_interfaces/srv/CalRectangle "{length: 5.0, width: 3.0}"
 ```
 
@@ -539,11 +539,13 @@ ce_robot_interfaces.srv.CalRectangle_Response(area=15.0, perimeter=16.0)
 
 ### **Test Action Server**
 
-```bash
 # List available actions
+```bash
 ros2 action list
+```
 
 # Send goal to CountUntil action from count_server
+```bash
 ros2 action send_goal /count_until ce_robot_interfaces/action/CountUntil "{target_number: 10, period: 1.0}" --feedback
 ```
 
