@@ -340,6 +340,8 @@ ros2 topic list              # Should see /robot_tag
 ros2 topic echo /robot_tag   # See RobotTag messages
 ```
 
+![Simple Launch Running](imgs/launch_simple.png)
+
 ---
 
 ## **Step 3: Create Complex Launch File with Configuration** ⏱️ 30 min
@@ -525,7 +527,7 @@ ros2 service list
 
 # Test the CalRectangle service from rect_server
 ```bash
-ros2 service call /calculate_rectangle ce_robot_interfaces/srv/CalRectangle "{length: 5.0, width: 3.0}"
+ros2 service call /cal_rect ce_robot_interfaces/srv/CalRectangle "{length: 5.0, width: 3.0}"
 ```
 
 **Expected Output:**
@@ -537,6 +539,8 @@ response:
 ce_robot_interfaces.srv.CalRectangle_Response(area=15.0, perimeter=16.0)
 ```
 
+![Service Call Test](imgs/launch_service.png)
+
 ### **Test Action Server**
 
 # List available actions
@@ -546,7 +550,7 @@ ros2 action list
 
 # Send goal to CountUntil action from count_server
 ```bash
-ros2 action send_goal /count_until ce_robot_interfaces/action/CountUntil "{target_number: 10, period: 1.0}" --feedback
+ros2 action send_goal /count_until ce_robot_interfaces/action/CountUntil "{target: 10, period: 1.0}" --feedback
 ```
 
 **Expected Output:**
@@ -575,11 +579,39 @@ Result:
 Goal finished with status: SUCCEEDED
 ```
 
+![Action Server Test](imgs/launch_action.png)
+
 ### **Monitor Topic Output**
 
 ```bash
 ros2 topic echo /robot_tag
 ```
+
+**Expected Output:**
+```
+robot_id: ROBOT-BOOT-100
+robot_type: transport
+zone_id: WAREHOUSE-A
+fleet_number: 100
+status: idle
+priority_level: 5
+max_payload_kg: 500.0
+current_location: DOCK-100
+assigned_task: TASK-9329
+assigned_operator: AUTO
+last_maintenance:
+  sec: 1765787100
+  nanosec: 0
+deployment_date:
+  sec: 1758097500
+  nanosec: 0
+operation_hours: 0.5299999713897705
+safety_certified: true
+firmware_version: v2.3.1
+error_code: 0
+```
+
+![Robot Tag Message Details](imgs/launch_topic.png)
 
 ---
 
