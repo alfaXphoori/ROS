@@ -521,10 +521,26 @@ ros2 topic list
 ros2 service list
 ```
 
+### **Test Rectangle Service**
+
+```bash
+# Test the CalRectangle service from rect_server
+ros2 service call /calculate_rectangle ce_robot_interfaces/srv/CalRectangle "{length: 5.0, width: 3.0}"
+```
+
+**Expected Output:**
+```
+waiting for service to become available...
+requester: making request: ce_robot_interfaces.srv.CalRectangle_Request(length=5.0, width=3.0)
+
+response:
+ce_robot_interfaces.srv.CalRectangle_Response(area=15.0, perimeter=16.0)
+```
+
 ### **Monitor Topic Output**
 
 ```bash
-ros2 topic echo /hardware_status
+ros2 topic echo /robot_tag
 ```
 
 ---
