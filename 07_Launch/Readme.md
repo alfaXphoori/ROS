@@ -537,6 +537,42 @@ response:
 ce_robot_interfaces.srv.CalRectangle_Response(area=15.0, perimeter=16.0)
 ```
 
+### **Test Action Server**
+
+```bash
+# List available actions
+ros2 action list
+
+# Send goal to CountUntil action from count_server
+ros2 action send_goal /count_until ce_robot_interfaces/action/CountUntil "{target_number: 10, period: 1.0}" --feedback
+```
+
+**Expected Output:**
+```
+Waiting for an action server to become available...
+Sending goal:
+     target_number: 10
+     period: 1.0
+
+Goal accepted with ID: ...
+
+Feedback:
+    current_number: 0
+
+Feedback:
+    current_number: 1
+
+Feedback:
+    current_number: 2
+    
+... (continues until 10)
+
+Result:
+    reached_number: 10
+    
+Goal finished with status: SUCCEEDED
+```
+
 ### **Monitor Topic Output**
 
 ```bash
