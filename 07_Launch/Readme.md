@@ -504,9 +504,9 @@ ros2 node list
 
 **Expected Output:**
 ```
-/hw_publisher
-/hw_subscriber
+/robot_tag_publisher
 /rect_server
+/count_server
 ```
 
 ### **List Topics**
