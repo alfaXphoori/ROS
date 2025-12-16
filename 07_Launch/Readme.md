@@ -645,29 +645,7 @@ entry_points={
         "06_count_until_client = ce_robot.count_until_client:main",
     ],
 },
-```
 
-📝 **Complete setup.py available:** See `99_Test/setup.py` for reference with all 45 entry points
-
-### **❌ Mistake 3: Python syntax error in launch file**
-```bash
-# Error: SyntaxError: invalid syntax
-```
-**Fix:** Check:
-- Missing commas between parameters
-- Missing closing brackets `]` or `)`
-- Correct indentation (Python is strict!)
-
-### **❌ Mistake 4: Argument not working**
-```bash
-# You pass robot_name:=test but it still uses default
-```
-**Fix:** Make sure you're using `LaunchConfiguration`:
-```python
-robot_name = LaunchConfiguration('robot_name')  # Get value
-Node(
-    parameters=[{'robot_name': robot_name}]  # Use value
-)
 ```
 
 ### **💡 Debugging Tips**
