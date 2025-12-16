@@ -26,6 +26,32 @@ This lab extends the concepts from **Readme.md** with advanced launch file techn
 
 ---
 
+## **\ud83c\udfed Real-World Robot Scenarios**
+
+These exercises simulate actual robot deployments:
+
+**\ud83d\udce6 Amazon Fulfillment Center:**
+- 50+ robots working simultaneously
+- Different types: pickers, transporters, sorters
+- Battery monitoring and auto-charging
+- Zone-based task assignment
+
+**\ud83c\udfed Manufacturing Floor:**
+- Heavy-duty transport (1500kg pallets)
+- Safety-critical navigation systems
+- 24/7 operation with fault tolerance
+- Automatic recovery from failures
+
+**\ud83d\udecd\ufe0f Grocery Warehouse:**
+- Compact robots for narrow aisles
+- Temperature-sensitive cargo
+- Real-time inventory tracking
+- Multi-robot coordination
+
+Each exercise teaches techniques used in these real deployments!
+
+---
+
 ## **🎯 Learning Objectives**
 
 By completing this lab, you will master:
@@ -91,7 +117,17 @@ Learn to launch nodes conditionally based on arguments - essential for flexible 
 
 ### **💡 Real-World Use Case**
 
-You're deploying warehouse robots. Some have cameras (`has_camera:=true`), some don't. Your launch file should adapt automatically!
+**Scenario:** Amazon-style fulfillment center with 50+ robots. During peak hours, you need:
+- **Camera-equipped robots** for barcode scanning (20 units)
+- **Standard transport robots** without cameras (30 units)  
+- **Development/test robots** with debug logging enabled (2 units)
+
+Your launch file must adapt based on `robot_type` argument:
+- `robot_type:=scanner` → Enables camera node
+- `robot_type:=transport` → No camera, max speed
+- `robot_mode:=development` → Debug logging, slower speeds, test sensors
+
+This prevents deploying wrong configurations and ensures safety!
 
 
 ### **📁 File: conditional_robot_launch.py**
@@ -149,17 +185,24 @@ def generate_launch_description():
     robot_mode = LaunchConfiguration('robot_mode')
     
     # Conditional publisher (launches only if enabled)
+    # Realistic warehouse robot with battery monitoring and position tracking
     publisher_node = Node(
         package='ce_robot',
         executable='05_robot_tag_param',
         name='robot_tag_publisher',
         output='screen',
         parameters=[
-            {'robot_id': 'ROBOT-COND-001'},
+            {'robot_id': 'AMR-WH-A-001'},  # Autonomous Mobile Robot, Warehouse A, Unit 001
             {'robot_type': 'transport'},
-            {'zone_id': 'WAREHOUSE-CONDITIONAL'},
+            {'zone_id': 'WAREHOUSE-A-DOCK-3'},
             {'fleet_number': 1},
             {'tag_publish_rate': 2.0},
+            {'max_payload_kg': 500.0},
+            {'current_location': 'DOCK-3-BAY-12'},
+            {'assigned_task': 'TRANSPORT-TO-ZONE-B'},
+            {'priority_level': 7},  # High priority for urgent deliveries
+            {'battery_level': 85.0},  # Battery percentage
+            {'operation_hours': 142.5},  # Hours in service
         ],
         condition=IfCondition(enable_publisher)
     )
@@ -266,9 +309,34 @@ ros2 node list
 4. **LogInfo** - Print messages during launch
 5. **choices** parameter - Validate argument values
 
-### **🎯 Challenge**
+### **🎯 Challenge: Battery-Aware Robot Deployment**
 
-Add a `warehouse_zone` argument that changes the `zone_id` parameter. Use `PythonExpression` to set different `fleet_number` values based on the zone.
+**Task:** Modify the launch file to check battery level and adjust behavior:
+
+```python
+# If battery < 20%: Launch with reduced speed and enable charging node
+# If battery 20-50%: Normal operation but skip heavy tasks
+# If battery > 50%: Full performance, enable all features
+
+battery_level_arg = DeclareLaunchArgument(
+    'battery_level',
+    default_value='100.0',
+    description='Current battery level (0-100)'
+)
+
+# Use PythonExpression to enable charging node when battery < 20
+charging_required = PythonExpression([
+    "float('", LaunchConfiguration('battery_level'), "') < 20.0"
+])
+
+charging_node = Node(
+    package='ce_robot',
+    executable='battery_charging_client',
+    condition=IfCondition(charging_required)
+)
+```
+
+**Real benefit:** Prevents robot from accepting heavy transport tasks when battery is low, automatically routes to charging station.
 
 ---
 
@@ -287,7 +355,18 @@ Learn to launch multiple instances of the same node without conflicts using name
 
 ### **💡 Real-World Use Case**
 
-You have 3 robots in the same warehouse. Each needs its own publisher, but they all share the same code. Namespaces prevent topic/service name conflicts!
+**Scenario:** Warehouse has 3 zones (Loading, Picking, Sorting), each needs its own robot:
+- **Robot 1 (Loading Dock):** Heavy transport, handles pallets up to 1000kg
+- **Robot 2 (Picking Area):** Light picker, needs frequent charging cycles
+- **Robot 3 (Sorting Station):** Multi-function, handles urgent deliveries
+
+Each robot:
+- Publishes to its own topic: `/robot1/robot_tag`, `/robot2/robot_tag`, `/robot3/robot_tag`
+- Has isolated services: `/robot1/cal_rect`, `/robot2/count_until`
+- Can be monitored independently without interference
+- Reports battery level, location, and assigned tasks
+
+Namespaces prevent collisions when 50+ robots operate simultaneously!
 
 
 ### **📁 File: multi_robot_launch.py**
@@ -315,7 +394,7 @@ def generate_launch_description():
         description='Number of robots to launch'
     )
     
-    # Robot 1 configuration
+    # Robot 1: Heavy transport robot in loading dock
     robot1_group = GroupAction([
         PushRosNamespace('robot1'),
         Node(
@@ -324,11 +403,18 @@ def generate_launch_description():
             name='robot_tag_publisher',
             output='screen',
             parameters=[
-                {'robot_id': 'ROBOT-FLEET-001'},
+                {'robot_id': 'AMR-TRANSPORT-HEAVY-001'},
                 {'robot_type': 'transport'},
-                {'zone_id': 'WAREHOUSE-A'},
+                {'zone_id': 'WAREHOUSE-A-LOADING-DOCK'},
                 {'fleet_number': 1},
                 {'tag_publish_rate': 2.0},
+                {'max_payload_kg': 1000.0},  # Heavy-duty transport
+                {'current_location': 'DOCK-A-STATION-5'},
+                {'assigned_task': 'PALLET-TRANSPORT-TO-STORAGE'},
+                {'assigned_operator': 'SHIFT-SUPERVISOR-A'},
+                {'battery_level': 78.0},
+                {'priority_level': 8},  # High priority
+                {'safety_certified': True},
             ],
         ),
         Node(
@@ -339,7 +425,7 @@ def generate_launch_description():
         ),
     ])
     
-    # Robot 2 configuration
+    # Robot 2: Picker robot with low battery - returning to charging
     robot2_group = GroupAction([
         PushRosNamespace('robot2'),
         Node(
@@ -348,11 +434,19 @@ def generate_launch_description():
             name='robot_tag_publisher',
             output='screen',
             parameters=[
-                {'robot_id': 'ROBOT-FLEET-002'},
+                {'robot_id': 'AMR-PICKER-LIGHT-002'},
                 {'robot_type': 'picker'},
-                {'zone_id': 'WAREHOUSE-B'},
+                {'zone_id': 'WAREHOUSE-B-PICKING-AREA'},
                 {'fleet_number': 2},
                 {'tag_publish_rate': 1.5},
+                {'max_payload_kg': 50.0},  # Light picker
+                {'current_location': 'AISLE-B-12-SHELF-3'},
+                {'assigned_task': 'RETURN-TO-CHARGING-STATION'},
+                {'assigned_operator': 'AUTO'},  # Autonomous operation
+                {'battery_level': 18.5},  # Low battery - needs charging!
+                {'priority_level': 3},  # Lower priority - maintenance task
+                {'safety_certified': True},
+                {'status': 'low_battery_return'},
             ],
         ),
         Node(
@@ -363,7 +457,7 @@ def generate_launch_description():
         ),
     ])
     
-    # Robot 3 configuration
+    # Robot 3: Multi-function delivery robot at sorting station
     robot3_group = GroupAction([
         PushRosNamespace('robot3'),
         Node(
@@ -372,11 +466,21 @@ def generate_launch_description():
             name='robot_tag_publisher',
             output='screen',
             parameters=[
-                {'robot_id': 'ROBOT-FLEET-003'},
+                {'robot_id': 'AMR-DELIVERY-MULTI-003'},
                 {'robot_type': 'transport'},
-                {'zone_id': 'WAREHOUSE-C'},
+                {'zone_id': 'WAREHOUSE-C-SORTING-STATION'},
                 {'fleet_number': 3},
-                {'tag_publish_rate': 3.0},
+                {'tag_publish_rate': 3.0},  # Fast updates for active operations
+                {'max_payload_kg': 300.0},  # Medium capacity
+                {'current_location': 'SORT-C-CONVEYOR-7'},
+                {'assigned_task': 'PACKAGE-DELIVERY-ROUTE-12'},
+                {'assigned_operator': 'DISPATCH-COORD-C'},
+                {'battery_level': 92.0},  # Fully charged, ready for operations
+                {'priority_level': 9},  # Critical delivery route
+                {'safety_certified': True},
+                {'status': 'active_delivery'},
+                {'operation_hours': 1847.3},  # Veteran robot
+                {'firmware_version': 'v3.2.1'},
             ],
         ),
         Node(
@@ -463,9 +567,37 @@ ros2 action send_goal /robot2/count_until ce_robot_interfaces/action/CountUntil 
 4. **Namespace paths** - Access topics/services via `/namespace/name`
 5. **Multi-robot systems** - Deploy fleets without code duplication
 
-### **🎯 Challenge**
+### **🎯 Challenge: Dynamic Robot Fleet Deployment**
 
-Create a launch file that accepts a `robot_id` argument and launches a single robot with that namespace dynamically. Hint: Use `LaunchConfiguration` in `PushRosNamespace`.
+**Task:** Create a launch file that accepts `num_robots` and `robot_ids` arguments to spawn a dynamic fleet:
+
+```python
+num_robots_arg = DeclareLaunchArgument(
+    'num_robots',
+    default_value='5',
+    description='Number of robots in fleet'
+)
+
+robot_prefix_arg = DeclareLaunchArgument(
+    'robot_prefix',
+    default_value='AMR-FLEET',
+    description='Robot ID prefix (e.g., AMR-FLEET-001, AMR-FLEET-002)'
+)
+
+# Advanced: Use OpaqueFunction to generate robot nodes dynamically
+def generate_robot_nodes(context):
+    num_robots = int(context.launch_configurations['num_robots'])
+    prefix = context.launch_configurations['robot_prefix']
+    
+    nodes = []
+    for i in range(1, num_robots + 1):
+        namespace = f'robot{i}'
+        robot_id = f'{prefix}-{i:03d}'
+        # Create node for each robot...
+    return nodes
+```
+
+**Real benefit:** Deploy 10, 20, or 50 robots with one command. Used in scalable warehouse systems.
 
 ---
 
@@ -485,7 +617,26 @@ Learn to handle node failures, restart crashed nodes, and log system events - es
 
 ### **💡 Real-World Use Case**
 
-Your robot's camera driver crashes occasionally. Instead of manual restarts, configure automatic recovery with logging for debugging!
+**Scenario:** Industrial warehouse with 24/7 operations:
+- **Battery monitoring system** occasionally crashes due to CAN bus timeouts
+- **LiDAR navigation node** may fail during firmware updates
+- **Camera driver** can freeze when processing corrupted frames
+
+**Critical failures** (must shutdown entire system):
+- Navigation system failure → Robot could collide
+- Safety system failure → Emergency stop not working
+
+**Non-critical failures** (auto-restart):
+- Camera freeze → Restart driver, continue with other sensors
+- WiFi disconnect → Reconnect automatically
+- Battery monitor → Restart and recalibrate
+
+Your launch file automatically:
+1. Detects when battery monitor crashes
+2. Waits 3 seconds (allows hardware reset)
+3. Restarts the node with fresh initialization
+4. Logs the incident for maintenance team
+5. If critical navigation fails → Immediately stops robot for safety
 
 
 ### **📁 File: monitored_system_launch.py**
@@ -532,18 +683,28 @@ def generate_launch_description():
     enable_auto_restart = LaunchConfiguration('enable_auto_restart')
     critical_node = LaunchConfiguration('critical_node')
     
-    # Critical publisher node
+    # Critical publisher node - Battery monitoring system
+    # In real robots, losing battery data is dangerous!
     publisher_node = Node(
         package='ce_robot',
         executable='05_robot_tag_param',
         name='robot_tag_publisher',
         output='screen',
         parameters=[
-            {'robot_id': 'ROBOT-MONITOR-001'},
+            {'robot_id': 'AMR-BATTERY-MONITOR-001'},
             {'robot_type': 'transport'},
-            {'zone_id': 'WAREHOUSE-MONITOR'},
+            {'zone_id': 'WAREHOUSE-MAIN-FLOOR'},
             {'fleet_number': 1},
             {'tag_publish_rate': 2.0},
+            {'max_payload_kg': 500.0},
+            {'current_location': 'MAIN-AISLE-4'},
+            {'battery_level': 65.0},
+            {'status': 'operational'},
+            {'priority_level': 8},
+            # Battery monitoring parameters
+            {'battery_voltage': 48.2},  # Volts
+            {'battery_current': -15.3},  # Amps (negative = discharging)
+            {'battery_temp': 32.5},  # Celsius
         ],
     )
     
@@ -722,9 +883,42 @@ pkill -f CalRect_server
 6. **Fault tolerance** - Build self-healing systems
 7. **Critical vs non-critical** - Different handling based on node importance
 
-### **🎯 Challenge**
+### **🎯 Challenge: Failure Counter with Escalation**
 
-Modify the launch file to count failures and only auto-restart up to 3 times. After 3 failures, log an error and shut down the system.
+**Task:** Track node failures and escalate after 3 consecutive crashes:
+
+```python
+# In real robots, persistent failures need human intervention
+# Track failures using environment variables or state files
+
+import os
+
+def get_failure_count(node_name):
+    """Read failure count from file"""
+    try:
+        with open(f'/tmp/{node_name}_failures.txt', 'r') as f:
+            return int(f.read())
+    except:
+        return 0
+
+def increment_failure_count(node_name):
+    """Increment and save failure count"""
+    count = get_failure_count(node_name) + 1
+    with open(f'/tmp/{node_name}_failures.txt', 'w') as f:
+        f.write(str(count))
+    return count
+
+# In OnProcessExit handler:
+failure_count = increment_failure_count('battery_monitor')
+if failure_count >= 3:
+    LogInfo(msg='❌️ CRITICAL: Battery monitor failed 3 times! Alert maintenance!')
+    EmitEvent(event=Shutdown(reason='Persistent node failure'))
+else:
+    LogInfo(msg=f'⚠️  Battery monitor crashed (attempt {failure_count}/3). Restarting...')
+    # Restart node
+```
+
+**Real benefit:** Prevents infinite restart loops, alerts maintenance team when hardware repair is needed.
 
 ---
 
@@ -744,22 +938,59 @@ Learn to use external YAML configuration files and compose launch files - essent
 
 ### **💡 Real-World Use Case**
 
-You have different robot configurations (small/medium/large robots) with 50+ parameters each. YAML files make management easier than hardcoding parameters!
+**Scenario:** Robot manufacturer deploying to multiple customer sites:
+
+**Customer A (Compact facility):**
+- Small robots (25kg capacity)
+- Narrow aisles (0.45m width)
+- Fast picking (3.0 Hz updates)
+- 2-hour charging
+
+**Customer B (Industrial warehouse):**
+- Heavy-duty robots (1500kg capacity)
+- Wide lanes (1.2m width)
+- Stable transport (1.0 Hz updates)
+- 6-hour charging
+
+**Configuration files:**
+```bash
+config/
+├── robot_small.yaml      # Customer A specs
+├── robot_large.yaml      # Customer B specs
+├── robot_simulation.yaml # Testing environment
+└── robot_maintenance.yaml # Service mode
+```
+
+One codebase, multiple deployments! Change config file = different robot behavior. No code recompilation needed!
 
 
 ### **📁 File: launch/config/robot_small.yaml**
 
 ```yaml
-# Small robot configuration
+# Small robot configuration - Compact picker for narrow aisles
 robot_tag_publisher:
   ros__parameters:
-    robot_id: "ROBOT-SMALL-S01"
+    robot_id: "AMR-COMPACT-PICKER-S01"
     robot_type: "picker"
-    zone_id: "WAREHOUSE-SMALL"
+    zone_id: "WAREHOUSE-NARROW-AISLE-B"
     fleet_number: 10
-    tag_publish_rate: 3.0
-    max_payload_kg: 50.0
+    tag_publish_rate: 3.0  # Fast updates for agile movement
+    max_payload_kg: 25.0  # Small capacity
     priority_level: 3
+    # Physical dimensions (meters)
+    robot_width: 0.45
+    robot_length: 0.60
+    robot_height: 1.20
+    # Performance specs
+    max_speed: 1.2  # m/s
+    turning_radius: 0.3  # meters
+    # Battery specs
+    battery_capacity: 50.0  # Amp-hours
+    charging_time: 2.5  # hours
+    # Operational
+    current_location: "AISLE-B-NARROW-12"
+    status: "picking"
+    assigned_task: "PICK-ORDER-54321"
 
 rect_server:
   ros__parameters:
@@ -775,16 +1006,34 @@ count_server:
 ### **📁 File: launch/config/robot_large.yaml**
 
 ```yaml
-# Large robot configuration
+# Large robot configuration - Heavy-duty industrial transport
 robot_tag_publisher:
   ros__parameters:
-    robot_id: "ROBOT-LARGE-L01"
+    robot_id: "AMR-HEAVY-TRANSPORT-L01"
     robot_type: "transport"
-    zone_id: "WAREHOUSE-LARGE"
+    zone_id: "WAREHOUSE-MAIN-LOADING"
     fleet_number: 100
-    tag_publish_rate: 1.0
-    max_payload_kg: 500.0
+    tag_publish_rate: 1.0  # Slower updates for stable transport
+    max_payload_kg: 1500.0  # Heavy industrial capacity
     priority_level: 8
+    # Physical dimensions (meters)
+    robot_width: 1.20
+    robot_length: 1.80
+    robot_height: 0.50  # Low profile for stability
+    # Performance specs
+    max_speed: 2.0  # m/s
+    turning_radius: 1.5  # meters - wider turns
+    # Battery specs
+    battery_capacity: 200.0  # Amp-hours - large battery
+    charging_time: 6.0  # hours
+    # Operational
+    current_location: "LOADING-DOCK-MAIN-3"
+    status: "transporting_pallet"
+    assigned_task: "PALLET-MOVE-DOCK3-TO-STORAGE-A"
+    # Safety features
+    lidar_range: 25.0  # meters
+    emergency_stop_distance: 3.0  # meters
+    max_slope: 5.0  # degrees
 
 rect_server:
   ros__parameters:
@@ -980,9 +1229,52 @@ ros2 node list
 6. **Modular configuration** - Reusable parameter sets
 7. **Configuration switching** - Different setups via arguments
 
-### **🎯 Challenge**
+### **🎯 Challenge: Simulation vs Hardware Mode**
 
-Create a `robot_simulation.yaml` config and modify the launch file to accept a `use_sim_time` argument that sets the parameter for all nodes. This is how real robot systems switch between simulation and hardware modes!
+**Task:** Create configuration switching for testing and deployment:
+
+**File: config/robot_simulation.yaml**
+```yaml
+# Simulation mode - faster, no real hardware
+robot_tag_publisher:
+  ros__parameters:
+    use_sim_time: true  # ROS 2 simulation time
+    robot_id: "SIM-TEST-001"
+    zone_id: "GAZEBO-WAREHOUSE"
+    tag_publish_rate: 10.0  # Fast for testing
+    max_speed: 5.0  # Unrealistic speed OK in sim
+    lidar_topic: "/scan_simulated"
+    camera_topic: "/camera/image_raw_sim"
+    enable_physics: true
+    collision_checking: "gazebo"  # Use simulator
+```
+
+**File: config/robot_hardware.yaml**
+```yaml
+# Hardware mode - real robot, safe speeds
+robot_tag_publisher:
+  ros__parameters:
+    use_sim_time: false  # Real system time
+    robot_id: "AMR-PROD-001"
+    zone_id: "WAREHOUSE-A-REAL"
+    tag_publish_rate: 2.0  # Realistic rate
+    max_speed: 1.2  # Safe human-compatible speed
+    lidar_topic: "/sick_lms_1xx/scan"
+    camera_topic: "/realsense/color/image_raw"
+    enable_physics: false
+    collision_checking: "hardware_estop"  # Physical e-stop
+```
+
+**Launch command:**
+```bash
+# Development testing
+ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=simulation
+
+# Deploy to real robot
+ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=hardware
+```
+
+**Real benefit:** Test algorithms safely in simulation, deploy to hardware with confidence. Same code, different physics!
 
 ---
 
