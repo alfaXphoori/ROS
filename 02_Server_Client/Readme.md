@@ -367,7 +367,7 @@ if response is None:
 ### **Issue: Service not available**
 **Solution:** Make sure the server is running in another terminal
 ```bash
-ros2 run ce_robot add_two_server
+ros2 run ce_robot 02_add_two_server
 ```
 
 ### **Issue: Client hangs waiting for service**

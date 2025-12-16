@@ -773,7 +773,7 @@ Run the node with built-in default values:
 
 **Terminal 1:**
 ```bash
-ros2 run ce_robot 05_robot_tag
+ros2 run ce_robot 05_robot_tag_param
 ```
 
 **Expected Output:**
@@ -796,7 +796,7 @@ Override parameters directly from the command line:
 
 **Terminal 1:**
 ```bash
-ros2 run ce_robot 05_robot_tag --ros-args \
+ros2 run ce_robot 05_robot_tag_param --ros-args \
   -p robot_id:=DLV-FST-042 \
   -p robot_type:=delivery \
   -p zone_id:=LOADING-BAY-3 \
@@ -841,7 +841,7 @@ robot_tag_publisher:
 
 **Run with parameter file:**
 ```bash
-ros2 run ce_robot 05_robot_tag --ros-args --params-file robot_config.yaml
+ros2 run ce_robot 05_robot_tag_param --ros-args --params-file robot_config.yaml
 ```
 
 **Expected Output:**
@@ -1110,7 +1110,7 @@ speed = self.get_parameter('speed').value
 ls -la robot_config.yaml
 
 # Use absolute path
-ros2 run ce_robot 05_hw_para --ros-args \
+ros2 run ce_robot 05_robot_tag_param --ros-args \
   --params-file /absolute/path/to/robot_config.yaml
 ```
 

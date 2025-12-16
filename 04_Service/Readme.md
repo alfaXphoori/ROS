@@ -524,7 +524,7 @@ rqt_graph
 
 ### **Issue: "Service not available"**
 - **Cause:** Server node not running
-- **Solution:** Start server in another terminal with `ros2 run ce_robot cal_rect_server`
+- **Solution:** Start server in another terminal with `ros2 run ce_robot 04_CalRect_server`
 
 ### **Issue: "ModuleNotFoundError: No module named 'ce_robot_interfaces'"**
 - **Cause:** Service package not built or sourced

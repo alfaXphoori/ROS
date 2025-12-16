@@ -67,8 +67,8 @@ ros2 launch ce_robot_launch robot_system.py
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  Step 1: Understand Concepts (15 min)                   │
-│  → Read Overview + Architecture                          │
-│  → Understand Node(), parameters, arguments              │
+│  → Read Overview + Architecture                         │
+│  → Understand Node(), parameters, arguments             │
 └─────────────────────────────────────────────────────────┘
                         ↓
 ┌─────────────────────────────────────────────────────────┐
@@ -121,8 +121,8 @@ ros2 launch ce_robot_launch robot_system.py
 │  │  (Parses & executes launch file)                 │   │
 │  └────────────────┬─────────────────────────────────┘   │
 │                   │                                     │
-│    ┌──────┬──────┬──────┬──────────────────────┐        │
-│    ▼      ▼      ▼      ▼                      ▼        │
+│    ┌──────┬──────┬──────┬─────────────┐                 │
+│    ▼      ▼      ▼      ▼             ▼                 │
 │  ┌────┐ ┌────┐ ┌─────┐ ┌─────┐  ┌──────────┐            │
 │  │Node│ │Node│ │Node │ │ ... │  │Parameter │            │
 │  │ 1  │ │ 2  │ │ N   │ │     │  │  Server  │            │
@@ -831,7 +831,7 @@ ros2 launch ce_robot_launch ce_boot_launch.py --show-args
 3. **Test nodes individually first:**
 ```bash
 # Before launch file, make sure nodes work:
-ros2 run ce_robot hw_status_param_pub
+ros2 run ce_robot 05_robot_tag_param
 ```
 
 4. **Check build output:**

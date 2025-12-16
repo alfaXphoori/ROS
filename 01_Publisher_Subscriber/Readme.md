@@ -225,7 +225,7 @@ colcon build --packages-select ce_robot --symlink-install
 Open a terminal and run:
 
 ```bash
-ros2 run ce_robot first_pub
+ros2 run ce_robot 01_first_pub
 ```
 
 You should see:
@@ -239,7 +239,7 @@ You should see:
 Open another terminal and run:
 
 ```bash
-ros2 run ce_robot first_sub
+ros2 run ce_robot 01_first_sub
 ```
 
 You should see:

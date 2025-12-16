@@ -1020,11 +1020,11 @@ entry_points={
         # Publisher/Subscriber exercises (this module)
         "01_simple_publisher = ce_robot.simple_publisher:main",
         "01_simple_subscriber = ce_robot.simple_subscriber:main",
-        "01_counter_pubslisher = ce_robot.counter_publisher:main",
+        "01_counter_publisher = ce_robot.counter_publisher:main",
         "01_counter_processor = ce_robot.counter_processor:main",
         "01_counter_logger = ce_robot.counter_logger:main",
         "01_temperature_publisher = ce_robot.temperature_publisher:main",
-        "01_temperature_subsciber = ce_robot.temperature_subscriber:main",
+        "01_temperature_subscriber = ce_robot.temperature_subscriber:main",
         "01_sensor_monitor = ce_robot.sensor_monitor:main",
         "01_pressure_publisher = ce_robot.pressure_publisher:main",
         "01_humidity_publisher = ce_robot.humidity_publisher:main",
