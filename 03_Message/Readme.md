@@ -266,9 +266,8 @@ if __name__ == '__main__':
 Add the required dependencies:
 
 ```xml
-<depend>ce_robot_interfaces</depend>
-<build_depend>rosidl_default_generators</build_depend>
-<exec_depend>rosidl_default_runtime</exec_depend>
+  <exec_depend>ce_robot_interfaces</exec_depend>
+  <build_depend>ce_robot_interfaces</build_depend>
 ```
 
 ### **2. Update `setup.py`**
