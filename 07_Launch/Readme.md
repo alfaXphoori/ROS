@@ -86,7 +86,7 @@ ros2 launch ce_robot_launch robot_system.py
                         ↓
 ┌─────────────────────────────────────────────────────────┐
 │  Step 4: Complex Launch (30 min)                        │
-│  → Create ce_boot_launch.py                             │
+│  → Create robot_system_launch.py                        │
 │  → Launch multiple nodes                                │
 │  → Use launch arguments                                 │
 │  → Test with different parameters                       │
@@ -164,7 +164,7 @@ mkdir launch
 └── 📁 src/
     └── 📁 ce_robot_launch/
         ├── 📁 launch/
-        │   ├── 🐍 ce_boot_launch.py       ← Create this
+        │   ├── 🐍 robot_system_launch.py  ← Create this
         │   ├── 🐍 simple_launch.py        ← Create this
         │   ├── 📁 config/
         │   │   └── 📄 robot_config.yaml
@@ -354,17 +354,17 @@ ros2 topic echo /robot_tag   # See RobotTag messages
 
 ```bash
 cd ~/ros2_ws/src/ce_robot_launch/launch
-touch ce_boot_launch.py
-chmod +x ce_boot_launch.py
+touch robot_system_launch.py
+chmod +x robot_system_launch.py
 ```
 
-### **File: ce_boot_launch.py**
+### **File: robot_system_launch.py**
 
 ```python
 #!/usr/bin/env python3
 """
-Boot Launch File
-Launches multiple nodes with configuration from YAML
+Robot System Launch File
+Launches multiple nodes (publisher, service, action) with configuration
 """
 
 import os
@@ -472,14 +472,14 @@ colcon build --packages-select ce_robot_launch --symlink-install
 source install/setup.bash
 
 # Test 1: Use default values
-ros2 launch ce_robot_launch ce_boot_launch.py
+ros2 launch ce_robot_launch robot_system_launch.py
 ```
 
 **Expected: 3 nodes start (robot_tag_publisher, rect_server, count_server)**
 
 ```bash
 # Test 2: Override arguments
-ros2 launch ce_robot_launch ce_boot_launch.py \
+ros2 launch ce_robot_launch robot_system_launch.py \
   robot_id:=ROBOT-CUSTOM-999 \
   publish_rate:=5.0
 ```
@@ -488,7 +488,7 @@ ros2 launch ce_robot_launch ce_boot_launch.py \
 
 ```bash
 # Test 3: Check what arguments are available
-ros2 launch ce_robot_launch ce_boot_launch.py --show-args
+ros2 launch ce_robot_launch robot_system_launch.py --show-args
 ```
 
 **Expected Output:**
@@ -627,7 +627,7 @@ ros2 launch ce_robot_launch simple_launch.py
 ### **Launch with Arguments**
 
 ```bash
-ros2 launch ce_robot_launch ce_boot_launch.py \
+ros2 launch ce_robot_launch robot_system_launch.py \
   robot_name:=robot_warehouse \
   publish_rate:=5.0
 ```
@@ -693,7 +693,7 @@ ros2 topic echo /hardware_status
 
 ✅ **Common patterns:**
 - Single node: `simple_launch.py`
-- Multiple nodes: `ce_boot_launch.py`
+- Multiple nodes: `robot_system_launch.py`
 - With arguments: `robot_name:=value`
 - Show args: `--show-args`
 
@@ -825,7 +825,7 @@ ros2 launch ce_robot_launch --help
 
 2. **See available arguments:**
 ```bash
-ros2 launch ce_robot_launch ce_boot_launch.py --show-args
+ros2 launch ce_robot_launch robot_system_launch.py --show-args
 ```
 
 3. **Test nodes individually first:**
@@ -890,7 +890,7 @@ Mark each item as you complete it:
 - [ ] Launches and node runs correctly
 - [ ] Can verify with `ros2 node list`
 
-### **Complex Launch (ce_boot_launch.py)**
+### **Complex Launch (robot_system_launch.py)**
 - [ ] Created file with argument imports
 - [ ] Declared launch arguments (robot_name, publish_rate)
 - [ ] Used LaunchConfiguration to get arg values
