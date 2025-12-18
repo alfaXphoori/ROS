@@ -1,0 +1,22 @@
+# NavigationPath.srv
+# Service for calculating safe navigation paths around obstacles
+# Real-world use: Autonomous warehouse robot obstacle avoidance
+
+# Request - Detected obstacle dimensions and current robot position
+float64 obstacle_length      # Obstacle length in meters
+float64 obstacle_width       # Obstacle width in meters
+float64 robot_x              # Robot current X position (meters)
+float64 robot_y              # Robot current Y position (meters)
+float64 safety_margin        # Required safety clearance (meters)
+string zone_id               # Warehouse zone identifier (e.g., "DOCK-3-BAY-12")
+
+---
+
+# Response - Calculated navigation path
+float64 safe_area            # Total safe navigation area (m²)
+float64 path_perimeter       # Boundary perimeter length (m)
+float64 clearance_left       # Left side clearance (m)
+float64 clearance_right      # Right side clearance (m)
+bool can_navigate            # True if path is safe for navigation
+string recommended_action    # "PROCEED", "REDUCE_SPEED", "REROUTE", or "STOP"
+float64 estimated_time       # Estimated time to navigate (seconds)

@@ -110,18 +110,21 @@ Conditional Nodes:
 │   ├─> robot_tag_publisher                          │
 │   │    ├─ Topic: /robot_tag (RobotTag)             │
 │   │    └─ Rate: 2.0 Hz                             │
+│   │    └─ Realistic warehouse parameters           │
 │   │                                                │
 │ IfCondition(enable_service)                        │
-│   ├─> rect_server                                  │
-│   │    └─ Service: /cal_rect (CalRectangle)        │
+│   ├─> navigation_service                           │
+│   │    └─ Service: /navigation_path                │
+│   │    └─ NavigationPath (obstacle avoidance)      │
 │   │                                                │
 │ IfCondition(enable_action)                         │
-│   ├─> count_server                                 │
-│   │    └─ Action: /count_until (CountUntil)        │
+│   ├─> task_queue_action                            │
+│   │    └─ Action: /pick_items                      │
+│   │    └─ PickItems (order fulfillment)            │
 │   │                                                │
 │ UnlessCondition(robot_mode == 'production')        │
 │   └─> debug_monitor                                │
-│        └─ Debug logging and diagnostics            │
+│        └─ System diagnostics with robot tracking   │
 └────────────────────────────────────────────────────┘
 
 Real-World Scenario: Amazon Fulfillment Center
@@ -143,8 +146,8 @@ Warehouse Floor Layout:
 │  │   robot1/                   │   │  robot2/                     │  │
 │  │   ├─ robot_tag_publisher    │   |  ├─ robot_tag_publisher      │  │
 │  │   │   └─ /robot1/robot_tag  │   |  │   └─ /robot2/robot_tag    │  │
-│  │   ├─ rect_server            │   |  └─ count_server             │  │
-│  │   │   └─ /robot1/cal_rect   │   |  │    └─ /robot2/count_until │  │
+│  │   ├─ navigation_service     │   |  └─ task_queue_action        │  │
+│  │   │   └─ /robot1/navigation_path │ │    └─ /robot2/pick_items  │  │
 │  │   └─ AMR-TRANSPORT-HEAVY-001│   |  └─ AMR-PICKER-LIGHT-002     │  │
 │  │       Payload: 1000kg       │   |      Payload: 50kg           |  │
 │  │       Battery: 78%          │   |      Battery: 18% (LOW!)     │  │
@@ -155,10 +158,10 @@ Warehouse Floor Layout:
 │  │   robot3/                           │                             │
 │  │   ├─ robot_tag_publisher            │                             │
 │  │   │   └─ /robot3/robot_tag          │                             │
-│  │   ├─ rect_server                    │                             │
-│  │   │   └─ /robot3/cal_rect           │                             │
-│  │   ├─ count_server                   │                             │
-│  │   │   └─ /robot3/count_until        │                             │
+│  │   ├─ navigation_service             │                             │
+│  │   │   └─ /robot3/navigation_path    │                             │
+│  │   ├─ task_queue_action              │                             │
+│  │   │   └─ /robot3/pick_items         │                             │
 │  │   └─ AMR-DELIVERY-MULTI-003         │                             │
 │  │       Payload: 300kg                │                             │ 
 │  │       Battery: 92%                  │                             │
@@ -171,8 +174,8 @@ Namespace Isolation:
 /robot2/robot_tag  ──┼──> No topic conflicts!
 /robot3/robot_tag  ──┘
 
-/robot1/cal_rect   ──┐
-/robot3/cal_rect   ──┼──> No service conflicts!
+/robot1/navigation_path  ──┐
+/robot3/navigation_path  ──┼──> No service conflicts!
 ```
 
 ### **Exercise 3: Event Handlers & Monitoring (35 min)**
@@ -196,9 +199,9 @@ Node Lifecycle & Fault Tolerance:
 │  └─────────────────────────────────────────────────────┘  │
 │                                                           │
 │  ┌─────────────────────────────────────────────────────┐  │
-│  │  rect_server (CRITICAL - Navigation Service)        │  │
+│  │  navigation_service (CRITICAL - Path Planning)      │  │
 │  │  ┌───────────────┐                                  │  │
-│  │  │ OnProcessStart│──> ✅ "Service started"          │  │
+│  │  │ OnProcessStart│──> ✅ "Navigation ready"         │  │
 │  │  └───────────────┘                                  │  │
 │  │  ┌───────────────┐                                  │  │
 │  │  │ OnProcessExit │──> ❌ "CRITICAL FAILURE!"        │  │
@@ -208,9 +211,9 @@ Node Lifecycle & Fault Tolerance:
 │  └─────────────────────────────────────────────────────┘  │
 │                                                           │
 │  ┌─────────────────────────────────────────────────────┐  │
-│  │  count_server (Non-critical Action Server)          │  │
+│  │  task_queue_action (Non-critical Order Processing)  │  │
 │  │  ┌──────────────┐                                   │  │
-│  │  │ OnProcessExit│──> ⚠️  "Action server exited"     │  │
+│  │  │ OnProcessExit│──> ⚠️  "Order processor exited"   │  │
 │  │  └──────────────┘        │                          │  │
 │  │                           └─> Log only (continue)   │  │
 │  └─────────────────────────────────────────────────────┘  │
@@ -345,8 +348,163 @@ Your launch file must adapt based on `robot_type` argument:
 
 This prevents deploying wrong configurations and ensures safety!
 
+### **📝 Step 1: Create Exercise Directory Structure**
+
+Create a dedicated directory for Exercise 1 files:
+
+```bash
+cd ~/ros2_ws/src
+mkdir -p exercise_1/interfaces
+mkdir -p exercise_1/nodes
+mkdir -p exercise_1/launch
+```
+
+### **📝 Step 2: Create Custom Interface Files**
+
+Create the custom service and action interfaces in the exercise_1 directory:
+
+**Create NavigationPath service:**
+```bash
+cd ~/ros2_ws/src/exercise_1/interfaces
+touch NavigationPath.srv
+```
+
+Add the following content to `NavigationPath.srv`:
+
+```
+# NavigationPath.srv
+# Service for calculating safe navigation paths around obstacles
+# Real-world use: Autonomous warehouse robot obstacle avoidance
+
+# Request - Detected obstacle dimensions and current robot position
+float64 obstacle_length      # Obstacle length in meters
+float64 obstacle_width       # Obstacle width in meters
+float64 robot_x              # Robot current X position (meters)
+float64 robot_y              # Robot current Y position (meters)
+float64 safety_margin        # Required safety clearance (meters)
+string zone_id               # Warehouse zone identifier (e.g., "DOCK-3-BAY-12")
+
+---
+
+# Response - Calculated navigation path
+float64 safe_area            # Total safe navigation area (m²)
+float64 path_perimeter       # Boundary perimeter length (m)
+float64 clearance_left       # Left side clearance (m)
+float64 clearance_right      # Right side clearance (m)
+bool can_navigate            # True if path is safe for navigation
+string recommended_action    # "PROCEED", "REDUCE_SPEED", "REROUTE", or "STOP"
+float64 estimated_time       # Estimated time to navigate (seconds)
+```
+
+**Create PickItems action:**
+```bash
+cd ~/ros2_ws/src/exercise_1/interfaces
+touch PickItems.action
+```
+
+Add the following content to `PickItems.action`:
+
+```
+# PickItems.action
+# Action for warehouse item picking with real-time progress tracking
+# Real-world use: Amazon/warehouse order fulfillment systems
+
+# Goal - Order details
+int32 target_items           # Total number of items to pick
+float64 time_per_item        # Time allocated per item (seconds)
+string order_id              # Order tracking ID (e.g., "ORD-2025-12345")
+string zone_id               # Picking zone (e.g., "ZONE-A-SHELF-42")
+int32 priority               # Priority level (1=low, 10=urgent)
+float64 max_weight_kg        # Maximum weight limit for this order (kg)
+
+---
+
+# Result - Completion status
+int32 items_picked           # Total items successfully picked
+float64 actual_time_taken    # Actual time taken (seconds)
+float64 battery_consumed     # Battery percentage consumed
+float64 total_weight_kg      # Total weight of picked items (kg)
+bool order_completed         # True if all items picked successfully
+string completion_status     # "SUCCESS", "PARTIAL", "FAILED", "CANCELLED"
+int32 items_damaged          # Number of damaged items encountered
+int32 items_missing          # Number of missing/unavailable items
+
+---
+
+# Feedback - Real-time progress updates
+int32 current_item           # Current item being processed (1-based)
+float64 percentage_complete  # Completion percentage (0-100)
+string current_item_type     # Item type being picked (e.g., "Box-A4", "Envelope")
+float64 current_item_weight  # Weight of current item (kg)
+string current_location      # Current shelf/bin location
+float64 battery_remaining    # Battery level remaining (%)
+float64 elapsed_time         # Time elapsed since start (seconds)
+string status_message        # Human-readable status update
+```
+
+**Copy interfaces to ce_robot_interfaces package:**
+```bash
+cp ~/ros2_ws/src/exercise_1/interfaces/NavigationPath.srv ~/ros2_ws/src/ce_robot_interfaces/srv/
+cp ~/ros2_ws/src/exercise_1/interfaces/PickItems.action ~/ros2_ws/src/ce_robot_interfaces/action/
+```
+
+**Update CMakeLists.txt for interfaces:**
+```bash
+cd ~/ros2_ws/src/ce_robot_interfaces
+```
+
+Edit `CMakeLists.txt` and add these interfaces to the `rosidl_generate_interfaces` section:
+
+```cmake
+rosidl_generate_interfaces(${PROJECT_NAME}
+  # ... existing interfaces ...
+  "srv/NavigationPath.srv"
+  "action/PickItems.action"
+  DEPENDENCIES builtin_interfaces
+)
+```
+
+**Build the interfaces:**
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot_interfaces
+source install/setup.bash
+```
+
+### **📝 Step 3: Create Python Node Files**
+
+Create the three Python node files in the exercise_1/nodes directory:
+
+```bash
+cd ~/ros2_ws/src/exercise_1/nodes
+touch navigation_service.py
+touch task_queue_action.py
+touch debug_monitor.py
+chmod +x navigation_service.py task_queue_action.py debug_monitor.py
+```
+
+Copy the node implementations from `07_Launch/` directory or create them with the provided code.
+
+**Copy to launch package:**
+```bash
+cp ~/ros2_ws/src/exercise_1/nodes/*.py ~/ros2_ws/src/ce_robot_launch/launch/
+```
+
+### **📝 Step 4: Create Launch File**
+
+Create the conditional launch file in the exercise_1/launch directory:
+
+```bash
+cd ~/ros2_ws/src/exercise_1/launch
+touch conditional_robot_launch.py
+chmod +x conditional_robot_launch.py
+```
+
+Open the file in your editor and add the following code:
 
 ### **📁 File: conditional_robot_launch.py**
+
+**Location:** `~/ros2_ws/src/exercise_1/launch/conditional_robot_launch.py`
 
 ```python
 #!/usr/bin/env python3
@@ -394,11 +552,19 @@ def generate_launch_description():
         choices=['production', 'development', 'simulation']
     )
     
+    robot_type_arg = DeclareLaunchArgument(
+        'robot_type',
+        default_value='transport',
+        description='Robot type: transport (heavy duty), picker (light duty), sorter (medium duty)',
+        choices=['transport', 'picker', 'sorter']
+    )
+    
     # Get configurations
     enable_publisher = LaunchConfiguration('enable_publisher')
     enable_service = LaunchConfiguration('enable_service')
     enable_action = LaunchConfiguration('enable_action')
     robot_mode = LaunchConfiguration('robot_mode')
+    robot_type = LaunchConfiguration('robot_type')
     
     # Conditional publisher (launches only if enabled)
     # Realistic warehouse robot with battery monitoring and position tracking
@@ -409,7 +575,7 @@ def generate_launch_description():
         output='screen',
         parameters=[
             {'robot_id': 'AMR-WH-A-001'},  # Autonomous Mobile Robot, Warehouse A, Unit 001
-            {'robot_type': 'transport'},
+            {'robot_type': robot_type},  # Dynamic robot type from argument
             {'zone_id': 'WAREHOUSE-A-DOCK-3'},
             {'fleet_number': 1},
             {'tag_publish_rate': 2.0},
@@ -423,38 +589,64 @@ def generate_launch_description():
         condition=IfCondition(enable_publisher)
     )
     
-    # Conditional service (launches only if enabled)
+    # Conditional service - Navigation path planning (launches only if enabled)
+    # Real-world: Calculate safe paths around obstacles with safety margins
     service_node = Node(
-        package='ce_robot',
-        executable='04_CalRect_server',
-        name='rect_server',
+        package='ce_robot_launch',
+        executable='navigation_service.py',
+        name='navigation_service',
         output='screen',
+        parameters=[
+            {'robot_id': 'AMR-WH-A-001'},
+            {'robot_type': robot_type},
+            {'zone_id': 'WAREHOUSE-A-DOCK-3'},
+            {'max_payload_kg': 500.0},
+            {'safety_margin_m': 0.5},
+        ],
         condition=IfCondition(enable_service)
     )
     
-    # Conditional action (launches only if enabled)
+    # Conditional action - Order picking task queue (launches only if enabled)
+    # Real-world: Process warehouse orders with battery and weight management
     action_node = Node(
-        package='ce_robot',
-        executable='06_count_until_server',
-        name='count_server',
+        package='ce_robot_launch',
+        executable='task_queue_action.py',
+        name='task_queue_action',
         output='screen',
+        parameters=[
+            {'robot_id': 'AMR-WH-A-001'},
+            {'robot_type': 'picker'},  # Picker optimized for order fulfillment
+            {'zone_id': 'WAREHOUSE-A-PICKING-ZONE'},
+            {'max_items_per_trip': 50},
+            {'battery_level': 100.0},
+            {'picking_speed_items_per_min': 12.0},
+        ],
         condition=IfCondition(enable_action)
     )
     
-    # Node that launches UNLESS in production mode
+    # Debug monitor - Launches UNLESS in production mode
+    # Real-world: System diagnostics with CPU, memory, disk monitoring during development
     debug_node = Node(
-        package='ce_robot',
-        executable='00_first_node',
+        package='ce_robot_launch',
+        executable='debug_monitor.py',
         name='debug_monitor',
         output='screen',
+        parameters=[
+            {'robot_id': 'AMR-DEV-001'},
+            {'robot_type': 'development'},
+            {'zone_id': 'TEST-LAB'},
+            {'diagnostic_rate_hz': 0.2},  # Every 5 seconds
+            {'enable_network_check': True},
+            {'enable_ros_diagnostics': True},
+        ],
         condition=UnlessCondition(
             PythonExpression(["'", robot_mode, "' == 'production'"])
         )
     )
     
-    # Log info based on condition
+    # Startup log with mode and type information
     startup_log = LogInfo(
-        msg=['🚀 Starting robot system in ', robot_mode, ' mode'],
+        msg=['🚀 Starting robot system in [', robot_mode, '] mode with type [', robot_type, ']'],
     )
     
     return LaunchDescription([
@@ -463,8 +655,9 @@ def generate_launch_description():
         enable_service_arg,
         enable_action_arg,
         robot_mode_arg,
+        robot_type_arg,
         
-        # Log
+        # Startup log
         startup_log,
         
         # Conditional nodes
@@ -475,14 +668,68 @@ def generate_launch_description():
     ])
 ```
 
+**Copy to launch package:**
+```bash
+cp ~/ros2_ws/src/exercise_1/launch/conditional_robot_launch.py ~/ros2_ws/src/ce_robot_launch/launch/
+```
+
+### **📝 Step 5: Update CMakeLists.txt**
+
+Add the launch file to your `ce_robot_launch/CMakeLists.txt`:
+
+```cmake
+install(
+  PROGRAMS
+    launch/conditional_robot_launch.py
+    launch/navigation_service.py
+    launch/task_queue_action.py
+    launch/debug_monitor.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+```
+
+### **📝 Step 6: Summary of Exercise 1 Directory Structure**
+
+Your `exercise_1` directory should now contain:
+
+```
+exercise_1/
+├── interfaces/
+│   ├── NavigationPath.srv
+│   └── PickItems.action
+├── nodes/
+│   ├── navigation_service.py
+│   ├── task_queue_action.py
+│   └── debug_monitor.py
+└── launch/
+    └── conditional_robot_launch.py
+```
+
+All files are also copied to the appropriate ce_robot_interfaces and ce_robot_launch packages for building and execution.
+
+---
+
+### **🧪 Step 7: Build and Test**
+
+**Build both packages:**
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot_interfaces ce_robot_launch --symlink-install
+source install/setup.bash
+```
+
+**Verify interfaces are available:**
+```bash
+ros2 interface show ce_robot_interfaces/srv/NavigationPath
+ros2 interface show ce_robot_interfaces/action/PickItems
+```
+
+---
+
 ### **🧪 Testing Exercise 1**
 
 **Test 1 - All nodes enabled (default):**
 ```bash
-cd ~/ros2_ws
-colcon build --packages-select ce_robot_launch --symlink-install
-source install/setup.bash
-
 ros2 launch ce_robot_launch conditional_robot_launch.py
 ```
 
@@ -765,14 +1012,18 @@ ros2 topic list
 ros2 topic echo /robot1/robot_tag
 ```
 
-**Call namespaced service:**
+**Call namespaced navigation service:**
 ```bash
-ros2 service call /robot1/cal_rect ce_robot_interfaces/srv/CalRectangle "{length: 10.0, width: 5.0}"
+ros2 service call /robot1/navigation_path ce_robot_interfaces/srv/NavigationPath \
+  "{obstacle_length: 2.5, obstacle_width: 1.5, robot_x: 5.0, robot_y: 3.0, \
+  safety_margin: 0.5, zone_id: 'WAREHOUSE-A-DOCK-3'}"
 ```
 
-**Test action on robot 2:**
+**Test picking action on robot 2:**
 ```bash
-ros2 action send_goal /robot2/count_until ce_robot_interfaces/action/CountUntil "{target: 5, period: 1.0}" --feedback
+ros2 action send_goal /robot2/pick_items ce_robot_interfaces/action/PickItems \
+  "{target_items: 10, time_per_item: 2.0, order_id: 'ORD-2025-001', \
+  zone_id: 'ZONE-B-SHELF-42', priority: 8, max_weight_kg: 50.0}" --feedback
 ```
 
 ### **💡 Key Concepts Learned**

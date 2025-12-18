@@ -1,0 +1,35 @@
+# PickItems.action
+# Action for warehouse item picking with real-time progress tracking
+# Real-world use: Amazon/warehouse order fulfillment systems
+
+# Goal - Order details
+int32 target_items           # Total number of items to pick
+float64 time_per_item        # Time allocated per item (seconds)
+string order_id              # Order tracking ID (e.g., "ORD-2025-12345")
+string zone_id               # Picking zone (e.g., "ZONE-A-SHELF-42")
+int32 priority               # Priority level (1=low, 10=urgent)
+float64 max_weight_kg        # Maximum weight limit for this order (kg)
+
+---
+
+# Result - Completion status
+int32 items_picked           # Total items successfully picked
+float64 actual_time_taken    # Actual time taken (seconds)
+float64 battery_consumed     # Battery percentage consumed
+float64 total_weight_kg      # Total weight of picked items (kg)
+bool order_completed         # True if all items picked successfully
+string completion_status     # "SUCCESS", "PARTIAL", "FAILED", "CANCELLED"
+int32 items_damaged          # Number of damaged items encountered
+int32 items_missing          # Number of missing/unavailable items
+
+---
+
+# Feedback - Real-time progress updates
+int32 current_item           # Current item being processed (1-based)
+float64 percentage_complete  # Completion percentage (0-100)
+string current_item_type     # Item type being picked (e.g., "Box-A4", "Envelope")
+float64 current_item_weight  # Weight of current item (kg)
+string current_location      # Current shelf/bin location
+float64 battery_remaining    # Battery level remaining (%)
+float64 elapsed_time         # Time elapsed since start (seconds)
+string status_message        # Human-readable status update
