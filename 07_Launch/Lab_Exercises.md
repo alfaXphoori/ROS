@@ -348,105 +348,29 @@ Your launch file must adapt based on `robot_type` argument:
 
 This prevents deploying wrong configurations and ensures safety!
 
-### **📝 Step 1: Create Exercise Directory Structure**
+> **📦 Reference Files Available:** All complete files for this exercise (interfaces, nodes, and launch file) are available in `07_Launch/src/exercise_1/` for reference. You can use these as examples or copy them to your workspace.
 
-Create a dedicated directory for Exercise 1 files:
+### **📝 Step 1: Create Custom Interface Files**
 
-```bash
-cd ~/ros2_ws/src
-mkdir -p exercise_1/interfaces
-mkdir -p exercise_1/nodes
-mkdir -p exercise_1/launch
-```
-
-### **📝 Step 2: Create Custom Interface Files**
-
-Create the custom service and action interfaces in the exercise_1 directory:
+First, create the custom service and action interfaces that our nodes will use:
 
 **Create NavigationPath service:**
 ```bash
-cd ~/ros2_ws/src/exercise_1/interfaces
+cd ~/ros2_ws/src/ce_robot_interfaces/srv
 touch NavigationPath.srv
 ```
 
 Add the following content to `NavigationPath.srv`:
 
-```
-# NavigationPath.srv
-# Service for calculating safe navigation paths around obstacles
-# Real-world use: Autonomous warehouse robot obstacle avoidance
-
-# Request - Detected obstacle dimensions and current robot position
-float64 obstacle_length      # Obstacle length in meters
-float64 obstacle_width       # Obstacle width in meters
-float64 robot_x              # Robot current X position (meters)
-float64 robot_y              # Robot current Y position (meters)
-float64 safety_margin        # Required safety clearance (meters)
-string zone_id               # Warehouse zone identifier (e.g., "DOCK-3-BAY-12")
-
----
-
-# Response - Calculated navigation path
-float64 safe_area            # Total safe navigation area (m²)
-float64 path_perimeter       # Boundary perimeter length (m)
-float64 clearance_left       # Left side clearance (m)
-float64 clearance_right      # Right side clearance (m)
-bool can_navigate            # True if path is safe for navigation
-string recommended_action    # "PROCEED", "REDUCE_SPEED", "REROUTE", or "STOP"
-float64 estimated_time       # Estimated time to navigate (seconds)
-```
 
 **Create PickItems action:**
 ```bash
-cd ~/ros2_ws/src/exercise_1/interfaces
+cd ~/ros2_ws/src/ce_robot_interfaces/action
 touch PickItems.action
 ```
 
 Add the following content to `PickItems.action`:
 
-```
-# PickItems.action
-# Action for warehouse item picking with real-time progress tracking
-# Real-world use: Amazon/warehouse order fulfillment systems
-
-# Goal - Order details
-int32 target_items           # Total number of items to pick
-float64 time_per_item        # Time allocated per item (seconds)
-string order_id              # Order tracking ID (e.g., "ORD-2025-12345")
-string zone_id               # Picking zone (e.g., "ZONE-A-SHELF-42")
-int32 priority               # Priority level (1=low, 10=urgent)
-float64 max_weight_kg        # Maximum weight limit for this order (kg)
-
----
-
-# Result - Completion status
-int32 items_picked           # Total items successfully picked
-float64 actual_time_taken    # Actual time taken (seconds)
-float64 battery_consumed     # Battery percentage consumed
-float64 total_weight_kg      # Total weight of picked items (kg)
-bool order_completed         # True if all items picked successfully
-string completion_status     # "SUCCESS", "PARTIAL", "FAILED", "CANCELLED"
-int32 items_damaged          # Number of damaged items encountered
-int32 items_missing          # Number of missing/unavailable items
-
----
-
-# Feedback - Real-time progress updates
-int32 current_item           # Current item being processed (1-based)
-float64 percentage_complete  # Completion percentage (0-100)
-string current_item_type     # Item type being picked (e.g., "Box-A4", "Envelope")
-float64 current_item_weight  # Weight of current item (kg)
-string current_location      # Current shelf/bin location
-float64 battery_remaining    # Battery level remaining (%)
-float64 elapsed_time         # Time elapsed since start (seconds)
-string status_message        # Human-readable status update
-```
-
-**Copy interfaces to ce_robot_interfaces package:**
-```bash
-cp ~/ros2_ws/src/exercise_1/interfaces/NavigationPath.srv ~/ros2_ws/src/ce_robot_interfaces/srv/
-cp ~/ros2_ws/src/exercise_1/interfaces/PickItems.action ~/ros2_ws/src/ce_robot_interfaces/action/
-```
 
 **Update CMakeLists.txt for interfaces:**
 ```bash
@@ -471,31 +395,10 @@ colcon build --packages-select ce_robot_interfaces
 source install/setup.bash
 ```
 
-### **📝 Step 3: Create Python Node Files**
-
-Create the three Python node files in the exercise_1/nodes directory:
+Create the conditional launch file in your launch package:
 
 ```bash
-cd ~/ros2_ws/src/exercise_1/nodes
-touch navigation_service.py
-touch task_queue_action.py
-touch debug_monitor.py
-chmod +x navigation_service.py task_queue_action.py debug_monitor.py
-```
-
-Copy the node implementations from `07_Launch/` directory or create them with the provided code.
-
-**Copy to launch package:**
-```bash
-cp ~/ros2_ws/src/exercise_1/nodes/*.py ~/ros2_ws/src/ce_robot_launch/launch/
-```
-
-### **📝 Step 4: Create Launch File**
-
-Create the conditional launch file in the exercise_1/launch directory:
-
-```bash
-cd ~/ros2_ws/src/exercise_1/launch
+cd ~/ros2_ws/src/ce_robot_launch/launch
 touch conditional_robot_launch.py
 chmod +x conditional_robot_launch.py
 ```
@@ -504,7 +407,7 @@ Open the file in your editor and add the following code:
 
 ### **📁 File: conditional_robot_launch.py**
 
-**Location:** `~/ros2_ws/src/exercise_1/launch/conditional_robot_launch.py`
+**Location:** `~/ros2_ws/src/ce_robot_launch/launch/conditional_robot_launch.py`
 
 ```python
 #!/usr/bin/env python3
@@ -668,12 +571,24 @@ def generate_launch_description():
     ])
 ```
 
-**Copy to launch package:**
+### **📝 Step 2: Create Support Python Files**
+
+Create the three Python node files that the launch file will use:
+
 ```bash
-cp ~/ros2_ws/src/exercise_1/launch/conditional_robot_launch.py ~/ros2_ws/src/ce_robot_launch/launch/
+cd ~/ros2_ws/src/ce_robot_launch/launch
+touch navigation_service.py task_queue_action.py debug_monitor.py
+chmod +x navigation_service.py task_queue_action.py debug_monitor.py
 ```
 
-### **📝 Step 5: Update CMakeLists.txt**
+Copy the node implementations from the `07_Launch/` directory:
+- `navigation_service.py` - Navigation path planning service
+- `task_queue_action.py` - Order picking action server  
+- `debug_monitor.py` - System diagnostics monitor
+
+Or create them manually with the code from the files we created earlier.
+
+### **📝 Step 4: Update CMakeLists.txt**
 
 Add the launch file to your `ce_robot_launch/CMakeLists.txt`:
 
@@ -688,28 +603,7 @@ install(
 )
 ```
 
-### **📝 Step 6: Summary of Exercise 1 Directory Structure**
-
-Your `exercise_1` directory should now contain:
-
-```
-exercise_1/
-├── interfaces/
-│   ├── NavigationPath.srv
-│   └── PickItems.action
-├── nodes/
-│   ├── navigation_service.py
-│   ├── task_queue_action.py
-│   └── debug_monitor.py
-└── launch/
-    └── conditional_robot_launch.py
-```
-
-All files are also copied to the appropriate ce_robot_interfaces and ce_robot_launch packages for building and execution.
-
----
-
-### **🧪 Step 7: Build and Test**
+### **🧪 Step 5: Build and Test**
 
 **Build both packages:**
 ```bash
