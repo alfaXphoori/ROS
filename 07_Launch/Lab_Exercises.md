@@ -658,6 +658,63 @@ ros2 launch ce_robot_launch conditional_robot_launch.py \
 ros2 node list
 ```
 
+---
+
+### **🧪 Test Individual Nodes**
+
+**Test Navigation Service (standalone):**
+```bash
+# Terminal 1: Run the navigation service
+ros2 run ce_robot_launch navigation_service.py --ros-args \
+  -p robot_id:=AMR-TEST-001 \
+  -p robot_type:=transport \
+  -p zone_id:=TEST-ZONE \
+  -p max_payload_kg:=500.0 \
+  -p safety_margin_m:=0.5
+
+# Terminal 2: Call the service
+ros2 service call /navigation_path ce_robot_interfaces/srv/NavigationPath \
+  "{obstacle_length: 2.0, obstacle_width: 1.5, robot_x: 5.0, robot_y: 3.0, \
+    safety_margin: 0.5, zone_id: 'TEST-ZONE'}"
+
+# Expected response: safe_area, clearances, can_navigate status, recommended_action
+```
+
+**Test Task Queue Action Server (standalone):**
+```bash
+# Terminal 1: Run the action server
+ros2 run ce_robot_launch task_queue_action.py --ros-args \
+  -p robot_id:=AMR-PICKER-001 \
+  -p robot_type:=picker \
+  -p zone_id:=PICKING-ZONE \
+  -p max_items_per_trip:=20 \
+  -p battery_level:=85.0 \
+  -p picking_speed_items_per_min:=12.0
+
+# Terminal 2: Send an action goal
+ros2 action send_goal /pick_items ce_robot_interfaces/action/PickItems \
+  "{target_items: 5, time_per_item: 5.0, order_id: 'ORD-12345', \
+    zone_id: 'PICKING-ZONE', priority: 'MEDIUM', max_weight_kg: 25.0}" \
+  --feedback
+
+# Expected: Progress updates with items picked, battery consumed, elapsed time
+```
+
+**Test Debug Monitor (standalone):**
+```bash
+# Terminal 1: Run the debug monitor
+ros2 run ce_robot_launch debug_monitor.py --ros-args \
+  -p robot_id:=AMR-DEBUG-001 \
+  -p robot_type:=test \
+  -p zone_id:=DEBUG-LAB \
+  -p diagnostic_rate_hz:=0.5 \
+  -p enable_network_check:=true \
+  -p enable_ros_diagnostics:=true
+
+# Monitor will print diagnostic reports every 2 seconds
+# Check CPU, memory, disk usage, network status, and issue counts
+```
+
 ### **💡 Key Concepts Learned**
 
 1. **IfCondition** - Launch node only if condition is true
