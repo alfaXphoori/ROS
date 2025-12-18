@@ -5,7 +5,7 @@ Real-world use: Process warehouse orders with detailed progress tracking
 """
 
 import rclpy
-from rclpy.action import ActionServer
+from rclpy.action import ActionServer, GoalResponse
 from rclpy.node import Node
 from ce_robot_interfaces.action import PickItems
 import time
@@ -14,7 +14,7 @@ import random
 
 class TaskQueueAction(Node):
     def __init__(self):
-        super().__init__('count_server')
+        super().__init__('task_queue_action')
         
         # Declare robot parameters
         self.declare_parameter('robot_id', 'AMR-WH-A-001')
@@ -63,7 +63,7 @@ class TaskQueueAction(Node):
             time_per_item: Time per item (seconds)
             order_id: Order tracking ID
             zone_id: Picking zone
-            priority: Priority level (1-10)
+            priority: Priority level
             max_weight_kg: Maximum weight limit
         
         Returns:
@@ -79,15 +79,44 @@ class TaskQueueAction(Node):
         start_time = time.time()
         initial_battery = self.battery_level
         
-        # Check if request exceeds capacity
-        if goal_handle.request.target_items > self.max_items:
+        # Initialize variables
+        items_to_pick = goal_handle.request.target_items
+        items_damaged = 0
+        items_missing = 0
+        total_weight = 0.0
+        
+        # Calculate battery consumption per item (0.5% per item)
+        battery_per_item = 0.5
+        estimated_battery_use = items_to_pick * battery_per_item
+        
+        # Check battery level
+        if self.battery_level < estimated_battery_use:
             self.get_logger().warn(
-                f'⚠️ Order exceeds capacity!\n'
-                f'   Requested: {goal_handle.request.target_items} items\n'
+                f'⚠️ Insufficient battery!\n'
                 f'   Order: {goal_handle.request.order_id}\n'
                 f'   Current: {self.battery_level:.1f}%\n'
                 f'   Required: {estimated_battery_use:.1f}%\n'
                 f'   Status: Return to charging station'
+            )
+            goal_handle.abort()
+            return PickItems.Result(
+                items_picked=0,
+                actual_time_taken=0.0,
+                battery_consumed=0.0,
+                total_weight_kg=0.0,
+                order_completed=False,
+                completion_status="FAILED",
+                items_damaged=0,
+                items_missing=0
+            )
+        
+        # Check if request exceeds capacity
+        if items_to_pick > self.max_items:
+            self.get_logger().warn(
+                f'⚠️ Order exceeds capacity!\n'
+                f'   Requested: {items_to_pick} items\n'
+                f'   Max capacity: {self.max_items} items\n'
+                f'   Order: {goal_handle.request.order_id}'
             )
             goal_handle.abort()
             return PickItems.Result(
@@ -109,9 +138,21 @@ class TaskQueueAction(Node):
             f'   Order ID: {goal_handle.request.order_id}\n'
             f'   Zone: {target_zone}\n'
             f'   Items to pick: {items_to_pick}\n'
+            f'   Priority: {goal_handle.request.priority}\n'
+            f'   Max weight: {goal_handle.request.max_weight_kg:.1f}kg\n'
             f'   Time per item: {goal_handle.request.time_per_item:.1f}s\n'
             f'   Estimated time: {estimated_time:.1f}s ({estimated_time/60:.1f} min)\n'
-            f'  elapsed = time.time() - start_time
+            f'   Battery: {self.battery_level:.1f}%'
+        )
+        
+        # Item picking loop
+        feedback_msg = PickItems.Feedback()
+        shelf_locations = ['A1-B3', 'A2-B1', 'B3-C2', 'C1-D3', 'D2-E1', 'E3-F2']
+        
+        for i in range(1, items_to_pick + 1):
+            # Check if goal was cancelled
+            if goal_handle.is_cancel_requested:
+                elapsed = time.time() - start_time
                 goal_handle.canceled()
                 self.get_logger().warn(
                     f'❌ Order cancelled by supervisor\n'
@@ -159,7 +200,48 @@ class TaskQueueAction(Node):
                     f'❌ Weight limit exceeded!\n'
                     f'   Current: {total_weight:.1f}kg\n'
                     f'   Limit: {goal_handle.request.max_weight_kg:.1f}kg\n'
-          Order complete
+                    f'   Stopping at item {i-1}/{items_to_pick}'
+                )
+                goal_handle.abort()
+                return PickItems.Result(
+                    items_picked=i-1,
+                    actual_time_taken=time.time() - start_time,
+                    battery_consumed=initial_battery - self.battery_level,
+                    total_weight_kg=total_weight - item_weight,
+                    order_completed=False,
+                    completion_status="FAILED",
+                    items_damaged=items_damaged,
+                    items_missing=items_missing
+                )
+            
+            # Update feedback
+            feedback_msg.current_item = i
+            feedback_msg.percentage_complete = (i / items_to_pick) * 100.0
+            feedback_msg.current_item_type = item_type
+            feedback_msg.current_item_weight = item_weight
+            feedback_msg.current_location = shelf_locations[i % len(shelf_locations)]
+            feedback_msg.battery_remaining = self.battery_level
+            feedback_msg.elapsed_time = time.time() - start_time
+            
+            goal_handle.publish_feedback(feedback_msg)
+            
+            # Log progress every 5 items
+            if i % 5 == 0 or i == 1:
+                self.get_logger().info(
+                    f'📦 Item {i}/{items_to_pick} ({feedback_msg.percentage_complete:.1f}%) | '
+                    f'{item_type} ({item_weight:.1f}kg) | '
+                    f'Location: {feedback_msg.current_location} | '
+                    f'Battery: {self.battery_level:.1f}%'
+                )
+            
+            # Battery warning
+            if self.battery_level < 20.0 and self.battery_level >= 19.5:
+                self.get_logger().warn('⚠️ LOW BATTERY - Consider returning to charging station')
+            
+            # Simulate picking time
+            time.sleep(goal_handle.request.time_per_item)
+        
+        # Order complete
         actual_time = time.time() - start_time
         battery_used = initial_battery - self.battery_level
         items_successfully_picked = items_to_pick - items_damaged - items_missing
@@ -201,69 +283,7 @@ class TaskQueueAction(Node):
             f'   Completion: {status}\n'
             f'   Total orders today: {self.tasks_completed}\n'
             f'   Total items today: {self.total_items_picked}\n'
-            f'   Status: {"Ready for next order
-                f'📦 Item {i}/{items_to_pick} ({feedback_msg.percentage_complete:.1f}%) | '
-                f'{item_type} ({item_weight:.1f}kg) | '
-                f'Location: {feedback_msg.current_location} | '
-                f'Battery: {self.battery_level:.1f}%'
-            )
-            
-            # Battery warning
-            if self.battery_level < 20.0 and self.battery_level >= 19.5:
-                self.get_logger().warn('⚠️ LOW BATTERY - Consider returning to charging station')
-            
-            # Simulate picking time
-            time.sleep(goal_handle.request.time_per_item
-                goal_handle.canceled()
-                self.get_logger().warn(
-                    f'❌ Task cancelled by supervisor\n'
-                    f'   Items picked: {i-1}/{items_to_pick}\n'
-                    f'   Battery remaining: {self.battery_level:.1f}%'
-                )
-                return CountUntil.Result()
-            
-            # Simulate battery consumption
-            self.battery_level -= battery_per_item
-            
-            # Update progress
-            feedback_msg.current_number = i
-            feedback_msg.percentage = (i / items_to_pick) * 100.0
-            goal_handle.publish_feedback(feedback_msg)
-            
-            # Determine item type for realistic logging
-            item_types = ['Box-A4', 'Envelope', 'Package-M', 'Pallet-S', 'Container']
-            item_type = item_types[i % len(item_types)]
-            
-            self.get_logger().info(
-                f'📦 Progress: Item {i}/{items_to_pick} '
-                f'({feedback_msg.percentage:.1f}%) | '
-                f'Type: {item_type} | '
-                f'Battery: {self.battery_level:.1f}%'
-            )
-            
-            # Battery warning
-            if self.battery_level < 20.0 and self.battery_level >= 19.5:
-                self.get_logger().warn('⚠️ LOW BATTERY - Consider returning to charging station')
-            
-            # Simulate picking time
-            time.sleep(goal_handle.request.period)
-        
-        # Task complete
-        goal_handle.succeed()
-        
-        self.tasks_completed += 1
-        self.total_items_picked += items_to_pick
-        
-        result = CountUntil.Result()
-        result.reached_number = items_to_pick
-        
-        self.get_logger().info(
-            f'✅ Task Completed [{self.robot_id}]:\n'
-            f'   Items picked this task: {result.reached_number}\n'
-            f'   Total tasks completed: {self.tasks_completed}\n'
-            f'   Total items picked today: {self.total_items_picked}\n'
-            f'   Battery remaining: {self.battery_level:.1f}%\n'
-            f'   Status: {"Ready for next task" if self.battery_level > 20 else "⚠️ LOW BATTERY - Charging recommended"}'
+            f'   Status: {"Ready for next order" if self.battery_level > 20 else "⚠️ LOW BATTERY - Charging recommended"}'
         )
         
         return result

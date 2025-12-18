@@ -81,33 +81,56 @@ def generate_launch_description():
         condition=IfCondition(enable_publisher)
     )
     
-    # Conditional service - Rectangle calculation (used for navigation path planning)
-    # Real-world: Calculate safe navigation boundaries around obstacles
+    # Conditional service - Navigation path planning (launches only if enabled)
+    # Real-world: Calculate safe paths around obstacles with safety margins
     service_node = Node(
-        package='ce_robot_launch',
-        executable='navigation_service.py',
-        name='rect_server',
+        package='ce_robot',
+        executable='07_navigate_service',
+        name='navigation_service',
         output='screen',
+        parameters=[
+            {'robot_id': 'AMR-WH-A-001'},
+            {'robot_type': robot_type},
+            {'zone_id': 'WAREHOUSE-A-DOCK-3'},
+            {'max_payload_kg': 500.0},
+            {'safety_margin_m': 0.5},
+        ],
         condition=IfCondition(enable_service)
     )
     
-    # Conditional action - Count action server (task queue management)
-    # Real-world: Process N items in queue with progress feedback
+    # Conditional action - Order picking task queue (launches only if enabled)
+    # Real-world: Process warehouse orders with battery and weight management
     action_node = Node(
-        package='ce_robot_launch',
-        executable='task_queue_action.py',
-        name='count_server',
+        package='ce_robot',
+        executable='07_task_queue_action',
+        name='task_queue_action',
         output='screen',
+        parameters=[
+            {'robot_id': 'AMR-WH-A-001'},
+            {'robot_type': 'picker'},  # Picker optimized for order fulfillment
+            {'zone_id': 'WAREHOUSE-A-PICKING-ZONE'},
+            {'max_items_per_trip': 50},
+            {'battery_level': 100.0},
+            {'picking_speed_items_per_min': 12.0},
+        ],
         condition=IfCondition(enable_action)
     )
     
     # Debug monitor - Launches UNLESS in production mode
-    # Real-world: Extra diagnostics and logging during development/testing
+    # Real-world: System diagnostics with CPU, memory, disk monitoring during development
     debug_node = Node(
-        package='ce_robot_launch',
-        executable='debug_monitor.py',
+        package='ce_robot',
+        executable='07_debug_monitor',
         name='debug_monitor',
         output='screen',
+        parameters=[
+            {'robot_id': 'AMR-DEV-001'},
+            {'robot_type': 'development'},
+            {'zone_id': 'TEST-LAB'},
+            {'diagnostic_rate_hz': 0.2},  # Every 5 seconds
+            {'enable_network_check': True},
+            {'enable_ros_diagnostics': True},
+        ],
         condition=UnlessCondition(
             PythonExpression(["'", robot_mode, "' == 'production'"])
         )

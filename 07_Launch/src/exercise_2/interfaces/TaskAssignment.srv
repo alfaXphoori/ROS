@@ -1,0 +1,34 @@
+# TaskAssignment.srv
+# Service for requesting and assigning tasks in multi-robot warehouse system
+# Real-world use: Dynamic task allocation and robot coordination
+
+# Request - Robot requesting task assignment
+string robot_id              # Robot requesting task
+string robot_type            # Robot type (transport/picker/sorter)
+string current_zone          # Current zone of robot
+float64 battery_level        # Current battery level (0-100)
+float64 available_capacity   # Available payload capacity (kg)
+bool ready_for_task          # True = request task, False = request return to base
+
+---
+
+# Response - Task assignment or command
+bool task_assigned           # True if task successfully assigned
+string task_id               # Unique task identifier (e.g., "TASK-2025-12345")
+string task_type             # TRANSPORT, PICK, SORT, DELIVER, CHARGE, MAINTENANCE
+string task_description      # Human-readable task description
+string destination_zone      # Target zone for task
+string destination_location  # Specific destination location
+
+# Task details
+float64 estimated_duration   # Estimated task duration (seconds)
+float64 required_battery     # Estimated battery required (%)
+int32 priority               # Task priority (1=low, 10=critical)
+
+# Payload requirements
+float64 expected_payload_kg  # Expected payload weight (kg)
+int32 item_count             # Number of items (for picking tasks)
+
+# Status and messages
+string status_message        # Status or error message
+int32 queue_position         # Position in task queue (0 if immediate)
