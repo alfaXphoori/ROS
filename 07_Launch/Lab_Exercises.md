@@ -74,8 +74,8 @@ By completing this lab, you will master:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                         WAREHOUSE ROBOT FLEET SYSTEM                     │
-│                    (Multi-Robot Launch Management)                       │
+│                         WAREHOUSE ROBOT FLEET SYSTEM                    │
+│                    (Multi-Robot Launch Management)                      │
 └─────────────────────────────────────────────────────────────────────────┘
                                     │
                     ┌───────────────┼───────────────┐
@@ -105,24 +105,24 @@ Launch Arguments:
 └── robot_mode (production/development/simulation)
 
 Conditional Nodes:
-┌─────────────────────────────────────────────────────────────┐
-│ IfCondition(enable_publisher)                               │
-│   ├─> robot_tag_publisher                                   │
-│   │    ├─ Topic: /robot_tag (RobotTag)                     │
-│   │    └─ Rate: 2.0 Hz                                     │
-│   │                                                          │
-│ IfCondition(enable_service)                                 │
-│   ├─> rect_server                                          │
-│   │    └─ Service: /cal_rect (CalRectangle)               │
-│   │                                                          │
-│ IfCondition(enable_action)                                  │
-│   ├─> count_server                                         │
-│   │    └─ Action: /count_until (CountUntil)               │
-│   │                                                          │
-│ UnlessCondition(robot_mode == 'production')                 │
-│   └─> debug_monitor                                        │
-│        └─ Debug logging and diagnostics                    │
-└─────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────┐
+│ IfCondition(enable_publisher)                      │
+│   ├─> robot_tag_publisher                          │
+│   │    ├─ Topic: /robot_tag (RobotTag)             │
+│   │    └─ Rate: 2.0 Hz                             │
+│   │                                                │
+│ IfCondition(enable_service)                        │
+│   ├─> rect_server                                  │
+│   │    └─ Service: /cal_rect (CalRectangle)        │
+│   │                                                │
+│ IfCondition(enable_action)                         │
+│   ├─> count_server                                 │
+│   │    └─ Action: /count_until (CountUntil)        │
+│   │                                                │
+│ UnlessCondition(robot_mode == 'production')        │
+│   └─> debug_monitor                                │
+│        └─ Debug logging and diagnostics            │
+└────────────────────────────────────────────────────┘
 
 Real-World Scenario: Amazon Fulfillment Center
 ├─ 20 robots with cameras (scanner mode)
@@ -134,37 +134,37 @@ Real-World Scenario: Amazon Fulfillment Center
 
 ```
 Warehouse Floor Layout:
-┌──────────────────────────────────────────────────────────────────┐
-│                        WAREHOUSE ZONES                            │
-├──────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  ZONE A: Loading Dock          ZONE B: Picking Area              │
-│  ┌─────────────────┐           ┌─────────────────┐              │
-│  │   robot1/       │           │   robot2/       │              │
-│  │   ├─ robot_tag_publisher    │   ├─ robot_tag_publisher      │
-│  │   │   └─ /robot1/robot_tag  │   │   └─ /robot2/robot_tag    │
-│  │   ├─ rect_server            │   └─ count_server              │
-│  │   │   └─ /robot1/cal_rect   │       └─ /robot2/count_until  │
-│  │   └─ AMR-TRANSPORT-HEAVY-001│       AMR-PICKER-LIGHT-002    │
-│  │       Payload: 1000kg       │       Payload: 50kg            │
-│  │       Battery: 78%          │       Battery: 18% (LOW!)      │
-│  └─────────────────┘           └─────────────────┘              │
-│                                                                   │
-│  ZONE C: Sorting Station                                         │
-│  ┌─────────────────────────────────────┐                        │
-│  │   robot3/                           │                        │
-│  │   ├─ robot_tag_publisher            │                        │
-│  │   │   └─ /robot3/robot_tag          │                        │
-│  │   ├─ rect_server                    │                        │
-│  │   │   └─ /robot3/cal_rect           │                        │
-│  │   ├─ count_server                   │                        │
-│  │   │   └─ /robot3/count_until        │                        │
-│  │   └─ AMR-DELIVERY-MULTI-003         │                        │
-│  │       Payload: 300kg                │                        │
-│  │       Battery: 92%                  │                        │
-│  └─────────────────────────────────────┘                        │
-│                                                                   │
-└──────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│                        WAREHOUSE ZONES                               │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  ZONE A: Loading Dock              ZONE B: Picking Area              │
+│  ┌─────────────────────────────┐   ┌──────────────────────────────┐  │
+│  │   robot1/                   │   │  robot2/                     │  │
+│  │   ├─ robot_tag_publisher    │   |  ├─ robot_tag_publisher      │  │
+│  │   │   └─ /robot1/robot_tag  │   |  │   └─ /robot2/robot_tag    │  │
+│  │   ├─ rect_server            │   |  └─ count_server             │  │
+│  │   │   └─ /robot1/cal_rect   │   |  │    └─ /robot2/count_until │  │
+│  │   └─ AMR-TRANSPORT-HEAVY-001│   |  └─ AMR-PICKER-LIGHT-002     │  │
+│  │       Payload: 1000kg       │   |      Payload: 50kg           |  │
+│  │       Battery: 78%          │   |      Battery: 18% (LOW!)     │  │
+│  └─────────────────────────────┘   └──────────────────────────────┘  │
+│                                                                      │
+│  ZONE C: Sorting Station                                             │
+│  ┌─────────────────────────────────────┐                             │
+│  │   robot3/                           │                             │
+│  │   ├─ robot_tag_publisher            │                             │
+│  │   │   └─ /robot3/robot_tag          │                             │
+│  │   ├─ rect_server                    │                             │
+│  │   │   └─ /robot3/cal_rect           │                             │
+│  │   ├─ count_server                   │                             │
+│  │   │   └─ /robot3/count_until        │                             │
+│  │   └─ AMR-DELIVERY-MULTI-003         │                             │
+│  │       Payload: 300kg                │                             │ 
+│  │       Battery: 92%                  │                             │
+│  └─────────────────────────────────────┘                             │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
 
 Namespace Isolation:
 /robot1/robot_tag  ──┐
@@ -179,43 +179,43 @@ Namespace Isolation:
 
 ```
 Node Lifecycle & Fault Tolerance:
-┌────────────────────────────────────────────────────────────────┐
-│                      NODE MONITORING SYSTEM                     │
-├────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────┐      │
-│  │  robot_tag_publisher (Battery Monitor)              │      │
-│  │  ┌──────────────┐                                   │      │
-│  │  │ OnProcessStart│──> ✅ "Publisher started"        │      │
-│  │  └──────────────┘                                   │      │
-│  │  ┌──────────────┐                                   │      │
-│  │  │ OnProcessExit │──> ⚠️  "Publisher crashed!"      │      │
-│  │  └──────────────┘        │                          │      │
-│  │                           ├─> Wait 3 seconds        │      │
-│  │                           └─> Auto-restart node     │      │
-│  └─────────────────────────────────────────────────────┘      │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────┐      │
-│  │  rect_server (CRITICAL - Navigation Service)        │      │
-│  │  ┌──────────────┐                                   │      │
-│  │  │ OnProcessStart│──> ✅ "Service started"          │      │
-│  │  └──────────────┘                                   │      │
-│  │  ┌──────────────┐                                   │      │
-│  │  │ OnProcessExit │──> ❌ "CRITICAL FAILURE!"        │      │
-│  │  └──────────────┘        │                          │      │
-│  │                           └─> EmitEvent(Shutdown)   │      │
-│  │                               [STOP ALL ROBOTS]     │      │
-│  └─────────────────────────────────────────────────────┘      │
-│                                                                 │
-│  ┌─────────────────────────────────────────────────────┐      │
-│  │  count_server (Non-critical Action Server)          │      │
-│  │  ┌──────────────┐                                   │      │
-│  │  │ OnProcessExit │──> ⚠️  "Action server exited"    │      │
-│  │  └──────────────┘        │                          │      │
-│  │                           └─> Log only (continue)   │      │
-│  └─────────────────────────────────────────────────────┘      │
-│                                                                 │
-└────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────────┐
+│                      NODE MONITORING SYSTEM               │
+├───────────────────────────────────────────────────────────┤
+│                                                           │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │  robot_tag_publisher (Battery Monitor)              │  │
+│  │  ┌───────────────┐                                  │  │
+│  │  │ OnProcessStart│──> ✅ "Publisher started"        │  │
+│  │  └───────────────┘                                  │  │
+│  │  ┌───────────────┐                                  │  │
+│  │  │ OnProcessExit │──> ⚠️  "Publisher crashed!"      │  │
+│  │  └───────────────┘        │                         │  │
+│  │                           ├─> Wait 3 seconds        │  │
+│  │                           └─> Auto-restart node     │  │
+│  └─────────────────────────────────────────────────────┘  │
+│                                                           │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │  rect_server (CRITICAL - Navigation Service)        │  │
+│  │  ┌───────────────┐                                  │  │
+│  │  │ OnProcessStart│──> ✅ "Service started"          │  │
+│  │  └───────────────┘                                  │  │
+│  │  ┌───────────────┐                                  │  │
+│  │  │ OnProcessExit │──> ❌ "CRITICAL FAILURE!"        │  │
+│  │  └───────────────┘        │                         │  │
+│  │                           └─> EmitEvent(Shutdown)   │  │
+│  │                               [STOP ALL ROBOTS]     │  │
+│  └─────────────────────────────────────────────────────┘  │
+│                                                           │
+│  ┌─────────────────────────────────────────────────────┐  │
+│  │  count_server (Non-critical Action Server)          │  │
+│  │  ┌──────────────┐                                   │  │
+│  │  │ OnProcessExit│──> ⚠️  "Action server exited"     │  │
+│  │  └──────────────┘        │                          │  │
+│  │                           └─> Log only (continue)   │  │
+│  └─────────────────────────────────────────────────────┘  │
+│                                                           │
+└───────────────────────────────────────────────────────────┘
 
 Failure Scenarios:
 ├─ Battery Monitor crashes  → Auto-restart (3 sec delay)
@@ -228,10 +228,10 @@ Failure Scenarios:
 
 ```
 Configuration Management:
-┌──────────────────────────────────────────────────────────────┐
-│                  MULTI-SITE DEPLOYMENT                        │
-├──────────────────────────────────────────────────────────────┤
-│                                                               │
+┌─────────────────────────────────────────────────────────────┐
+│                  MULTI-SITE DEPLOYMENT                      │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
 │  config/robot_small.yaml          config/robot_large.yaml   │
 │  ┌─────────────────────┐          ┌────────────────────┐    │
 │  │ Customer A:         │          │ Customer B:        │    │
@@ -244,24 +244,24 @@ Configuration Management:
 │  │ • Narrow aisles     │          │ • Wide lanes       │    │
 │  │ • Fast picking      │          │ • Heavy pallets    │    │
 │  └─────────────────────┘          └────────────────────┘    │
-│           │                                │                 │
-│           └────────────┬───────────────────┘                 │
-│                        ▼                                     │
-│           yaml_config_launch.py                              │
+│           │                                │                │
+│           └────────────┬───────────────────┘                │
+│                        ▼                                    │
+│           yaml_config_launch.py                             │
 │           ┌──────────────────────┐                          │
 │           │ robot_config argument│                          │
 │           │ ├─ :=small           │                          │
 │           │ └─ :=large           │                          │
 │           └──────────────────────┘                          │
-│                        │                                     │
-│                        ▼                                     │
+│                        │                                    │
+│                        ▼                                    │
 │           ┌──────────────────────┐                          │
 │           │ Load YAML config     │                          │
 │           │ Launch nodes with    │                          │
 │           │ appropriate params   │                          │
 │           └──────────────────────┘                          │
-│                                                               │
-│  Launch File Composition:                                    │
+│                                                             │
+│  Launch File Composition:                                   │
 │  ┌────────────────────────────────────────┐                 │
 │  │ yaml_config_launch.py                  │                 │
 │  │  ├─ Includes: simple_launch.py         │                 │
@@ -269,8 +269,8 @@ Configuration Management:
 │  │  └─ SetEnvironmentVariable             │                 │
 │  │     └─ ROS_DOMAIN_ID = 42              │                 │
 │  └────────────────────────────────────────┘                 │
-│                                                               │
-└──────────────────────────────────────────────────────────────┘
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 
 Deployment Commands:
 ├─ ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=small

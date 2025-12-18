@@ -539,7 +539,7 @@ response:
 ce_robot_interfaces.srv.CalRectangle_Response(area=15.0, perimeter=16.0)
 ```
 
-![Service Call Test](imgs/launch_service.png)
+![Service Call Test](imgs/01_Cal_Rect.png)
 
 ### **Test Action Server**
 
@@ -579,7 +579,7 @@ Result:
 Goal finished with status: SUCCEEDED
 ```
 
-![Action Server Test](imgs/launch_action.png)
+![Action Server Test](imgs/02_Count_Goal.png)
 
 ### **Monitor Topic Output**
 
@@ -611,7 +611,7 @@ firmware_version: v2.3.1
 error_code: 0
 ```
 
-![Robot Tag Message Details](imgs/launch_topic.png)
+![Robot Tag Message Details](imgs/03_Robot_Tag.png)
 
 ---
 
