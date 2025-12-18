@@ -395,6 +395,96 @@ colcon build --packages-select ce_robot_interfaces
 source install/setup.bash
 ```
 
+### **📝 Step 2: Create Support Python Files**
+
+Create the three Python node files that the launch file will use:
+
+```bash
+cd ~/ros2_ws/src/ce_robot_launch/launch
+touch navigation_service.py task_queue_action.py debug_monitor.py
+chmod +x navigation_service.py task_queue_action.py debug_monitor.py
+```
+
+Copy the node implementations from the `07_Launch/` directory:
+- `navigation_service.py` - Navigation path planning service
+- `task_queue_action.py` - Order picking action server  
+- `debug_monitor.py` - System diagnostics monitor
+
+Or create them manually with the code from the files we created earlier.
+
+**Update setup.py (for Python packages):**
+
+```python
+    entry_points={
+        'console_scripts': [
+            "07_navigate_service = ce_robot.navigate_service:main",
+            "07_task_queue_action = ce_robot.task_queue_action:main",
+            "07_debug_monitor = ce_robot.debug_monitor:main",
+        ],
+    },
+```
+---
+
+### **🧪 Test Individual Nodes**
+
+**Test Navigation Service (standalone):**
+```bash
+# Terminal 1: Run the navigation service
+ros2 run ce_robot 07_navigate_service --ros-args \
+  -p robot_id:=AMR-TEST-001 \
+  -p robot_type:=transport \
+  -p zone_id:=TEST-ZONE \
+  -p max_payload_kg:=500.0 \
+  -p safety_margin_m:=0.5
+
+# Terminal 2: Call the service
+ros2 service call /navigation_path ce_robot_interfaces/srv/NavigationPath \
+  "{obstacle_length: 2.0, obstacle_width: 1.5, robot_x: 5.0, robot_y: 3.0, \
+    safety_margin: 0.5, zone_id: 'TEST-ZONE'}"
+
+# Expected response: safe_area, clearances, can_navigate status, recommended_action
+```
+
+**Test Task Queue Action Server (standalone):**
+```bash
+# Terminal 1: Run the action server
+ros2 run ce_robot 07_task_queue_action --ros-args \
+  -p robot_id:=AMR-PICKER-001 \
+  -p robot_type:=picker \
+  -p zone_id:=PICKING-ZONE \
+  -p max_items_per_trip:=20 \
+  -p battery_level:=85.0 \
+  -p picking_speed_items_per_min:=12.0
+
+# Terminal 2: Send an action goal
+ros2 action send_goal /pick_items ce_robot_interfaces/action/PickItems \
+  "{target_items: 5, time_per_item: 5.0, order_id: 'ORD-12345', \
+    zone_id: 'PICKING-ZONE', priority: 8, max_weight_kg: 25.0}" \
+  --feedback
+
+# Expected: Progress updates with items picked, battery consumed, elapsed time
+# Note: priority is an integer (1=low, 10=urgent), not a string
+```
+
+**Test Debug Monitor (standalone):**
+```bash
+# Terminal 1: Run the debug monitor
+ros2 run ce_robot 07_debug_monitor --ros-args \
+  -p robot_id:=AMR-DEBUG-001 \
+  -p robot_type:=test \
+  -p zone_id:=DEBUG-LAB \
+  -p diagnostic_rate_hz:=0.5 \
+  -p enable_network_check:=true \
+  -p enable_ros_diagnostics:=true
+
+# Monitor will print diagnostic reports every 2 seconds
+# Check CPU, memory, disk usage, network status, and issue counts
+```
+
+---
+
+### **📝 Step 3: Create Conditional Launch File**
+
 Create the conditional launch file in your launch package:
 
 ```bash
@@ -404,8 +494,6 @@ chmod +x conditional_robot_launch.py
 ```
 
 Open the file in your editor and add the following code:
-
-### **📁 File: conditional_robot_launch.py**
 
 **Location:** `~/ros2_ws/src/ce_robot_launch/launch/conditional_robot_launch.py`
 
@@ -571,63 +659,7 @@ def generate_launch_description():
     ])
 ```
 
-### **📝 Step 2: Create Support Python Files**
-
-Create the three Python node files that the launch file will use:
-
-```bash
-cd ~/ros2_ws/src/ce_robot_launch/launch
-touch navigation_service.py task_queue_action.py debug_monitor.py
-chmod +x navigation_service.py task_queue_action.py debug_monitor.py
-```
-
-Copy the node implementations from the `07_Launch/` directory:
-- `navigation_service.py` - Navigation path planning service
-- `task_queue_action.py` - Order picking action server  
-- `debug_monitor.py` - System diagnostics monitor
-
-Or create them manually with the code from the files we created earlier.
-
-### **📝 Step 4: Update Package Configuration**
-
-**Or update setup.py (for Python packages):**
-
-```python
-from setuptools import setup
-import os
-from glob import glob
-
-package_name = 'ce_robot_launch'
-
-setup(
-    name=package_name,
-    version='0.0.0',
-    packages=[package_name],
-    data_files=[
-        ('share/ament_index/resource_index/packages',
-            ['resource/' + package_name]),
-        ('share/' + package_name, ['package.xml']),
-        (os.path.join('share', package_name, 'launch'), 
-            glob('launch/*.py')),
-    ],
-    install_requires=['setuptools'],
-    zip_safe=True,
-    maintainer='student',
-    maintainer_email='student@ksu.ac.th',
-    description='ROS 2 Launch Files Lab',
-    license='Apache License 2.0',
-    tests_require=['pytest'],
-    entry_points={
-        'console_scripts': [
-            "07_navigate_service = ce_robot.navigate_service:main",
-            "07_task_queue_action = ce_robot.task_queue_action:main",
-            "07_debug_monitor = ce_robot.debug_monitor:main",
-        ],
-    },
-)
-```
-
-### **🧪 Step 5: Build and Test**
+### **🧪 Step 4: Build and Test**
 
 **Build both packages:**
 ```bash
@@ -641,66 +673,6 @@ source install/setup.bash
 ros2 interface show ce_robot_interfaces/srv/NavigationPath
 ros2 interface show ce_robot_interfaces/action/PickItems
 ```
-
----
-
-### **🧪 Test Individual Nodes**
-
-**Test Navigation Service (standalone):**
-```bash
-# Terminal 1: Run the navigation service
-ros2 run ce_robot 07_navigate_service --ros-args \
-  -p robot_id:=AMR-TEST-001 \
-  -p robot_type:=transport \
-  -p zone_id:=TEST-ZONE \
-  -p max_payload_kg:=500.0 \
-  -p safety_margin_m:=0.5
-
-# Terminal 2: Call the service
-ros2 service call /navigation_path ce_robot_interfaces/srv/NavigationPath \
-  "{obstacle_length: 2.0, obstacle_width: 1.5, robot_x: 5.0, robot_y: 3.0, \
-    safety_margin: 0.5, zone_id: 'TEST-ZONE'}"
-
-# Expected response: safe_area, clearances, can_navigate status, recommended_action
-```
-
-**Test Task Queue Action Server (standalone):**
-```bash
-# Terminal 1: Run the action server
-ros2 run ce_robot 07_task_queue_action --ros-args \
-  -p robot_id:=AMR-PICKER-001 \
-  -p robot_type:=picker \
-  -p zone_id:=PICKING-ZONE \
-  -p max_items_per_trip:=20 \
-  -p battery_level:=85.0 \
-  -p picking_speed_items_per_min:=12.0
-
-# Terminal 2: Send an action goal
-ros2 action send_goal /pick_items ce_robot_interfaces/action/PickItems \
-  "{target_items: 5, time_per_item: 5.0, order_id: 'ORD-12345', \
-    zone_id: 'PICKING-ZONE', priority: 8, max_weight_kg: 25.0}" \
-  --feedback
-
-# Expected: Progress updates with items picked, battery consumed, elapsed time
-# Note: priority is an integer (1=low, 10=urgent), not a string
-```
-
-**Test Debug Monitor (standalone):**
-```bash
-# Terminal 1: Run the debug monitor
-ros2 run ce_robot 07_debug_monitor --ros-args \
-  -p robot_id:=AMR-DEBUG-001 \
-  -p robot_type:=test \
-  -p zone_id:=DEBUG-LAB \
-  -p diagnostic_rate_hz:=0.5 \
-  -p enable_network_check:=true \
-  -p enable_ros_diagnostics:=true
-
-# Monitor will print diagnostic reports every 2 seconds
-# Check CPU, memory, disk usage, network status, and issue counts
-```
-
----
 
 ### **🧪 Testing Exercise 1**
 
@@ -872,7 +844,7 @@ ros2 interface show ce_robot_interfaces/msg/FleetCommand
 
 ### **📝 Step 2: Create Multi-Robot Node Files**
 
-Create three Python nodes for the multi-robot system:
+Create the three Python node files for the multi-robot system:
 
 ```bash
 cd ~/ros2_ws/src/ce_robot/ce_robot
@@ -880,344 +852,12 @@ touch robot_status_publisher.py zone_coordinator_service.py fleet_monitor.py
 chmod +x robot_status_publisher.py zone_coordinator_service.py fleet_monitor.py
 ```
 
-**File: robot_status_publisher.py**
+Copy the node implementations from the `07_Launch/src/exercise_2/nodes/` directory:
+- `robot_status_publisher.py` - Namespace-aware robot status publisher
+- `zone_coordinator_service.py` - Zone-based task assignment service
+- `fleet_monitor.py` - Central fleet monitoring with system metrics
 
-```python
-#!/usr/bin/env python3
-"""
-Robot Status Publisher for Multi-Robot System
-Publishes detailed robot status with namespace-aware information
-Real-world use: Fleet management and robot coordination in warehouses
-"""
-
-import rclpy
-from rclpy.node import Node
-from std_msgs.msg import String
-import json
-
-
-class RobotStatusPublisher(Node):
-    """Publishes comprehensive robot status information"""
-    
-    def __init__(self):
-        super().__init__('robot_status_publisher')
-        
-        # Declare parameters
-        self.declare_parameter('robot_id', 'AMR-UNKNOWN-000')
-        self.declare_parameter('robot_type', 'transport')
-        self.declare_parameter('zone_id', 'UNKNOWN-ZONE')
-        self.declare_parameter('fleet_number', 0)
-        self.declare_parameter('max_payload_kg', 100.0)
-        self.declare_parameter('battery_level', 100.0)
-        self.declare_parameter('current_location', 'UNKNOWN')
-        self.declare_parameter('assigned_task', 'IDLE')
-        self.declare_parameter('status_rate_hz', 1.0)
-        
-        # Get parameters
-        self.robot_id = self.get_parameter('robot_id').value
-        self.robot_type = self.get_parameter('robot_type').value
-        self.zone_id = self.get_parameter('zone_id').value
-        self.fleet_number = self.get_parameter('fleet_number').value
-        self.max_payload = self.get_parameter('max_payload_kg').value
-        self.battery_level = self.get_parameter('battery_level').value
-        self.current_location = self.get_parameter('current_location').value
-        self.assigned_task = self.get_parameter('assigned_task').value
-        status_rate = self.get_parameter('status_rate_hz').value
-        
-        # Get namespace
-        self.namespace = self.get_namespace()
-        
-        # Create publisher
-        self.publisher = self.create_publisher(String, 'robot_status', 10)
-        
-        # Create timer
-        timer_period = 1.0 / status_rate
-        self.timer = self.create_timer(timer_period, self.timer_callback)
-        
-        self.status_count = 0
-        
-        self.get_logger().info('🤖 Robot Status Publisher Started')
-        self.get_logger().info(f'Namespace: {self.namespace}')
-        self.get_logger().info(f'Robot ID: {self.robot_id}')
-        self.get_logger().info(f'Publishing to: {self.namespace}/robot_status')
-    
-    def timer_callback(self):
-        """Publish robot status"""
-        self.status_count += 1
-        
-        # Create comprehensive status message
-        status_data = {
-            'robot_id': self.robot_id,
-            'robot_type': self.robot_type,
-            'name_space': self.namespace,
-            'fleet_number': self.fleet_number,
-            'zone_id': self.zone_id,
-            'current_location': self.current_location,
-            'operational_status': self._get_status(),
-            'assigned_task': self.assigned_task,
-            'max_payload_kg': self.max_payload,
-            'battery_level': self.battery_level,
-            'status_count': self.status_count
-        }
-        
-        msg = String()
-        msg.data = json.dumps(status_data, indent=2)
-        self.publisher.publish(msg)
-        
-        if self.status_count % 10 == 0:
-            self.get_logger().info(
-                f'📊 Status Update #{self.status_count}: '
-                f'Battery={self.battery_level}%, '
-                f'Task={self.assigned_task}'
-            )
-    
-    def _get_status(self):
-        """Determine operational status based on battery level"""
-        if self.battery_level < 15:
-            return 'CRITICAL_BATTERY'
-        elif self.battery_level < 30:
-            return 'LOW_BATTERY'
-        elif self.assigned_task == 'IDLE':
-            return 'IDLE'
-        else:
-            return 'OPERATIONAL'
-
-
-def main(args=None):
-    rclpy.init(args=args)
-    node = RobotStatusPublisher()
-    try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        node.destroy_node()
-        rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()
-```
-
-**File: zone_coordinator_service.py**
-
-```python
-#!/usr/bin/env python3
-"""
-Zone Coordinator Service for Multi-Robot System
-Manages robot assignments and coordinates tasks within warehouse zones
-Real-world use: Warehouse zone management and robot task allocation
-"""
-
-import rclpy
-from rclpy.node import Node
-from example_interfaces.srv import SetBool
-import random
-
-
-class ZoneCoordinatorService(Node):
-    """Service for coordinating robots within a specific warehouse zone"""
-    
-    def __init__(self):
-        super().__init__('zone_coordinator')
-        
-        # Declare parameters
-        self.declare_parameter('robot_id', 'AMR-UNKNOWN-000')
-        self.declare_parameter('zone_id', 'UNKNOWN-ZONE')
-        self.declare_parameter('robot_type', 'transport')
-        self.declare_parameter('max_capacity', 100.0)
-        
-        # Get parameters
-        self.robot_id = self.get_parameter('robot_id').value
-        self.zone_id = self.get_parameter('zone_id').value
-        self.robot_type = self.get_parameter('robot_type').value
-        self.max_capacity = self.get_parameter('max_capacity').value
-        
-        # Get namespace
-        self.namespace = self.get_namespace()
-        
-        # Create service
-        self.service = self.create_service(
-            SetBool,
-            'request_task',
-            self.request_task_callback
-        )
-        
-        self.tasks_assigned = 0
-        
-        self.get_logger().info('🎯 Zone Coordinator Service Started')
-        self.get_logger().info(f'Namespace: {self.namespace}')
-        self.get_logger().info(f'Robot ID: {self.robot_id}')
-        self.get_logger().info(f'Zone: {self.zone_id}')
-        self.get_logger().info(f'Service available at: {self.namespace}/request_task')
-    
-    def request_task_callback(self, request, response):
-        """Handle task request from robot"""
-        self.tasks_assigned += 1
-        
-        if request.data:
-            # Assign appropriate task based on robot type
-            task = self._assign_task()
-            response.success = True
-            response.message = (
-                f'Task assigned: {task} | '
-                f'Zone: {self.zone_id} | '
-                f'Total assigned: {self.tasks_assigned}'
-            )
-            
-            self.get_logger().info(
-                f'✅ Task #{self.tasks_assigned} assigned to {self.robot_id}: {task}'
-            )
-        else:
-            response.success = False
-            response.message = f'No task available in {self.zone_id}'
-            self.get_logger().warn(f'⚠️  No task available for {self.robot_id}')
-        
-        return response
-    
-    def _assign_task(self):
-        """Assign task based on robot type and zone"""
-        tasks = {
-            'transport': [
-                'PALLET-TRANSPORT',
-                'HEAVY-CARGO-MOVE',
-                'LOAD-TRUCK',
-                'UNLOAD-DOCK'
-            ],
-            'picker': [
-                'ORDER-PICKING',
-                'SHELF-RESTOCKING',
-                'ITEM-RETRIEVAL',
-                'INVENTORY-COUNT'
-            ],
-            'sorter': [
-                'PACKAGE-SORTING',
-                'ITEM-CLASSIFICATION',
-                'QUALITY-CHECK',
-                'DISPATCH-PREP'
-            ]
-        }
-        
-        robot_tasks = tasks.get(self.robot_type, tasks['transport'])
-        return random.choice(robot_tasks)
-
-
-def main(args=None):
-    rclpy.init(args=args)
-    node = ZoneCoordinatorService()
-    try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        node.destroy_node()
-        rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()
-```
-
-**File: fleet_monitor.py**
-
-```python
-#!/usr/bin/env python3
-"""
-Fleet Monitor for Multi-Robot System
-Monitors all robots across namespaces and provides fleet-wide statistics
-Real-world use: Central fleet management and monitoring dashboard
-"""
-
-import rclpy
-from rclpy.node import Node
-from std_msgs.msg import String
-import psutil
-import time
-
-
-class FleetMonitor(Node):
-    """Central fleet monitoring node"""
-    
-    def __init__(self):
-        super().__init__('fleet_monitor')
-        
-        # Declare parameters
-        self.declare_parameter('monitor_rate_hz', 0.5)
-        self.declare_parameter('fleet_id', 'WAREHOUSE-FLEET-A')
-        self.declare_parameter('num_robots', 3)
-        
-        # Get parameters
-        monitor_rate = self.get_parameter('monitor_rate_hz').value
-        self.fleet_id = self.get_parameter('fleet_id').value
-        self.num_robots = self.get_parameter('num_robots').value
-        
-        # Create publisher
-        self.publisher = self.create_publisher(String, '/fleet_status', 10)
-        
-        # Create timer
-        timer_period = 1.0 / monitor_rate
-        self.timer = self.create_timer(timer_period, self.timer_callback)
-        
-        self.monitor_count = 0
-        self.start_time = time.time()
-        
-        self.get_logger().info('📊 Fleet Monitor Started')
-        self.get_logger().info(f'Fleet ID: {self.fleet_id}')
-        self.get_logger().info(f'Monitoring {self.num_robots} robots')
-    
-    def timer_callback(self):
-        """Publish fleet status"""
-        self.monitor_count += 1
-        uptime = time.time() - self.start_time
-        
-        # Get system metrics
-        cpu_percent = psutil.cpu_percent()
-        memory = psutil.virtual_memory()
-        
-        msg = String()
-        msg.data = (
-            f'\n'
-            f'═══════════════════════════════════════\n'
-            f'  FLEET MONITORING DASHBOARD\n'
-            f'═══════════════════════════════════════\n'
-            f'Fleet ID: {self.fleet_id}\n'
-            f'Active Robots: {self.num_robots}\n'
-            f'System Uptime: {uptime:.1f}s\n'
-            f'Monitor Updates: #{self.monitor_count}\n'
-            f'\n'
-            f'System Resources:\n'
-            f'  CPU Usage: {cpu_percent}%\n'
-            f'  Memory Used: {memory.percent}%\n'
-            f'  Available RAM: {memory.available / (1024**3):.2f} GB\n'
-            f'═══════════════════════════════════════\n'
-        )
-        
-        self.publisher.publish(msg)
-        
-        if self.monitor_count % 5 == 0:
-            self.get_logger().info(
-                f'📈 Fleet Update #{self.monitor_count}: '
-                f'{self.num_robots} robots active, '
-                f'CPU={cpu_percent}%, '
-                f'MEM={memory.percent}%'
-            )
-
-
-def main(args=None):
-    rclpy.init(args=args)
-    node = FleetMonitor()
-    try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        node.destroy_node()
-        rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()
-```
+Or create them manually with the code from the files in exercise_2/nodes/.
 
 **Update setup.py:**
 
@@ -1232,6 +872,56 @@ entry_points={
         "07_fleet_monitor = ce_robot.fleet_monitor:main",
     ],
 },
+```
+
+---
+
+### **🧪 Test Individual Nodes**
+
+**Test Robot Status Publisher:**
+```bash
+ros2 run ce_robot 07_robot_status --ros-args \
+  -p robot_id:=AMR-TEST-001 \
+  -p robot_type:=transport \
+  -p zone_id:=TEST-ZONE \
+  -p fleet_number:=1 \
+  -p max_payload_kg:=500.0 \
+  -p battery_level:=85.0 \
+  -p current_location:=TEST-LOCATION \
+  -p assigned_task:=TEST-TASK \
+  -p status_rate_hz:=1.0
+
+# In another terminal, monitor the status
+ros2 topic echo /robot_status
+```
+
+**Test Zone Coordinator Service:**
+```bash
+# Terminal 1: Run the service
+ros2 run ce_robot 07_zone_coordinator --ros-args \
+  -p robot_id:=AMR-TEST-002 \
+  -p zone_id:=WAREHOUSE-A \
+  -p robot_type:=picker \
+  -p max_capacity:=50.0
+
+# Terminal 2: Call the service
+ros2 service call /request_task example_interfaces/srv/SetBool "{data: true}"
+
+# Expected: Task assignment with task type and zone information
+```
+
+**Test Fleet Monitor:**
+```bash
+# Terminal 1: Run the monitor
+ros2 run ce_robot 07_fleet_monitor --ros-args \
+  -p fleet_id:=TEST-FLEET \
+  -p num_robots:=3 \
+  -p monitor_rate_hz:=0.5
+
+# Terminal 2: Monitor fleet status
+ros2 topic echo /fleet_status
+
+# Expected: System metrics (CPU, memory, uptime) and fleet information
 ```
 
 ---
@@ -1386,62 +1076,7 @@ def generate_launch_description():
     ])
 ```
 
-### **📝 Step 4: Update Package Configuration**
-
-**Update CMakeLists.txt:**
-
-Add the multi-robot launch file to your `ce_robot_launch/CMakeLists.txt`:
-
-```cmake
-install(
-  PROGRAMS
-    launch/conditional_robot_launch.py
-    launch/multi_robot_launch.py
-    launch/navigation_service.py
-    launch/task_queue_action.py
-    launch/debug_monitor.py
-  DESTINATION lib/${PROJECT_NAME}
-)
-```
-
-**Or update setup.py (for Python packages):**
-
-```python
-from setuptools import setup
-import os
-from glob import glob
-
-package_name = 'ce_robot_launch'
-
-setup(
-    name=package_name,
-    version='0.0.0',
-    packages=[package_name],
-    data_files=[
-        ('share/ament_index/resource_index/packages',
-            ['resource/' + package_name]),
-        ('share/' + package_name, ['package.xml']),
-        (os.path.join('share', package_name, 'launch'), 
-            glob('launch/*.py')),
-    ],
-    install_requires=['setuptools'],
-    zip_safe=True,
-    maintainer='student',
-    maintainer_email='student@ksu.ac.th',
-    description='ROS 2 Launch Files Lab',
-    license='Apache License 2.0',
-    tests_require=['pytest'],
-    entry_points={
-        'console_scripts': [
-            "07_navigate_service = ce_robot.navigation_service:main",
-            "07_task_queue_action = ce_robot.task_queue_action:main",
-            "07_debug_monitor = ce_robot.debug_monitor:main",
-        ],
-    },
-)
-```
-
-### **🧪 Step 5: Build and Test**
+### **🧪 Step 4: Build and Test**
 
 **Build both packages:**
 ```bash
@@ -1464,57 +1099,14 @@ ros2 pkg executables ce_robot | grep 07_
 
 ---
 
-### **🧪 Test Individual Nodes (Standalone)**
+### **🧪 Testing Exercise 2**
 
-**Test Robot Status Publisher:**
+**Launch the multi-robot system:**
 ```bash
-ros2 run ce_robot 07_robot_status --ros-args \
-  -p robot_id:=AMR-TEST-001 \
-  -p robot_type:=transport \
-  -p zone_id:=TEST-ZONE \
-  -p fleet_number:=1 \
-  -p max_payload_kg:=500.0 \
-  -p battery_level:=85.0 \
-  -p current_location:=TEST-LOCATION \
-  -p assigned_task:=TEST-TASK \
-  -p status_rate_hz:=1.0
-
-# In another terminal, monitor the status
-ros2 topic echo /robot_status
+ros2 launch ce_robot_launch multi_robot_launch.py
 ```
 
-**Test Zone Coordinator Service:**
-```bash
-# Terminal 1: Run the service
-ros2 run ce_robot 07_zone_coordinator --ros-args \
-  -p robot_id:=AMR-TEST-002 \
-  -p zone_id:=WAREHOUSE-A \
-  -p robot_type:=picker \
-  -p max_capacity:=50.0
-
-# Terminal 2: Call the service
-ros2 service call /request_task example_interfaces/srv/SetBool "{data: true}"
-
-# Expected: Task assignment with task type and zone information
-```
-
-**Test Fleet Monitor:**
-```bash
-# Terminal 1: Run the monitor
-ros2 run ce_robot 07_fleet_monitor --ros-args \
-  -p fleet_id:=TEST-FLEET \
-  -p num_robots:=3 \
-  -p monitor_rate_hz:=0.5
-
-# Terminal 2: Monitor fleet status
-ros2 topic echo /fleet_status
-
-# Expected: System metrics (CPU, memory, uptime) and fleet information
-```
-
----
-
-### **🧪 Test Individual Robot Namespaces**
+**Test Individual Robot Namespaces:**
 
 **Launch the multi-robot system:**
 ```bash
@@ -1561,19 +1153,6 @@ ros2 service call /robot3/cal_rect ce_robot_interfaces/srv/CalRectangle \
 
 ros2 action send_goal /robot3/count_until ce_robot_interfaces/action/CountUntil \
   "{target_number: 5, period: 0.5}" --feedback
-```
-
----
-
-### **🧪 Testing Exercise 2**
-
-**Build and launch:**
-```bash
-cd ~/ros2_ws
-colcon build --packages-select ce_robot_launch --symlink-install
-source install/setup.bash
-
-ros2 launch ce_robot_launch multi_robot_launch.py
 ```
 
 **Verify namespaced nodes:**
