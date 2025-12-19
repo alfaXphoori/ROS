@@ -1,0 +1,48 @@
+[Unit]
+Description=Warehouse Robot Monitoring System
+Documentation=https://github.com/alfaXphoori/ROS/tree/main/07_Launch
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=robot
+Group=robot
+WorkingDirectory=/home/robot/ros2_ws
+
+# Environment variables
+Environment="ROS_DOMAIN_ID=42"
+Environment="ROBOT_ID=AMR-PROD-001"
+Environment="WAREHOUSE_ZONE=MAIN-FLOOR"
+Environment="RMW_IMPLEMENTATION=rmw_fastrtps_cpp"
+
+# Source ROS 2 setup
+ExecStartPre=/bin/bash -c "source /opt/ros/jazzy/setup.bash && source /home/robot/ros2_ws/install/setup.bash"
+
+# Launch the monitoring system
+ExecStart=/bin/bash -c "source /opt/ros/jazzy/setup.bash && \
+                        source /home/robot/ros2_ws/install/setup.bash && \
+                        ros2 launch ce_robot_launch monitored_system_launch.py"
+
+# Restart policy
+Restart=on-failure
+RestartSec=10s
+StartLimitBurst=3
+StartLimitInterval=5min
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=robot-monitor
+
+# Security
+PrivateTmp=true
+NoNewPrivileges=true
+
+# Resource limits
+LimitNOFILE=4096
+CPUQuota=80%
+MemoryLimit=2G
+
+[Install]
+WantedBy=multi-user.target

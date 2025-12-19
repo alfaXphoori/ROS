@@ -227,7 +227,56 @@ Failure Scenarios:
 └─ Navigation fails         → SHUTDOWN ALL (safety critical!)
 ```
 
-### **Exercise 4: YAML Config & Composition (20 min)**
+### **Exercise 4: Quality Control Inspection (30 min)**
+
+```
+Manufacturing QC System - Differentiated Criticality:
+┌──────────────────────────────────────────────────────────┐
+│          PRODUCTION LINE QC STATION                      │
+├──────────────────────────────────────────────────────────┤
+│                                                          │
+│  🎥 Vision Inspector (CRITICAL)                          │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │ Camera-based defect detection                      │  │
+│  │ ┌──────────────┐                                   │  │
+│  │ │ OnProcessExit│──> ❌ "Vision system failed!"     │  │
+│  │ └──────────────┘        │                          │  │
+│  │                         └─> 🛑 EMERGENCY STOP      │  │
+│  │                             Halt production line   │  │
+│  │                             (Quality risk!)        │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                          │
+│  🔬 Sensor Fusion (HIGH)                                 │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │ Multi-sensor validation (thermal + weight + laser) │  │
+│  │ ┌──────────────┐                                   │  │
+│  │ │ OnProcessExit│──> ⚠️ "Sensor fusion crashed!"    │  │
+│  │ └──────────────┘        │                          │  │
+│  │                         ├─> Auto-restart (3 sec)   │  │
+│  │                         ├─> Attempt 1/3            │  │
+│  │                         ├─> Attempt 2/3            │  │
+│  │                         └─> Alert maintenance@3    │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                          │
+│  📊 Report Generator (NON-CRITICAL)                      │
+│  ┌────────────────────────────────────────────────────┐  │
+│  │ Quality reports and analytics                      │  │
+│  │ ┌──────────────┐                                   │  │
+│  │ │ OnProcessExit│──> ⚠️ "Reports suspended"         │  │
+│  │ └──────────────┘        │                          │  │
+│  │                         └─> Log only, continue     │  │
+│  │                             Buffer data to storage │  │
+│  └────────────────────────────────────────────────────┘  │
+│                                                          │
+└──────────────────────────────────────────────────────────┘
+
+Quality Risk Matrix:
+├─ Vision failure     → CRITICAL: Stop line (defects may pass)
+├─ Sensor degradation → HIGH: Auto-restart 3x (accuracy loss)
+└─ Database issues    → NON-CRITICAL: Buffer reports (no risk)
+```
+
+### **Exercise 5: YAML Config & Composition (20 min)**
 
 ```
 Configuration Management:
@@ -951,7 +1000,8 @@ Open the file in your editor and add the following code:
 #!/usr/bin/env python3
 """
 Exercise 2: Multi-Robot Launch with Namespaces
-Launches 3 robot instances with isolated namespaces
+Launches 3 robot instances with isolated namespaces using custom Exercise 2 nodes
+Real-world scenario: Multi-zone warehouse with independent robot operations
 """
 
 from launch import LaunchDescription
@@ -961,120 +1011,143 @@ from launch_ros.actions import Node, PushRosNamespace
 
 
 def generate_launch_description():
-    """Generate launch description for multi-robot system"""
+    """Generate launch description for multi-robot system with namespace isolation"""
     
     # Declare arguments
     num_robots_arg = DeclareLaunchArgument(
         'num_robots',
         default_value='3',
-        description='Number of robots to launch'
+        description='Number of robots to launch (1-3)'
+    )
+    
+    fleet_id_arg = DeclareLaunchArgument(
+        'fleet_id',
+        default_value='WAREHOUSE-FLEET-A',
+        description='Fleet identifier'
+    )
+    
+    # Fleet Monitor - Central monitoring node (no namespace, monitors all robots)
+    fleet_monitor_node = Node(
+        package='ce_robot',
+        executable='07_fleet_monitor',
+        name='fleet_monitor',
+        output='screen',
+        parameters=[
+            {'fleet_id': LaunchConfiguration('fleet_id')},
+            {'num_robots': LaunchConfiguration('num_robots')},
+            {'monitor_rate_hz': 0.5},
+        ],
     )
     
     # Robot 1: Heavy transport robot in loading dock
+    # Real-world: Handles pallets and heavy cargo, high priority operations
     robot1_group = GroupAction([
         PushRosNamespace('robot1'),
         Node(
             package='ce_robot',
-            executable='05_robot_tag_param',
-            name='robot_tag_publisher',
+            executable='07_robot_status',
+            name='robot_status_publisher',
             output='screen',
             parameters=[
                 {'robot_id': 'AMR-TRANSPORT-HEAVY-001'},
                 {'robot_type': 'transport'},
                 {'zone_id': 'WAREHOUSE-A-LOADING-DOCK'},
                 {'fleet_number': 1},
-                {'tag_publish_rate': 2.0},
                 {'max_payload_kg': 1000.0},  # Heavy-duty transport
                 {'current_location': 'DOCK-A-STATION-5'},
                 {'assigned_task': 'PALLET-TRANSPORT-TO-STORAGE'},
-                {'assigned_operator': 'SHIFT-SUPERVISOR-A'},
                 {'battery_level': 78.0},
-                {'priority_level': 8},  # High priority
-                {'safety_certified': True},
+                {'status_rate_hz': 2.0},
             ],
         ),
         Node(
             package='ce_robot',
-            executable='04_CalRect_server',
-            name='rect_server',
+            executable='07_zone_coordinator',
+            name='zone_coordinator',
             output='screen',
+            parameters=[
+                {'robot_id': 'AMR-TRANSPORT-HEAVY-001'},
+                {'zone_id': 'WAREHOUSE-A-LOADING-DOCK'},
+                {'robot_type': 'transport'},
+                {'max_capacity': 1000.0},
+            ],
         ),
     ])
     
     # Robot 2: Picker robot with low battery - returning to charging
+    # Real-world: Light picker for order fulfillment, needs charging
     robot2_group = GroupAction([
         PushRosNamespace('robot2'),
         Node(
             package='ce_robot',
-            executable='05_robot_tag_param',
-            name='robot_tag_publisher',
+            executable='07_robot_status',
+            name='robot_status_publisher',
             output='screen',
             parameters=[
                 {'robot_id': 'AMR-PICKER-LIGHT-002'},
                 {'robot_type': 'picker'},
                 {'zone_id': 'WAREHOUSE-B-PICKING-AREA'},
                 {'fleet_number': 2},
-                {'tag_publish_rate': 1.5},
                 {'max_payload_kg': 50.0},  # Light picker
                 {'current_location': 'AISLE-B-12-SHELF-3'},
                 {'assigned_task': 'RETURN-TO-CHARGING-STATION'},
-                {'assigned_operator': 'AUTO'},  # Autonomous operation
                 {'battery_level': 18.5},  # Low battery - needs charging!
-                {'priority_level': 3},  # Lower priority - maintenance task
-                {'safety_certified': True},
-                {'status': 'low_battery_return'},
+                {'status_rate_hz': 1.5},
             ],
         ),
         Node(
             package='ce_robot',
-            executable='06_count_until_server',
-            name='count_server',
+            executable='07_zone_coordinator',
+            name='zone_coordinator',
             output='screen',
+            parameters=[
+                {'robot_id': 'AMR-PICKER-LIGHT-002'},
+                {'zone_id': 'WAREHOUSE-B-PICKING-AREA'},
+                {'robot_type': 'picker'},
+                {'max_capacity': 50.0},
+            ],
         ),
     ])
     
     # Robot 3: Multi-function delivery robot at sorting station
+    # Real-world: Medium capacity, active delivery operations
     robot3_group = GroupAction([
         PushRosNamespace('robot3'),
         Node(
             package='ce_robot',
-            executable='05_robot_tag_param',
-            name='robot_tag_publisher',
+            executable='07_robot_status',
+            name='robot_status_publisher',
             output='screen',
             parameters=[
                 {'robot_id': 'AMR-DELIVERY-MULTI-003'},
                 {'robot_type': 'transport'},
                 {'zone_id': 'WAREHOUSE-C-SORTING-STATION'},
                 {'fleet_number': 3},
-                {'tag_publish_rate': 3.0},  # Fast updates for active operations
                 {'max_payload_kg': 300.0},  # Medium capacity
                 {'current_location': 'SORT-C-CONVEYOR-7'},
                 {'assigned_task': 'PACKAGE-DELIVERY-ROUTE-12'},
-                {'assigned_operator': 'DISPATCH-COORD-C'},
                 {'battery_level': 92.0},  # Fully charged, ready for operations
-                {'priority_level': 9},  # Critical delivery route
-                {'safety_certified': True},
-                {'status': 'active_delivery'},
-                {'operation_hours': 1847.3},  # Veteran robot
-                {'firmware_version': 'v3.2.1'},
+                {'status_rate_hz': 3.0},  # Fast updates for active operations
             ],
         ),
         Node(
             package='ce_robot',
-            executable='04_CalRect_server',
-            name='rect_server',
+            executable='07_zone_coordinator',
+            name='zone_coordinator',
             output='screen',
-        ),
-        Node(
-            package='ce_robot',
-            executable='06_count_until_server',
-            name='count_server',
-            output='screen',
+            parameters=[
+                {'robot_id': 'AMR-DELIVERY-MULTI-003'},
+                {'zone_id': 'WAREHOUSE-C-SORTING-STATION'},
+                {'robot_type': 'transport'},
+                {'max_capacity': 300.0},
+            ],
         ),
     ])
     
     return LaunchDescription([
         num_robots_arg,
+        fleet_id_arg,
+        fleet_monitor_node,
         robot1_group,
         robot2_group,
         robot3_group,
@@ -1279,15 +1352,335 @@ Your launch file automatically:
 4. Logs the incident for maintenance team
 5. If critical navigation fails → Immediately stops robot for safety
 
+> **📦 Reference Files Available:** All complete files for this exercise are available in `07_Launch/src/exercise_3/` for reference.
 
-### **📁 File: monitored_system_launch.py**
+### **📝 Step 1: Create Production Monitoring Nodes**
+
+Exercise 3 uses custom production-grade nodes that simulate real warehouse robot systems. These nodes are available in `07_Launch/src/exercise_3/nodes/`:
+
+**Create the node files:**
+```bash
+cd ~/ros2_ws/src/ce_robot/ce_robot
+touch battery_monitor_node.py navigation_controller_node.py task_processor_node.py
+chmod +x battery_monitor_node.py navigation_controller_node.py task_processor_node.py
+```
+
+Copy the node implementations from `07_Launch/src/exercise_3/nodes/`:
+- `battery_monitor_node.py` - Real-time battery monitoring (HIGH criticality)
+- `navigation_controller_node.py` - Safety-critical navigation (CRITICAL)
+- `task_processor_node.py` - Warehouse task queue (NON-CRITICAL)
+
+**Update setup.py:**
+
+Edit `~/ros2_ws/src/ce_robot/setup.py` and add the new executables:
+
+```python
+entry_points={
+    'console_scripts': [
+        # ... existing entries ...
+        '07_battery_monitor = ce_robot.battery_monitor_node:main',
+        '07_navigation_controller = ce_robot.navigation_controller_node:main',
+        '07_task_processor = ce_robot.task_processor_node:main',
+    ],
+},
+```
+
+**Build the package:**
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot --symlink-install
+source install/setup.bash
+```
+
+No additional interface creation required - these nodes use String messages for JSON-formatted data.
+
+---
+
+### **📝 Step 2: Create Production Configuration Files**
+
+For production robot systems, create configuration files for failure tracking, monitoring policies, and systemd integration.
+
+**Create configuration directory:**
+```bash
+mkdir -p ~/ros2_ws/src/ce_robot_launch/config
+cd ~/ros2_ws/src/ce_robot_launch/config
+```
+
+Copy configuration files from `07_Launch/src/exercise_3/config/`:
+- `failure_counter.py` - Persistent failure tracking with JSON storage
+- `robot_monitoring.yaml` - Centralized monitoring configuration
+- `robot_monitor.service` - Systemd service for 24/7 operation
+
+**Create monitoring configuration file:**
+```bash
+touch robot_monitoring.yaml
+```
+
+**Add the following content to `robot_monitoring.yaml`:**
+
+```yaml
+# Robot Monitoring Configuration
+# Used in production deployments for failure tracking and recovery
+
+monitoring:
+  # Failure tracking settings
+  failure_log_dir: "/tmp/robot_failures"
+  max_restart_attempts: 3
+  restart_delay_seconds: 3.0
+  
+  # Critical nodes (system shuts down on failure)
+  critical_nodes:
+    - navigation_service
+    - safety_system
+    - emergency_stop
+  
+  # Non-critical nodes (auto-restart on failure)
+  non_critical_nodes:
+    - battery_monitor
+    - camera_driver
+    - wifi_manager
+  
+  # Alert thresholds
+  alerts:
+    consecutive_failures_threshold: 3
+    alert_email: "maintenance@warehouse.com"
+    alert_sms: "+1-555-0123"
+  
+  # Health check intervals (seconds)
+  health_check:
+    battery_monitor: 5.0
+    navigation: 1.0
+    camera: 10.0
+```
+
+**Create failure counter script:**
+```bash
+touch failure_counter.py
+chmod +x failure_counter.py
+```
+
+**Add the following content to `failure_counter.py`:**
 
 ```python
 #!/usr/bin/env python3
 """
-Exercise 3: Event Handlers and Monitoring
-Implements node failure detection and automatic restart
+Failure Counter for Production Robot Systems
+Tracks node failures and manages restart policies
 """
+
+import os
+import json
+from datetime import datetime
+
+class FailureCounter:
+    """Track and manage node failure counts for production robots"""
+    
+    def __init__(self, log_dir="/tmp/robot_failures"):
+        self.log_dir = log_dir
+        os.makedirs(log_dir, exist_ok=True)
+    
+    def get_failure_count(self, node_name):
+        """Read failure count from file"""
+        filepath = os.path.join(self.log_dir, f"{node_name}_failures.json")
+        try:
+            with open(filepath, 'r') as f:
+                data = json.load(f)
+                return data.get('count', 0)
+        except FileNotFoundError:
+            return 0
+    
+    def increment_failure_count(self, node_name):
+        """Increment and save failure count with timestamp"""
+        filepath = os.path.join(self.log_dir, f"{node_name}_failures.json")
+        count = self.get_failure_count(node_name) + 1
+        
+        data = {
+            'node_name': node_name,
+            'count': count,
+            'last_failure': datetime.now().isoformat(),
+            'robot_id': os.getenv('ROBOT_ID', 'UNKNOWN')
+        }
+        
+        with open(filepath, 'w') as f:
+            json.dump(data, f, indent=2)
+        
+        return count
+    
+    def reset_failure_count(self, node_name):
+        """Reset failure count after successful recovery"""
+        filepath = os.path.join(self.log_dir, f"{node_name}_failures.json")
+        if os.path.exists(filepath):
+            os.remove(filepath)
+    
+    def log_failure(self, node_name, error_message=""):
+        """Log detailed failure information"""
+        logfile = os.path.join(self.log_dir, "failure_log.txt")
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        with open(logfile, 'a') as f:
+            f.write(f"[{timestamp}] {node_name} FAILED - {error_message}\\n")
+
+# Example usage in launch file
+if __name__ == "__main__":
+    counter = FailureCounter()
+    
+    # Simulate battery monitor failure
+    count = counter.increment_failure_count("battery_monitor")
+    print(f"Battery monitor failed {count} time(s)")
+    
+    if count >= 3:
+        print("⚠️ ALERT: Battery monitor failed 3 times! Manual intervention required.")
+        counter.log_failure("battery_monitor", "Persistent CAN bus timeout")
+    else:
+        print(f"Attempting auto-restart ({count}/3)...")
+```
+
+**Create systemd service file for production deployment:**
+```bash
+touch robot_monitor.service
+```
+
+**Add the following content to `robot_monitor.service`:**
+
+```ini
+# Systemd service file for production robot monitoring
+# Install to: /etc/systemd/system/robot_monitor.service
+# Usage:
+#   sudo cp robot_monitor.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable robot_monitor.service
+#   sudo systemctl start robot_monitor.service
+
+[Unit]
+Description=ROS 2 Robot Monitoring System
+After=network.target
+
+[Service]
+Type=simple
+User=robot
+Group=robot
+WorkingDirectory=/home/robot/ros2_ws
+
+# Set robot identification
+Environment="ROBOT_ID=AMR-PROD-001"
+Environment="WAREHOUSE_ZONE=MAIN-FLOOR"
+Environment="ROS_DOMAIN_ID=42"
+
+# Source ROS 2 setup
+ExecStartPre=/bin/bash -c 'source /opt/ros/humble/setup.bash && source /home/robot/ros2_ws/install/setup.bash'
+
+# Launch the monitored system
+ExecStart=/bin/bash -c 'source /opt/ros/humble/setup.bash && source /home/robot/ros2_ws/install/setup.bash && ros2 launch ce_robot_launch monitored_system_launch.py'
+
+# Restart policy
+Restart=on-failure
+RestartSec=10
+StartLimitInterval=5min
+StartLimitBurst=3
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=robot_monitor
+
+[Install]
+WantedBy=multi-user.target
+```
+
+**Verify new nodes are available:**
+```bash
+ros2 pkg executables ce_robot | grep -E '07_battery_monitor|07_navigation_controller|07_task_processor'
+```
+
+**Expected output:**
+```
+ce_robot 07_battery_monitor
+ce_robot 07_navigation_controller
+ce_robot 07_task_processor
+```
+
+---
+
+### **🧪 Test Individual Nodes**
+
+**Test Battery Monitor Node:**
+```bash
+# Terminal 1: Run the battery monitor
+ros2 run ce_robot 07_battery_monitor --ros-args \
+  -p robot_id:=AMR-BATTERY-001 \
+  -p battery_capacity_ah:=100.0 \
+  -p battery_voltage_nominal:=48.0 \
+  -p monitor_rate_hz:=2.0 \
+  -p simulate_failure:=false
+```
+
+# Terminal 2: Monitor battery status
+```bash
+ros2 topic echo /battery_status
+```
+
+# Expected: JSON-formatted battery data (voltage, current, temperature, SoC)
+
+**Test Navigation Controller Node:**
+
+# Terminal 1: Run the navigation controller
+```bash
+ros2 run ce_robot 07_navigation_controller --ros-args \
+  -p robot_id:=AMR-NAV-001 \
+  -p max_speed_ms:=2.5 \
+  -p safety_radius_m:=0.75 \
+  -p simulate_failure:=false
+```
+
+# Terminal 2: Monitor navigation status
+```bash
+ros2 topic echo /navigation_status
+```
+
+# Terminal 3: Start navigation
+```bash
+ros2 service call /navigation_command example_interfaces/srv/SetBool "{data: true}"
+```
+
+# Expected: Real-time position updates, obstacle detection, path planning
+
+**Test Task Processor Node:**
+
+# Terminal 1: Run the task processor
+```bash
+ros2 run ce_robot 07_task_processor --ros-args \
+  -p robot_id:=AMR-TASK-001 \
+  -p robot_type:=picker \
+  -p max_tasks_per_hour:=50 \
+  -p simulate_failure:=false
+```
+
+# Terminal 2: Monitor task status
+```bash
+ros2 topic echo /task_status
+```
+
+# Expected: Task queue updates (completed, pending, failed), performance metrics
+
+---
+
+### **📝 Step 3: Create Production Monitoring Launch File**
+
+The launch file from `src/exercise_3/launch/monitored_system_launch.py` demonstrates production-grade event handling with intelligent failure recovery.
+
+**Location:** `~/ros2_ws/src/ce_robot_launch/launch/monitored_system_launch.py`
+
+```python
+#!/usr/bin/env python3
+"""
+Exercise 3: Event Handlers and Production Monitoring Launch File
+Implements node failure detection and automatic restart with production-grade failure tracking
+Real-world scenario: 24/7 warehouse robot with intelligent failure recovery
+"""
+
+import os
+import sys
+from pathlib import Path
 
 from launch import LaunchDescription
 from launch.actions import (
@@ -1295,16 +1688,30 @@ from launch.actions import (
     LogInfo,
     RegisterEventHandler,
     EmitEvent,
-    TimerAction
+    TimerAction,
+    OpaqueFunction
 )
 from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.events import Shutdown
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
+# Import the failure counter (add config directory to path)
+config_dir = Path(__file__).parent.parent / 'config'
+sys.path.insert(0, str(config_dir))
+
+try:
+    from failure_counter import FailureCounter
+except ImportError:
+    print("⚠️ Warning: failure_counter.py not found. Using basic monitoring.")
+    FailureCounter = None
+
 
 def generate_launch_description():
-    """Generate launch description with event monitoring"""
+    """Generate launch description with event monitoring and failure tracking"""
+    
+    # Initialize failure counter for production monitoring
+    failure_counter = FailureCounter() if FailureCounter else None
     
     # Arguments
     enable_auto_restart_arg = DeclareLaunchArgument(
@@ -1315,112 +1722,193 @@ def generate_launch_description():
     
     critical_node_arg = DeclareLaunchArgument(
         'critical_node',
-        default_value='publisher',
+        default_value='navigation',
         description='Critical node that triggers shutdown if it fails',
-        choices=['publisher', 'service', 'action', 'none']
+        choices=['battery', 'navigation', 'task', 'none']
+    )
+    
+    max_restart_attempts_arg = DeclareLaunchArgument(
+        'max_restart_attempts',
+        default_value='3',
+        description='Maximum restart attempts before escalation'
+    )
+    
+    simulate_failures_arg = DeclareLaunchArgument(
+        'simulate_failures',
+        default_value='false',
+        description='Enable simulated failures for testing event handlers',
+        choices=['true', 'false']
     )
     
     # Get configurations
     enable_auto_restart = LaunchConfiguration('enable_auto_restart')
     critical_node = LaunchConfiguration('critical_node')
+    max_restart_attempts = LaunchConfiguration('max_restart_attempts')
+    simulate_failures = LaunchConfiguration('simulate_failures')
     
-    # Critical publisher node - Battery monitoring system
-    # In real robots, losing battery data is dangerous!
-    publisher_node = Node(
+    # Battery Monitor Node - HIGH criticality (auto-restart)
+    battery_monitor_node = Node(
         package='ce_robot',
-        executable='05_robot_tag_param',
-        name='robot_tag_publisher',
+        executable='07_battery_monitor',
+        name='battery_monitor',
         output='screen',
         parameters=[
             {'robot_id': 'AMR-BATTERY-MONITOR-001'},
             {'robot_type': 'transport'},
             {'zone_id': 'WAREHOUSE-MAIN-FLOOR'},
-            {'fleet_number': 1},
-            {'tag_publish_rate': 2.0},
-            {'max_payload_kg': 500.0},
-            {'current_location': 'MAIN-AISLE-4'},
-            {'battery_level': 65.0},
-            {'status': 'operational'},
-            {'priority_level': 8},
-            # Battery monitoring parameters
-            {'battery_voltage': 48.2},  # Volts
-            {'battery_current': -15.3},  # Amps (negative = discharging)
-            {'battery_temp': 32.5},  # Celsius
+            {'battery_capacity_ah': 100.0},
+            {'battery_voltage_nominal': 48.0},
+            {'low_battery_threshold': 20.0},
+            {'critical_battery_threshold': 10.0},
+            {'monitor_rate_hz': 2.0},
+            {'simulate_failure': simulate_failures},
         ],
     )
     
-    # Service node
-    service_node = Node(
+    # Navigation Controller Node - CRITICAL (shutdown on failure)
+    navigation_controller_node = Node(
         package='ce_robot',
-        executable='04_CalRect_server',
-        name='rect_server',
+        executable='07_navigation_controller',
+        name='navigation_controller',
         output='screen',
+        parameters=[
+            {'robot_id': 'AMR-NAV-CONTROLLER-001'},
+            {'robot_type': 'transport'},
+            {'zone_id': 'WAREHOUSE-MAIN-FLOOR'},
+            {'max_speed_ms': 2.5},
+            {'safety_radius_m': 0.75},
+            {'lidar_range_m': 20.0},
+            {'status_rate_hz': 1.0},
+            {'simulate_failure': simulate_failures},
+        ],
     )
     
-    # Action node
-    action_node = Node(
+    # Task Processor Node - NON-CRITICAL (log only)
+    task_processor_node = Node(
         package='ce_robot',
-        executable='06_count_until_server',
-        name='count_server',
+        executable='07_task_processor',
+        name='task_processor',
         output='screen',
+        parameters=[
+            {'robot_id': 'AMR-TASK-PROCESSOR-001'},
+            {'robot_type': 'picker'},
+            {'zone_id': 'WAREHOUSE-PICKING-AREA'},
+            {'max_tasks_per_hour': 50},
+            {'process_rate_hz': 0.5},
+            {'simulate_failure': simulate_failures},
+        ],
     )
     
-    # Event handler: Log when publisher starts
-    publisher_start_handler = RegisterEventHandler(
+    # Event handler: Log when battery monitor starts
+    battery_start_handler = RegisterEventHandler(
         OnProcessStart(
-            target_action=publisher_node,
+            target_action=battery_monitor_node,
             on_start=[
-                LogInfo(msg='✅ Robot Tag Publisher started successfully'),
+                LogInfo(msg='✅ Battery Monitor started successfully'),
             ]
         )
     )
     
-    # Event handler: React when publisher exits
-    publisher_exit_handler = RegisterEventHandler(
-        OnProcessExit(
-            target_action=publisher_node,
-            on_exit=[
-                LogInfo(msg='⚠️  Robot Tag Publisher exited! Attempting restart in 3 seconds...'),
+    # Event handler: Battery monitor exit with intelligent failure tracking
+    def handle_battery_exit(event, context):
+        """Handle battery monitor exit with failure counting and escalation"""
+        if failure_counter:
+            node_name = 'battery_monitor'
+            count = failure_counter.increment_failure_count(node_name)
+            failure_counter.log_failure(node_name, "Battery monitoring system crashed")
+            
+            if count >= 3:
+                return [
+                    LogInfo(msg=f'❌ CRITICAL: Battery monitor failed {count} times! Manual intervention required.'),
+                    LogInfo(msg='⚠️ Alerting maintenance team...'),
+                    LogInfo(msg='📧 Email sent to: maintenance@warehouse.com'),
+                    LogInfo(msg='📱 SMS alert sent to on-call engineer'),
+                    EmitEvent(event=Shutdown(reason=f'Persistent node failure: {node_name}'))
+                ]
+            else:
+                return [
+                    LogInfo(msg=f'⚠️ Battery Monitor exited! Attempt {count}/3. Restarting in 3 seconds...'),
+                    LogInfo(msg=f'📊 Failure logged with robot tracking ID'),
+                    TimerAction(
+                        period=3.0,
+                        actions=[
+                            Node(
+                                package='ce_robot',
+                                executable='07_battery_monitor',
+                                name='battery_monitor',
+                                output='screen',
+                                parameters=[
+                                    {'robot_id': f'AMR-BATTERY-MONITOR-RESTART-{count}'},
+                                    {'robot_type': 'transport'},
+                                    {'zone_id': 'WAREHOUSE-RECOVERY'},
+                                    {'battery_capacity_ah': 100.0},
+                                    {'monitor_rate_hz': 2.0},
+                                    {'simulate_failure': False},  # Don't simulate on restart
+                                ],
+                            ),
+                        ]
+                    ),
+                ]
+        else:
+            # Fallback without failure counter
+            return [
+                LogInfo(msg='⚠️ Battery Monitor exited! Attempting restart in 3 seconds...'),
                 TimerAction(
                     period=3.0,
                     actions=[
                         Node(
                             package='ce_robot',
-                            executable='05_robot_tag_param',
-                            name='robot_tag_publisher_restart',
+                            executable='07_battery_monitor',
+                            name='battery_monitor',
                             output='screen',
                             parameters=[
-                                {'robot_id': 'ROBOT-MONITOR-001-RESTART'},
+                                {'robot_id': 'AMR-BATTERY-MONITOR-RESTART'},
                                 {'robot_type': 'transport'},
-                                {'zone_id': 'WAREHOUSE-MONITOR'},
-                                {'fleet_number': 1},
-                                {'tag_publish_rate': 2.0},
+                                {'monitor_rate_hz': 2.0},
                             ],
                         ),
                     ]
                 ),
             ]
+    
+    battery_exit_handler = RegisterEventHandler(
+        OnProcessExit(
+            target_action=battery_monitor_node,
+            on_exit=[OpaqueFunction(function=handle_battery_exit)]
         )
     )
     
-    # Event handler: Log when service starts
-    service_start_handler = RegisterEventHandler(
+    # Event handler: Navigation controller start
+    navigation_start_handler = RegisterEventHandler(
         OnProcessStart(
-            target_action=service_node,
+            target_action=navigation_controller_node,
             on_start=[
-                LogInfo(msg='✅ Rectangle Service started successfully'),
+                LogInfo(msg='✅ Navigation Controller started successfully'),
+                LogInfo(msg='🗺️ Safety systems online - collision avoidance active'),
             ]
         )
     )
     
-    # Event handler: Critical service failure triggers shutdown
+    # Event handler: CRITICAL navigation controller failure
+    def handle_navigation_exit(event, context):
+        """Handle critical navigation controller failure - immediate shutdown"""
+        if failure_counter:
+            node_name = 'navigation_controller'
+            failure_counter.log_failure(
+                node_name, 
+                "CRITICAL: Navigation controller crashed - SAFETY RISK!"
+            )
+        
+        return [
+            LogInfo(msg='❌ CRITICAL: Rectangle Service failed! Shutting down system...'),
+            LogInfo(msg='🚨 SAFETY ALERT: Navigation compromised - emergency stop initiated'),
+            EmitEvent(event=Shutdown(reason='Critical service failure - safety system')),
+        ]
+    
     service_exit_handler = RegisterEventHandler(
         OnProcessExit(
             target_action=service_node,
-            on_exit=[
-                LogInfo(msg='❌ CRITICAL: Rectangle Service failed! Shutting down system...'),
-                EmitEvent(event=Shutdown(reason='Critical service failure')),
-            ]
+            on_exit=[OpaqueFunction(function=handle_service_exit)]
         )
     )
     
@@ -1447,60 +1935,273 @@ def generate_launch_description():
         # Arguments
         enable_auto_restart_arg,
         critical_node_arg,
+        max_restart_attempts_arg,
+        
+        return [
+            LogInfo(msg='❌ CRITICAL: Navigation Controller failed!'),
+            LogInfo(msg='🚨 SAFETY ALERT: Collision avoidance compromised'),
+            LogInfo(msg='🛑 EMERGENCY STOP: Shutting down all robot systems'),
+            LogInfo(msg='📞 Emergency contact: Safety Team +1-800-ROBOT-911'),
+            EmitEvent(event=Shutdown(reason='Critical safety system failure - navigation')),
+        ]
+    
+    navigation_exit_handler = RegisterEventHandler(
+        OnProcessExit(
+            target_action=navigation_controller_node,
+            on_exit=[OpaqueFunction(function=handle_navigation_exit)]
+        )
+    )
+    
+    # Event handler: Task processor lifecycle (non-critical)
+    task_start_handler = RegisterEventHandler(
+        OnProcessStart(
+            target_action=task_processor_node,
+            on_start=[
+                LogInfo(msg='✅ Task Processor started successfully'),
+            ]
+        )
+    )
+    
+    task_exit_handler = RegisterEventHandler(
+        OnProcessExit(
+            target_action=task_processor_node,
+            on_exit=[
+                LogInfo(msg='⚠️ Task Processor exited (non-critical)'),
+                LogInfo(msg='📋 Order processing paused - robot continues safety operations'),
+            ]
+        )
+    )
+    
+    return LaunchDescription([
+        # Arguments
+        enable_auto_restart_arg,
+        critical_node_arg,
+        max_restart_attempts_arg,
+        simulate_failures_arg,
+        
+        # Startup messages
+        LogInfo(msg='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'),
+        LogInfo(msg='🔍 Production Robot Monitoring System Starting...'),
+        LogInfo(msg=f'📊 Failure tracking: {config_dir}/failure_counter.py'),
+        LogInfo(msg='⚙️ Max restart attempts: 3'),
+        LogInfo(msg='🚨 Critical nodes: navigation_controller'),
+        LogInfo(msg='🔄 Auto-restart enabled: battery_monitor'),
+        LogInfo(msg='📋 Non-critical: task_processor'),
+        LogInfo(msg='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'),
         
         # Nodes
-        publisher_node,
-        service_node,
-        action_node,
+        battery_monitor_node,
+        navigation_controller_node,
+        task_processor_node,
         
         # Event handlers
-        publisher_start_handler,
-        publisher_exit_handler,
-        service_start_handler,
-        service_exit_handler,
-        action_start_handler,
-        action_exit_handler,
+        battery_start_handler,
+        battery_exit_handler,
+        navigation_start_handler,
+        navigation_exit_handler,
+        task_start_handler,
+        task_exit_handler,
     ])
 ```
 
-### **🧪 Testing Exercise 3**
+**Key Features of Production-Grade Monitoring:**
 
-**Build and launch:**
+1. **Differentiated Criticality Levels:**
+   - **CRITICAL** (navigation_controller): Immediate shutdown on failure - safety risk
+   - **HIGH** (battery_monitor): Auto-restart up to 3 times, then escalate
+   - **NON-CRITICAL** (task_processor): Log only, continue operation
+
+2. **Intelligent Failure Tracking:**
+   - Persistent JSON storage in `/tmp/robot_failures/`
+   - Tracks failure count per node with timestamps
+   - Robot ID tracking for fleet management
+   - Automatic escalation after 3 attempts
+
+3. **OpaqueFunction Event Handlers:**
+   - Dynamic restart logic based on failure count
+   - Conditional escalation to maintenance alerts
+   - Customized restart parameters per attempt
+   - Emergency shutdown for critical failures
+
+4. **Production Features:**
+   - Email/SMS alert simulation on persistent failures
+   - Systemd integration for 24/7 operation
+   - Configurable via YAML (robot_monitoring.yaml)
+   - Failure log for maintenance analytics
+
+**Real-World Comparison:**
+
+| Scenario | Criticality | Behavior |
+|----------|-------------|----------|
+| Battery Monitor Crash | HIGH | Auto-restart 3x, then alert |
+| Navigation Controller Crash | CRITICAL | Immediate emergency stop |
+| Task Processor Crash | NON-CRITICAL | Log and continue |
+
+**Testing Failure Recovery:**
+
+```bash
+# Test battery monitor auto-restart (will restart 3 times)
+ros2 launch ce_robot_launch monitored_system_launch.py simulate_failures:=true
+
+# In another terminal, watch the failure counter
+watch -n 1 cat /tmp/robot_failures/failure_counts.json
+
+# View failure log
+tail -f /tmp/robot_failures/failure_log.txt
+```
+
+### **🧪 Step 4: Build and Test Production System**
+
+**Build the ce_robot package with new nodes:**
 ```bash
 cd ~/ros2_ws
-colcon build --packages-select ce_robot_launch --symlink-install
+colcon build --packages-select ce_robot --symlink-install
 source install/setup.bash
+```
 
+**Verify nodes are installed:**
+```bash
+ros2 pkg executables ce_robot | grep "07_"
+```
+
+**Expected output:**
+```
+ce_robot 07_battery_monitor
+ce_robot 07_navigation_controller
+ce_robot 07_task_processor
+```
+
+---
+
+### **🧪 Testing Exercise 3 Production Monitoring**
+
+#### **Test 1: Normal Operation**
+
+**Launch the monitored system:**
+```bash
 ros2 launch ce_robot_launch monitored_system_launch.py
 ```
 
 **Expected startup logs:**
 ```
-✅ Robot Tag Publisher started successfully
-✅ Rectangle Service started successfully
-✅ Count Action Server started successfully
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔍 Production Robot Monitoring System Starting...
+📊 Failure tracking: /path/to/config/failure_counter.py
+⚙️ Max restart attempts: 3
+🚨 Critical nodes: navigation_controller
+🔄 Auto-restart enabled: battery_monitor
+📋 Non-critical: task_processor
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Battery Monitor started successfully
+✅ Navigation Controller started successfully
+🗺️ Safety systems online - collision avoidance active
+✅ Task Processor started successfully
 ```
 
-**Test node failure simulation:**
+**Monitor node outputs:**
+```bash
+# Terminal 2: Battery status
+ros2 topic echo /battery_status --once
+
+# Terminal 3: Navigation status
+ros2 topic echo /navigation_status --once
+
+# Terminal 4: Task status
+ros2 topic echo /task_status --once
+```
+
+#### **Test 2: Battery Monitor Auto-Restart**
+
+**Terminal 1 - Run launch:**
+```bash
+ros2 launch ce_robot_launch monitored_system_launch.py simulate_failures:=true
+```
+
+**Wait for battery_monitor to crash automatically, observe behavior:**
+```
+⚠️ Battery Monitor exited! Attempt 1/3. Restarting in 3 seconds...
+📊 Failure logged with robot tracking ID
+[3 second delay]
+✅ Battery Monitor started successfully
+[continues until 3 failures]
+❌ CRITICAL: Battery monitor failed 3 times! Manual intervention required.
+⚠️ Alerting maintenance team...
+📧 Email sent to: maintenance@warehouse.com
+📱 SMS alert sent to on-call engineer
+[System shutdown]
+```
+
+**Check failure tracking:**
+```bash
+# View failure count JSON
+cat /tmp/robot_failures/failure_counts.json
+
+# View detailed failure log
+tail -20 /tmp/robot_failures/failure_log.txt
+```
+
+#### **Test 3: Critical Navigation Failure**
+
+**Terminal 1 - Run without simulated failures:**
+```bash
+ros2 launch ce_robot_launch monitored_system_launch.py
+```
+
+**Terminal 2 - Kill navigation controller:**
+```bash
+pkill -f navigation_controller
+```
+
+**Expected immediate shutdown:**
+```
+❌ CRITICAL: Navigation Controller failed!
+🚨 SAFETY ALERT: Collision avoidance compromised
+🛑 EMERGENCY STOP: Shutting down all robot systems
+📞 Emergency contact: Safety Team +1-800-ROBOT-911
+[Immediate system shutdown - no restart attempts]
+```
+
+#### **Test 4: Non-Critical Task Processor Failure**
 
 **Terminal 1 - Run launch:**
 ```bash
 ros2 launch ce_robot_launch monitored_system_launch.py
 ```
 
-**Terminal 2 - Kill publisher to test auto-restart:**
+**Terminal 2 - Kill task processor:**
 ```bash
-# Find the process ID
-ros2 node list
-# Kill the node
-ros2 lifecycle set /robot_tag_publisher shutdown
-# Or use: pkill -f robot_tag_publisher
+pkill -f task_processor
 ```
 
-**Expected behavior:**
+**Expected behavior (no restart, log only):**
 ```
-⚠️  Robot Tag Publisher exited! Attempting restart in 3 seconds...
-✅ Robot Tag Publisher started successfully
+⚠️ Task Processor exited (non-critical)
+📋 Order processing paused - robot continues safety operations
+[Battery monitor and navigation controller continue running]
+```
+
+#### **Test 5: Service Call to Navigation Controller**
+
+**Terminal 1 - Launch system:**
+```bash
+ros2 launch ce_robot_launch monitored_system_launch.py
+```
+
+**Terminal 2 - Start navigation:**
+```bash
+ros2 service call /navigation_command example_interfaces/srv/SetBool "{data: true}"
+```
+
+**Expected:**
+```
+response: 
+  success: True
+  message: 'Navigation started - AMR in motion'
+```
+
+**Terminal 3 - Monitor movement:**
+```bash
+ros2 topic echo /navigation_status
 ```
 
 **Terminal 2 - Kill service to test critical failure:**
@@ -1563,7 +2264,651 @@ else:
 
 ---
 
-## **Exercise 4: YAML Configuration & Composition (Advanced) 📄**
+## **Exercise 4: Quality Control Inspection System 🎥**
+
+### **📋 Objective**
+
+Implement production-grade event handling for a **24/7 manufacturing quality inspection system** with camera-based defect detection, multi-sensor fusion, and automated reporting.
+
+### **🎯 What You'll Learn**
+
+- Differentiate between CRITICAL, HIGH, and NON-CRITICAL failure modes
+- Implement vision system failure handling (production line halt)
+- Auto-restart sensor systems with escalation
+- Maintain operation despite non-critical failures
+- Apply OpaqueFunction for quality control decisions
+
+### **💡 Real-World Use Case**
+
+**Scenario:** Manufacturing quality control station inspecting products at 300 items/hour
+
+**Quality Risk:** Camera failure means defective products could pass inspection undetected, leading to:
+- Customer complaints and returns
+- Product recalls (millions in costs)
+- Brand reputation damage
+- Regulatory compliance violations
+
+**Solution:** CRITICAL camera failure immediately halts production line. Sensor fusion failures auto-restart. Report failures continue operation while buffering data.
+
+**System Architecture:**
+
+```
+┌─────────────────────────────────────────┐
+│   Production Line QC Station           │
+├─────────────────────────────────────────┤
+│                                         │
+│  🎥 Vision Inspector (CRITICAL)         │
+│   • Defect detection (scratches, dents) │
+│   • 98.5% accuracy requirement          │
+│   • FAILURE → Emergency stop            │
+│                                         │
+│  🔬 Sensor Fusion (HIGH)                │
+│   • Thermal + Ultrasonic + Weight       │
+│   • Dimensional laser scanning          │
+│   • FAILURE → Auto-restart 3x           │
+│                                         │
+│  📊 Report Generator (NON-CRITICAL)     │
+│   • Quality metrics and trends          │
+│   • Compliance audit trails             │
+│   • FAILURE → Buffer data, continue     │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+---
+
+### **📝 Step 1: Create Quality Control Inspection Nodes**
+
+Create three production-grade nodes in `~/ros2_ws/src/ce_robot/ce_robot/`:
+
+**1. Vision Inspector Node** (`vision_inspector_node.py`)
+```python
+#!/usr/bin/env python3
+# CRITICAL: Camera-based defect detection
+# Failure risk: Defective products pass inspection
+# Publishes to: /vision_status (JSON-formatted inspection data)
+```
+
+**2. Sensor Fusion Node** (`sensor_fusion_node.py`)
+```python
+#!/usr/bin/env python3
+# HIGH: Multi-sensor data fusion
+# Improves accuracy but vision can operate independently
+# Publishes to: /fusion_status (JSON-formatted sensor data)
+```
+
+**3. Report Generator Node** (`report_generator_node.py`)
+```python
+#!/usr/bin/env python3
+# NON-CRITICAL: Quality control reporting
+# Reports important but inspection continues without them
+# Publishes to: /report_status (JSON-formatted reports)
+```
+
+Copy complete implementations from `src/exercise_4/nodes/` directory.
+
+**Update setup.py:**
+```python
+entry_points={
+    'console_scripts': [
+        # ... existing entries ...
+        '07_vision_inspector = ce_robot.vision_inspector_node:main',
+        '07_sensor_fusion = ce_robot.sensor_fusion_node:main',
+        '07_report_generator = ce_robot.report_generator_node:main',
+    ],
+},
+```
+
+**Build the nodes:**
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot --symlink-install
+source install/setup.bash
+```
+
+**Note:** These nodes use standard `String` messages for JSON data - no new interfaces required.
+
+---
+
+### **📝 Step 2: Create Quality Control Configuration Files**
+
+Create configuration directory and files:
+
+```bash
+mkdir -p ~/ros2_ws/src/ce_robot_launch/config
+cd ~/ros2_ws/src/ce_robot_launch/config
+```
+
+Copy from `src/exercise_4/config/`:
+- `failure_counter.py` - Persistent failure tracking with QCFailureCounter class
+- `qc_inspection.yaml` - Quality thresholds, alert config, production line settings
+- `qc_inspection.service` - Systemd service for 24/7 operation
+
+---
+
+### **🧪 Test Individual Nodes**
+
+**Test Vision Inspector:**
+```bash
+ros2 run ce_robot 07_vision_inspector --ros-args \
+  -p robot_id:=QC-VISION-001 \
+  -p zone_id:=FACTORY-QC-STATION-1 \
+  -p inspection_rate_hz:=2.0 \
+  -p defect_threshold:=0.90
+
+# In another terminal
+ros2 topic echo /vision_status --once
+```
+
+**Expected output:** JSON data with items_inspected, defects_found, camera_health, inspection_accuracy
+
+**Test Sensor Fusion:**
+```bash
+ros2 run ce_robot 07_sensor_fusion --ros-args \
+  -p robot_id:=QC-FUSION-001 \
+  -p fusion_rate_hz:=2.0 \
+  -p sensor_count:=4
+
+# Monitor output
+ros2 topic echo /fusion_status --once
+```
+
+**Expected output:** Thermal camera, ultrasonic, weight sensor, laser scanner readings with sensor health
+
+**Test Report Generator:**
+```bash
+ros2 run ce_robot 07_report_generator --ros-args \
+  -p robot_id:=QC-REPORT-001 \
+  -p report_rate_hz:=0.5 \
+  -p report_format:=JSON
+
+# Monitor output
+ros2 topic echo /report_status --once
+```
+
+**Expected output:** Report statistics, defect breakdown, trend analysis, recommendations
+
+**Test simulate_failure parameter:**
+```bash
+# Vision will crash after 15 cycles
+ros2 run ce_robot 07_vision_inspector --ros-args \
+  -p simulate_failure:=true
+```
+
+---
+
+### **📝 Step 3: Create Quality Control Inspection Launch File**
+
+The launch file from `src/exercise_4/launch/qc_inspection_launch.py` demonstrates production-grade event handling with intelligent failure recovery.
+
+**Location:** `~/ros2_ws/src/ce_robot_launch/launch/qc_inspection_launch.py`
+
+```python
+#!/usr/bin/env python3
+"""
+Exercise 4: Quality Control Inspection System Launch File
+Implements event handlers and intelligent failure recovery for manufacturing QC
+Real-world scenario: 24/7 production line quality inspection
+"""
+
+import os
+import sys
+from pathlib import Path
+
+from launch import LaunchDescription
+from launch.actions import (
+    DeclareLaunchArgument,
+    LogInfo,
+    RegisterEventHandler,
+    EmitEvent,
+    TimerAction,
+    OpaqueFunction
+)
+from launch.event_handlers import OnProcessExit, OnProcessStart
+from launch.events import Shutdown
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+
+# Import the failure counter (add config directory to path)
+config_dir = Path(__file__).parent.parent / 'config'
+sys.path.insert(0, str(config_dir))
+
+try:
+    from failure_counter import QCFailureCounter as FailureCounter
+except ImportError:
+    print("⚠️ Warning: failure_counter.py not found. Using basic monitoring.")
+    FailureCounter = None
+
+
+def generate_launch_description():
+    """Generate launch description with event monitoring and failure tracking"""
+    
+    # Initialize failure counter for production monitoring
+    failure_counter = FailureCounter() if FailureCounter else None
+    
+    # Arguments
+    enable_auto_restart_arg = DeclareLaunchArgument(
+        'enable_auto_restart',
+        default_value='true',
+        description='Enable automatic node restart on failure'
+    )
+    
+    critical_node_arg = DeclareLaunchArgument(
+        'critical_node',
+        default_value='vision',
+        description='Critical node that triggers shutdown if it fails',
+        choices=['vision', 'fusion', 'report', 'none']
+    )
+    
+    max_restart_attempts_arg = DeclareLaunchArgument(
+        'max_restart_attempts',
+        default_value='3',
+        description='Maximum restart attempts before escalation'
+    )
+    
+    simulate_failures_arg = DeclareLaunchArgument(
+        'simulate_failures',
+        default_value='false',
+        description='Enable simulated failures for testing event handlers',
+        choices=['true', 'false']
+    )
+    
+    # Get configurations
+    enable_auto_restart = LaunchConfiguration('enable_auto_restart')
+    critical_node = LaunchConfiguration('critical_node')
+    max_restart_attempts = LaunchConfiguration('max_restart_attempts')
+    simulate_failures = LaunchConfiguration('simulate_failures')
+    
+    # Vision Inspector Node - CRITICAL (shutdown on failure)
+    vision_inspector_node = Node(
+        package='ce_robot',
+        executable='07_vision_inspector',
+        name='vision_inspector',
+        output='screen',
+        parameters=[
+            {'robot_id': 'QC-VISION-INSPECTOR-001'},
+            {'robot_type': 'inspection'},
+            {'zone_id': 'FACTORY-QC-STATION-1'},
+            {'camera_resolution': '1920x1080'},
+            {'inspection_rate_hz': 1.0},
+            {'defect_threshold': 0.85},
+            {'simulate_failure': simulate_failures},
+        ],
+    )
+    
+    # Sensor Fusion Node - HIGH criticality (auto-restart)
+    sensor_fusion_node = Node(
+        package='ce_robot',
+        executable='07_sensor_fusion',
+        name='sensor_fusion',
+        output='screen',
+        parameters=[
+            {'robot_id': 'QC-SENSOR-FUSION-001'},
+            {'robot_type': 'inspection'},
+            {'zone_id': 'FACTORY-QC-STATION-1'},
+            {'fusion_rate_hz': 2.0},
+            {'sensor_count': 4},
+            {'simulate_failure': simulate_failures},
+        ],
+    )
+    
+    # Report Generator Node - NON-CRITICAL (log only)
+    report_generator_node = Node(
+        package='ce_robot',
+        executable='07_report_generator',
+        name='report_generator',
+        output='screen',
+        parameters=[
+            {'robot_id': 'QC-REPORT-GENERATOR-001'},
+            {'robot_type': 'inspection'},
+            {'zone_id': 'FACTORY-QC-STATION-1'},
+            {'report_rate_hz': 0.5},
+            {'report_format': 'JSON'},
+            {'simulate_failure': simulate_failures},
+        ],
+    )
+    
+    # Event handler: CRITICAL vision inspector failure
+    def handle_vision_exit(event, context):
+        """Handle critical vision inspector failure - immediate shutdown"""
+        if failure_counter:
+            node_name = 'vision_inspector'
+            failure_counter.log_failure(
+                node_name, 
+                "CRITICAL: Vision inspection system crashed - QUALITY RISK!"
+            )
+        
+        return [
+            LogInfo(msg='❌ CRITICAL: Vision Inspector failed!'),
+            LogInfo(msg='🚨 QUALITY ALERT: Defect detection offline'),
+            LogInfo(msg='🛑 EMERGENCY STOP: Halting production line'),
+            LogInfo(msg='📞 Emergency contact: QC Manager +1-800-QUALITY'),
+            LogInfo(msg='⚠️ Defective products may have passed inspection!'),
+            EmitEvent(event=Shutdown(reason='Critical quality system failure - vision')),
+        ]
+    
+    vision_start_handler = RegisterEventHandler(
+        OnProcessStart(
+            target_action=vision_inspector_node,
+            on_start=[
+                LogInfo(msg='✅ Vision Inspector started successfully'),
+                LogInfo(msg='🎥 Camera system online - quality inspection active'),
+            ]
+        )
+    )
+    
+    vision_exit_handler = RegisterEventHandler(
+        OnProcessExit(
+            target_action=vision_inspector_node,
+            on_exit=[OpaqueFunction(function=handle_vision_exit)]
+        )
+    )
+    
+    # Event handler: Sensor fusion with intelligent failure tracking
+    def handle_fusion_exit(event, context):
+        """Handle sensor fusion exit with failure counting and escalation"""
+        if failure_counter:
+            node_name = 'sensor_fusion'
+            count = failure_counter.increment_failure_count(node_name)
+            failure_counter.log_failure(node_name, "Sensor fusion system crashed")
+            
+            if count >= 3:
+                return [
+                    LogInfo(msg=f'❌ CRITICAL: Sensor fusion failed {count} times!'),
+                    LogInfo(msg='📧 Email sent to: sensors@factory.com'),
+                    EmitEvent(event=Shutdown(reason=f'Persistent node failure: {node_name}'))
+                ]
+            else:
+                return [
+                    LogInfo(msg=f'⚠️ Sensor Fusion exited! Attempt {count}/3. Restarting in 3 seconds...'),
+                    TimerAction(
+                        period=3.0,
+                        actions=[
+                            Node(
+                                package='ce_robot',
+                                executable='07_sensor_fusion',
+                                name='sensor_fusion',
+                                output='screen',
+                                parameters=[
+                                    {'robot_id': f'QC-SENSOR-FUSION-RESTART-{count}'},
+                                    {'robot_type': 'inspection'},
+                                    {'fusion_rate_hz': 2.0},
+                                    {'simulate_failure': False},
+                                ],
+                            ),
+                        ]
+                    ),
+                ]
+        return []
+    
+    fusion_start_handler = RegisterEventHandler(
+        OnProcessStart(
+            target_action=sensor_fusion_node,
+            on_start=[LogInfo(msg='✅ Sensor Fusion started successfully')]
+        )
+    )
+    
+    fusion_exit_handler = RegisterEventHandler(
+        OnProcessExit(
+            target_action=sensor_fusion_node,
+            on_exit=[OpaqueFunction(function=handle_fusion_exit)]
+        )
+    )
+    
+    # Event handler: Report generator (non-critical)
+    report_start_handler = RegisterEventHandler(
+        OnProcessStart(
+            target_action=report_generator_node,
+            on_start=[LogInfo(msg='✅ Report Generator started successfully')]
+        )
+    )
+    
+    report_exit_handler = RegisterEventHandler(
+        OnProcessExit(
+            target_action=report_generator_node,
+            on_exit=[
+                LogInfo(msg='⚠️ Report Generator exited (non-critical)'),
+                LogInfo(msg='📋 Reports suspended - inspection continues'),
+            ]
+        )
+    )
+    
+    return LaunchDescription([
+        # Arguments
+        enable_auto_restart_arg,
+        critical_node_arg,
+        max_restart_attempts_arg,
+        simulate_failures_arg,
+        
+        # Startup messages
+        LogInfo(msg='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'),
+        LogInfo(msg='🔍 Quality Control Inspection System Starting...'),
+        LogInfo(msg='🚨 Critical nodes: vision_inspector'),
+        LogInfo(msg='🔄 Auto-restart enabled: sensor_fusion'),
+        LogInfo(msg='📋 Non-critical: report_generator'),
+        LogInfo(msg='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'),
+        
+        # Nodes
+        vision_inspector_node,
+        sensor_fusion_node,
+        report_generator_node,
+        
+        # Event handlers
+        vision_start_handler,
+        vision_exit_handler,
+        fusion_start_handler,
+        fusion_exit_handler,
+        report_start_handler,
+        report_exit_handler,
+    ])
+```
+
+**Key Features:**
+
+1. **Differentiated Criticality Levels:**
+   - **CRITICAL** (vision): Immediate shutdown - quality risk
+   - **HIGH** (fusion): Auto-restart 3x, then escalate
+   - **NON-CRITICAL** (report): Log only, continue
+
+2. **Quality Risk Management:**
+   - Camera failure could miss defects → Emergency stop
+   - Sensor degradation → Auto-calibration restart
+   - Database issues → Buffer reports, maintain inspection
+
+3. **Production Features:**
+   - Email/SMS alerts on persistent failures
+   - Failure logs in `/tmp/qc_failures/`
+   - 24/7 operation with systemd integration
+
+---
+
+### **🧪 Step 4: Build and Test Quality Control System**
+
+**Build the ce_robot package:**
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot --symlink-install
+source install/setup.bash
+```
+
+**Verify nodes installed:**
+```bash
+ros2 pkg executables ce_robot | grep "07_"
+```
+
+**Expected:**
+```
+ce_robot 07_vision_inspector
+ce_robot 07_sensor_fusion
+ce_robot 07_report_generator
+```
+
+---
+
+### **🧪 Testing Exercise 4 Quality Control Inspection**
+
+#### **Test 1: Normal Operation**
+
+```bash
+ros2 launch ce_robot_launch qc_inspection_launch.py
+```
+
+**Expected startup:**
+```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔍 Quality Control Inspection System Starting...
+🚨 Critical nodes: vision_inspector
+🔄 Auto-restart enabled: sensor_fusion
+📋 Non-critical: report_generator
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Vision Inspector started successfully
+🎥 Camera system online - quality inspection active
+✅ Sensor Fusion started successfully
+🔬 Multi-sensor analysis active
+✅ Report Generator started successfully
+📊 Quality reporting active
+```
+
+**Monitor outputs:**
+```bash
+# Terminal 2: Vision status
+ros2 topic echo /vision_status --once
+
+# Terminal 3: Sensor fusion
+ros2 topic echo /fusion_status --once
+
+# Terminal 4: Reports
+ros2 topic echo /report_status --once
+```
+
+#### **Test 2: Vision Failure (CRITICAL)**
+
+```bash
+# Terminal 1: Launch with simulated failures
+ros2 launch ce_robot_launch qc_inspection_launch.py simulate_failures:=true
+```
+
+**After 15 cycles, vision crashes:**
+```
+❌ CRITICAL: Vision inspection system crashed - QUALITY RISK!
+❌ CRITICAL: Vision Inspector failed!
+🚨 QUALITY ALERT: Defect detection offline
+🛑 EMERGENCY STOP: Halting production line
+📞 Emergency contact: QC Manager +1-800-QUALITY
+⚠️ Defective products may have passed inspection!
+[Immediate system shutdown - no restart]
+```
+
+#### **Test 3: Sensor Fusion Auto-Restart (HIGH)**
+
+**Expected behavior (3 restart attempts):**
+```
+⚠️ Sensor Fusion exited! Attempt 1/3. Restarting in 3 seconds...
+📊 Failure logged with sensor tracking ID
+[3 second delay, then restart]
+✅ Sensor Fusion started successfully
+
+[After 2 more failures...]
+❌ CRITICAL: Sensor fusion failed 3 times!
+📧 Email sent to: sensors@factory.com
+📱 SMS alert sent to calibration technician
+[System shutdown after escalation]
+```
+
+**Check failure tracking:**
+```bash
+cat /tmp/qc_failures/failure_counts.json
+tail -f /tmp/qc_failures/failure_log.txt
+```
+
+#### **Test 4: Report Generator Failure (NON-CRITICAL)**
+
+```bash
+# Terminal 1: Launch
+ros2 launch ce_robot_launch qc_inspection_launch.py simulate_failures:=true
+
+# Wait 25 cycles for report generator to crash
+```
+
+**Expected (no restart, continues):**
+```
+⚠️ Report Generator exited (non-critical)
+📋 Reports suspended - inspection continues
+💾 Data buffering to temporary storage
+[Vision and sensor fusion continue running normally]
+```
+
+---
+
+### **💡 Key Concepts Learned**
+
+1. **Criticality-Based Failure Handling:**
+   | Criticality | Example | Behavior |
+   |-------------|---------|----------|
+   | CRITICAL | Vision camera | Immediate shutdown |
+   | HIGH | Sensor fusion | Auto-restart 3x |
+   | NON-CRITICAL | Report generator | Log only |
+
+2. **Quality Risk Management:**
+   - Camera failure = Quality risk → Stop production
+   - Sensor degradation = Accuracy loss → Auto-restart with escalation
+   - Database issues = Convenience loss → Continue with buffering
+
+3. **Production Failure Tracking:**
+   - JSON-based persistent storage
+   - Failure count with timestamps
+   - Robot ID tracking for fleet management
+   - Maintenance alert escalation
+
+4. **Real-World Application:**
+   - 24/7 manufacturing quality control
+   - Product recall prevention
+   - Regulatory compliance
+   - Brand protection
+
+---
+
+### **🎯 Challenge: Custom Failure Policies**
+
+**Task:** Extend the system with custom failure policies:
+
+**Time-Based Escalation:**
+```python
+def handle_fusion_exit_time_aware(event, context):
+    """Escalate faster during peak production hours"""
+    current_hour = datetime.now().hour
+    
+    if 8 <= current_hour <= 17:  # Peak hours
+        max_attempts = 2  # Escalate faster
+    else:  # Off-peak
+        max_attempts = 5  # More tolerant
+    
+    count = failure_counter.increment_failure_count('sensor_fusion')
+    if count >= max_attempts:
+        return [escalate_to_maintenance()]
+    else:
+        return [auto_restart_with_delay(3.0)]
+```
+
+**Defect Rate Monitoring:**
+```python
+def handle_vision_exit_quality_aware(event, context):
+    """Consider recent defect rate in failure response"""
+    recent_defect_rate = get_recent_defect_rate()
+    
+    if recent_defect_rate > 0.15:  # High defect rate
+        # Already problematic, allow one restart
+        return [try_camera_recalibration()]
+    else:  # Normal quality
+        # Don't risk more defects, stop immediately
+        return [emergency_shutdown()]
+```
+
+**Real benefit:** Context-aware failure handling adapts to production conditions, balancing uptime with quality assurance!
+
+---
+
+## **Exercise 5: YAML Configuration & Composition (Advanced) 📄**
 
 ### **📋 Objective**
 
@@ -1980,8 +3325,21 @@ ros2 service call /<namespace>/<service_name> <srv_type> <args>
 - [ ] Tested automatic node restart
 - [ ] Tested critical failure shutdown
 - [ ] Understood fault-tolerant design patterns
+- [ ] Implemented persistent failure tracking
 
-### **Exercise 4: YAML & Composition**
+### **Exercise 4: Quality Control Inspection**
+- [ ] Created `vision_inspector_node.py` (CRITICAL)
+- [ ] Created `sensor_fusion_node.py` (HIGH)
+- [ ] Created `report_generator_node.py` (NON-CRITICAL)
+- [ ] Created `qc_inspection_launch.py`
+- [ ] Implemented differentiated criticality levels
+- [ ] Tested vision failure (immediate shutdown)
+- [ ] Tested sensor fusion auto-restart (3x escalation)
+- [ ] Tested report generator failure (continue operation)
+- [ ] Verified failure tracking in `/tmp/qc_failures/`
+- [ ] Understood quality risk management
+
+### **Exercise 5: YAML & Composition**
 - [ ] Created `robot_small.yaml` and `robot_large.yaml`
 - [ ] Created `yaml_config_launch.py`
 - [ ] Tested parameter loading from YAML

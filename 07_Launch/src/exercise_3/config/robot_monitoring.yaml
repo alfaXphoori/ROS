@@ -1,0 +1,81 @@
+# Robot Monitoring Configuration
+# Production-grade monitoring for 24/7 warehouse robot operations
+# Used by Exercise 3: Event Handlers & Monitoring
+
+robot_monitoring:
+  # Failure tracking configuration
+  failure_tracking:
+    max_restart_attempts: 3
+    restart_delay_seconds: 3.0
+    enable_persistent_logging: true
+    storage_directory: "/tmp/robot_failures"
+  
+  # Critical nodes (shutdown on failure)
+  critical_nodes:
+    - navigation_controller
+    - safety_system
+    - emergency_stop
+  
+  # High-priority nodes (auto-restart with escalation)
+  high_priority_nodes:
+    - battery_monitor
+    - motor_controller
+    - sensor_fusion
+  
+  # Non-critical nodes (log only)
+  non_critical_nodes:
+    - task_processor
+    - camera_driver
+    - wifi_manager
+  
+  # Alert configuration
+  alerts:
+    email:
+      enabled: true
+      recipients:
+        - "maintenance@warehouse.com"
+        - "robotics-team@warehouse.com"
+      critical_only: false
+    
+    sms:
+      enabled: true
+      phone_numbers:
+        - "+1-800-ROBOT-911"
+      critical_only: true
+    
+    slack:
+      enabled: false
+      webhook_url: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+      channel: "#robot-alerts"
+  
+  # Health check intervals
+  health_checks:
+    battery_check_seconds: 10.0
+    navigation_check_seconds: 5.0
+    task_queue_check_seconds: 30.0
+  
+  # Performance thresholds
+  thresholds:
+    battery:
+      critical_percent: 10.0
+      low_percent: 20.0
+      warning_percent: 30.0
+    
+    temperature:
+      critical_celsius: 75.0
+      warning_celsius: 60.0
+    
+    cpu:
+      critical_percent: 95.0
+      warning_percent: 80.0
+    
+    memory:
+      critical_percent: 90.0
+      warning_percent: 75.0
+  
+  # Maintenance schedule
+  maintenance:
+    scheduled_downtime_hours:
+      - 2  # 2 AM daily
+    max_operation_hours: 16.0
+    force_shutdown_after_hours: 20.0
