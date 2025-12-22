@@ -392,8 +392,8 @@ ros2 service call /navigation_path ce_robot_interfaces/srv/NavigationPath \
   "{obstacle_length: 2.0, obstacle_width: 1.5, robot_x: 5.0, robot_y: 3.0, \
     safety_margin: 0.5, zone_id: 'TEST-ZONE'}"
 
-# Expected response: safe_area, clearances, can_navigate status, recommended_action
 ```
+***Expected response: safe_area, clearances, can_navigate status, recommended_action***
 
 **Test Task Queue Action Server (standalone):**
 ```bash
