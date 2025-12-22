@@ -340,8 +340,6 @@ ros2 topic list              # Should see /robot_tag
 ros2 topic echo /robot_tag   # See RobotTag messages
 ```
 
-![Simple Launch Running](imgs/launch_simple.png)
-
 ---
 
 ## **Step 3: Create Complex Launch File with Configuration** ⏱️ 30 min

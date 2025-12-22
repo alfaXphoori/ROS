@@ -827,6 +827,7 @@ entry_points={
 
 **Test Robot Status Publisher:**
 ```bash
+# Terminal 1: Run the robot status publisher
 ros2 run ce_robot 07_robot_status --ros-args \
   -p robot_id:=AMR-TEST-001 \
   -p robot_type:=transport \
@@ -837,43 +838,30 @@ ros2 run ce_robot 07_robot_status --ros-args \
   -p current_location:=TEST-LOCATION \
   -p assigned_task:=TEST-TASK \
   -p status_rate_hz:=1.0
-```
-# In another terminal, monitor the status
-```bash
+
+# Terminal 2: Monitor the status
 ros2 topic echo /robot_status
+
+# Expected: RobotStatusLaunch messages with robot info, battery level, location
 ```
 
 **Test Zone Coordinator Service:**
-
-# Terminal 1: Run the service
 ```bash
+# Terminal 1: Run the zone coordinator service
 ros2 run ce_robot 07_zone_coordinator --ros-args \
   -p robot_id:=AMR-TEST-002 \
   -p zone_id:=WAREHOUSE-A \
   -p robot_type:=picker \
   -p max_capacity:=50.0
-```
-# Terminal 2: Call the service
-```bash
+
+# Terminal 2: Call the service to request a task
 ros2 service call /request_task example_interfaces/srv/SetBool "{data: true}"
-```
-# Expected: Task assignment with task type and zone information
 
-
-**Test Fleet Monitor:**
-
-# Terminal 1: Run the monitor
-```bash
-ros2 run ce_robot 07_fleet_monitor --ros-args \
-  -p fleet_id:=TEST-FLEET \
-  -p num_robots:=3 \
-  -p monitor_rate_hz:=0.5
+# Expected: Task assignment response with task type and zone information
 ```
-# Terminal 2: Monitor fleet status
-```bash
-ros2 topic echo /fleet_status
-```
-# Expected: System metrics (CPU, memory, uptime) and fleet information
+
+**Note:** The fleet monitor will be tested in Step 4 after launching the multi-robot system, as it monitors across all robot namespaces.
+
 ---
 
 ### **📝 Step 3: Create Multi-Robot Launch File
@@ -1165,6 +1153,60 @@ ros2 topic info /robot2/robot_tag
 ros2 topic info /robot3/robot_tag
 
 # Each should show 1 publisher (no conflicts)
+```
+
+**Test Fleet Monitor (monitors all robots):**
+```bash
+# The fleet monitor is already running from the launch file
+# It monitors all robot namespaces and publishes fleet-wide metrics
+
+# Monitor the fleet status output in real-time
+ros2 topic echo /fleet_status
+
+# Expected: Reports every 2 seconds with:
+# - Fleet ID and active robot count
+# - System metrics (CPU, Memory, Disk usage)
+# - Fleet uptime and monitoring duration
+# - Status from all robot namespaces (robot1, robot2, robot3)
+```
+
+**Check fleet monitor node details:**
+```bash
+# View fleet monitor node information
+ros2 node info /fleet_monitor
+
+# Expected subscriptions:
+# - /robot1/robot_status
+# - /robot2/robot_status  
+# - /robot3/robot_status
+# Expected publications:
+# - /fleet_status (std_msgs/msg/String)
+```
+
+**Verify fleet monitor parameters:**
+```bash
+# Check the fleet monitor configuration
+ros2 param list /fleet_monitor
+
+# Get specific parameter values
+ros2 param get /fleet_monitor fleet_id
+ros2 param get /fleet_monitor num_robots
+ros2 param get /fleet_monitor monitor_rate_hz
+
+# Expected output:
+# fleet_id: WAREHOUSE-FLEET-A
+# num_robots: 3
+# monitor_rate_hz: 0.5
+```
+
+**Test fleet monitoring with robot status:**
+```bash
+# In another terminal, monitor individual robot status
+ros2 topic echo /robot1/robot_status
+
+# The fleet monitor subscribes to all robot status topics
+# and aggregates the information in /fleet_status
+# Compare individual robot data with fleet-wide report
 ```
 
 ---
