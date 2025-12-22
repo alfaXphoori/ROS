@@ -860,7 +860,25 @@ ros2 service call /request_task example_interfaces/srv/SetBool "{data: true}"
 # Expected: Task assignment response with task type and zone information
 ```
 
-**Note:** The fleet monitor will be tested in Step 4 after launching the multi-robot system, as it monitors across all robot namespaces.
+**Test Fleet Monitor (Standalone - Limited Functionality):**
+```bash
+# Terminal 1: Run the fleet monitor
+ros2 run ce_robot 07_fleet_monitor --ros-args \
+  -p fleet_id:=TEST-FLEET \
+  -p num_robots:=3 \
+  -p monitor_rate_hz:=0.5
+
+# Terminal 2: Monitor the fleet status output
+ros2 topic echo /fleet_status
+
+# Expected: Fleet monitoring reports every 2 seconds with:
+# - Fleet ID and robot count
+# - System metrics (CPU, Memory, Disk usage)
+# - Fleet uptime
+# Note: Robot-specific data will be empty since no robots are running
+```
+
+**Important:** The fleet monitor is designed to aggregate data from multiple robot namespaces. For full functionality testing, see Step 4 where it monitors the complete multi-robot system with all three robots running.
 
 ---
 
