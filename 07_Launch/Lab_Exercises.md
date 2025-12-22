@@ -382,6 +382,9 @@ ros2 run ce_robot 07_navigate_service --ros-args \
   -p max_payload_kg:=500.0 \
   -p safety_margin_m:=0.5
 
+```
+
+```bash
 # Terminal 2: Call the service
 ros2 service call /navigation_path ce_robot_interfaces/srv/NavigationPath \
   "{obstacle_length: 2.0, obstacle_width: 1.5, robot_x: 5.0, robot_y: 3.0, \
