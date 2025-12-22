@@ -1104,151 +1104,184 @@ ros2 pkg executables ce_robot | grep 07_
 
 ### **🧪 Testing Exercise 2**
 
-**Launch the multi-robot system:**
+**Test 1 - Launch Multi-Robot System:**
+
+***Terminal 1: Launch all three robots with fleet monitor***
+
 ```bash
 ros2 launch ce_robot_launch multi_robot_launch.py
 ```
 
-**Test Individual Robot Namespaces:**
+***Expected: All three robots start publishing status, zone coordinators ready, fleet monitor aggregating data***
 
-**Launch the multi-robot system:**
-```bash
-ros2 launch ce_robot_launch multi_robot_launch.py
-```
+---
 
-**Test Robot 1 nodes:**
-```bash
-# Check robot1 nodes
-ros2 node list | grep robot1
+**Test 2 - Verify Namespaced Nodes:**
 
-# Monitor robot1 tag publisher
-ros2 topic echo /robot1/robot_tag
+***Terminal 1: List all running nodes***
 
-# Call robot1 rectangle service
-ros2 service call /robot1/cal_rect ce_robot_interfaces/srv/CalRectangle \
-  "{length: 2.5, width: 1.5}"
-```
-
-**Test Robot 2 nodes:**
-```bash
-# Check robot2 nodes
-ros2 node list | grep robot2
-
-# Monitor robot2 tag publisher
-ros2 topic echo /robot2/robot_tag
-
-# Send goal to robot2 count action
-ros2 action send_goal /robot2/count_until ce_robot_interfaces/action/CountUntil \
-  "{target_number: 10, period: 1.0}" --feedback
-```
-
-**Test Robot 3 nodes:**
-```bash
-# Check robot3 nodes
-ros2 node list | grep robot3
-
-# Monitor robot3 tag publisher
-ros2 topic echo /robot3/robot_tag
-
-# Call robot3 services
-ros2 service call /robot3/cal_rect ce_robot_interfaces/srv/CalRectangle \
-  "{length: 3.0, width: 2.0}"
-
-ros2 action send_goal /robot3/count_until ce_robot_interfaces/action/CountUntil \
-  "{target_number: 5, period: 0.5}" --feedback
-```
-
-**Verify namespaced nodes:**
 ```bash
 ros2 node list
 ```
 
-**Expected output:**
+***Expected output:***
 ```
-/robot1/robot_tag_publisher
-/robot1/rect_server
-/robot2/robot_tag_publisher
-/robot2/count_server
-/robot3/robot_tag_publisher
-/robot3/rect_server
-/robot3/count_server
+/fleet_monitor
+/robot1/robot_status_publisher
+/robot1/zone_coordinator
+/robot2/robot_status_publisher
+/robot2/zone_coordinator
+/robot3/robot_status_publisher
+/robot3/zone_coordinator
 ```
 
-**Check namespaced topics:**
+---
+
+**Test 3 - Monitor Individual Robot Status:**
+
+***Terminal 1: Check Robot 1 status (Heavy Transport)***
+
 ```bash
-ros2 topic list
+ros2 topic echo /robot1/robot_status --once
 ```
 
-**Expected:**
-```
-/robot1/robot_tag
-/robot2/robot_tag
-/robot3/robot_tag
-```
+***Expected: RobotStatusLaunch message with robot_id=AMR-TRANSPORT-HEAVY-001, battery_level=78.0, location=DOCK-A1***
 
-**Verify no topic conflicts:**
+***Terminal 2: Check Robot 2 status (Light Picker - Low Battery)***
+
 ```bash
-# All three robots publish to their own topics
-ros2 topic info /robot1/robot_tag
-ros2 topic info /robot2/robot_tag
-ros2 topic info /robot3/robot_tag
-
-# Each should show 1 publisher (no conflicts)
+ros2 topic echo /robot2/robot_status --once
 ```
 
-**Test Fleet Monitor (monitors all robots):**
-```bash
-# The fleet monitor is already running from the launch file
-# It monitors all robot namespaces and publishes fleet-wide metrics
+***Expected: RobotStatusLaunch message with robot_id=AMR-PICKER-LIGHT-002, battery_level=18.0, status=CHARGING***
 
-# Monitor the fleet status output in real-time
+***Terminal 3: Check Robot 3 status (Multi-function Delivery)***
+
+```bash
+ros2 topic echo /robot3/robot_status --once
+```
+
+***Expected: RobotStatusLaunch message with robot_id=AMR-DELIVERY-MULTI-003, battery_level=92.0, assigned_task=DELIVERY***
+
+---
+
+**Test 4 - Verify Topic Namespace Isolation:**
+
+***Terminal 1: List all topics***
+
+```bash
+ros2 topic list | grep robot_status
+```
+
+***Expected: No conflicts - each robot has isolated topic***
+```
+/robot1/robot_status
+/robot2/robot_status
+/robot3/robot_status
+```
+
+***Terminal 2: Verify topic publishers (no collisions)***
+
+```bash
+ros2 topic info /robot1/robot_status
+ros2 topic info /robot2/robot_status
+ros2 topic info /robot3/robot_status
+```
+
+***Expected: Each shows 1 publisher, 1 subscriber (fleet_monitor)***
+
+---
+
+**Test 5 - Test Zone Coordinator Services:**
+
+***Terminal 1: Request task from Robot 1 zone coordinator***
+
+```bash
+ros2 service call /robot1/request_task example_interfaces/srv/SetBool "{data: true}"
+```
+
+***Expected: Task assignment response for LOADING-DOCK zone with task details***
+
+***Terminal 2: Request task from Robot 2 zone coordinator***
+
+```bash
+ros2 service call /robot2/request_task example_interfaces/srv/SetBool "{data: true}"
+```
+
+***Expected: Task assignment response for PICKING-AREA zone***
+
+***Terminal 3: Request task from Robot 3 zone coordinator***
+
+```bash
+ros2 service call /robot3/request_task example_interfaces/srv/SetBool "{data: true}"
+```
+
+***Expected: Task assignment response for SORTING-STATION zone***
+
+---
+
+**Test 6 - Monitor Fleet-Wide Status:**
+
+***Terminal 1: Monitor aggregated fleet status***
+
+```bash
 ros2 topic echo /fleet_status
-
-# Expected: Reports every 2 seconds with:
-# - Fleet ID and active robot count
-# - System metrics (CPU, Memory, Disk usage)
-# - Fleet uptime and monitoring duration
-# - Status from all robot namespaces (robot1, robot2, robot3)
 ```
 
-**Check fleet monitor node details:**
+***Expected: Fleet monitor publishes aggregated report every 2 seconds with all three robots' data, system metrics (CPU, Memory, Disk), and fleet uptime***
+
+***Terminal 2: Check fleet monitor details***
+
 ```bash
-# View fleet monitor node information
 ros2 node info /fleet_monitor
-
-# Expected subscriptions:
-# - /robot1/robot_status
-# - /robot2/robot_status  
-# - /robot3/robot_status
-# Expected publications:
-# - /fleet_status (std_msgs/msg/String)
 ```
 
-**Verify fleet monitor parameters:**
-```bash
-# Check the fleet monitor configuration
-ros2 param list /fleet_monitor
+***Expected subscriptions: /robot1/robot_status, /robot2/robot_status, /robot3/robot_status***
 
-# Get specific parameter values
+***Expected publications: /fleet_status***
+
+---
+
+**Test 7 - Verify Fleet Monitor Configuration:**
+
+***Terminal 1: List fleet monitor parameters***
+
+```bash
+ros2 param list /fleet_monitor
+```
+
+***Terminal 2: Check specific parameter values***
+
+```bash
 ros2 param get /fleet_monitor fleet_id
 ros2 param get /fleet_monitor num_robots
 ros2 param get /fleet_monitor monitor_rate_hz
-
-# Expected output:
-# fleet_id: WAREHOUSE-FLEET-A
-# num_robots: 3
-# monitor_rate_hz: 0.5
 ```
 
-**Test fleet monitoring with robot status:**
+***Expected output:***
+```
+fleet_id: WAREHOUSE-FLEET-A
+num_robots: 3
+monitor_rate_hz: 0.5
+```
+
+---
+
+**Test 8 - Compare Individual vs Fleet Data:**
+
+***Terminal 1: Monitor Robot 1 individual status***
+
 ```bash
-# In another terminal, monitor individual robot status
 ros2 topic echo /robot1/robot_status
-
-# The fleet monitor subscribes to all robot status topics
-# and aggregates the information in /fleet_status
-# Compare individual robot data with fleet-wide report
 ```
+
+***Terminal 2: Monitor fleet aggregated status simultaneously***
+
+```bash
+ros2 topic echo /fleet_status
+```
+
+***Expected: Robot 1's data appears in both - individual topic shows detailed robot info, fleet status shows aggregated summary of all robots***
 
 ---
 
