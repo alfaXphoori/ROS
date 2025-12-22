@@ -396,8 +396,10 @@ ros2 service call /navigation_path ce_robot_interfaces/srv/NavigationPath \
 ***Expected response: safe_area, clearances, can_navigate status, recommended_action***
 
 **Test Task Queue Action Server (standalone):**
+
+***Terminal 1: Run the action server***
+
 ```bash
-# Terminal 1: Run the action server
 ros2 run ce_robot 07_task_queue_action --ros-args \
   -p robot_id:=AMR-PICKER-001 \
   -p robot_type:=picker \
@@ -406,19 +408,25 @@ ros2 run ce_robot 07_task_queue_action --ros-args \
   -p battery_level:=85.0 \
   -p picking_speed_items_per_min:=12.0
 
-# Terminal 2: Send an action goal
+```
+
+***Terminal 2: Send an action goal***
+```bash
 ros2 action send_goal /pick_items ce_robot_interfaces/action/PickItems \
   "{target_items: 5, time_per_item: 5.0, order_id: 'ORD-12345', \
     zone_id: 'PICKING-ZONE', priority: 8, max_weight_kg: 25.0}" \
   --feedback
 
-# Expected: Progress updates with items picked, battery consumed, elapsed time
-# Note: priority is an integer (1=low, 10=urgent), not a string
 ```
+***Expected: Progress updates with items picked, battery consumed, elapsed time***
+
+***Note: priority is an integer (1=low, 10=urgent), not a string***
 
 **Test Debug Monitor (standalone):**
+
+***Terminal 1: Run the debug monitor***
+
 ```bash
-# Terminal 1: Run the debug monitor
 ros2 run ce_robot 07_debug_monitor --ros-args \
   -p robot_id:=AMR-DEBUG-001 \
   -p robot_type:=test \
@@ -427,9 +435,8 @@ ros2 run ce_robot 07_debug_monitor --ros-args \
   -p enable_network_check:=true \
   -p enable_ros_diagnostics:=true
 
-# Monitor will print diagnostic reports every 2 seconds
-# Check CPU, memory, disk usage, network status, and issue counts
 ```
+***Expected: Monitor will print diagnostic reports every 2 seconds with CPU, memory, disk usage, network status, and issue counts***
 
 ---
 
@@ -829,8 +836,10 @@ entry_points={
 ### **🧪 Test Individual Nodes**
 
 **Test Robot Status Publisher:**
+
+***Terminal 1: Run the robot status publisher***
+
 ```bash
-# Terminal 1: Run the robot status publisher
 ros2 run ce_robot 07_robot_status --ros-args \
   -p robot_id:=AMR-TEST-001 \
   -p robot_type:=transport \
@@ -842,44 +851,55 @@ ros2 run ce_robot 07_robot_status --ros-args \
   -p assigned_task:=TEST-TASK \
   -p status_rate_hz:=1.0
 
-# Terminal 2: Monitor the status
-ros2 topic echo /robot_status
-
-# Expected: RobotStatusLaunch messages with robot info, battery level, location
 ```
 
-**Test Zone Coordinator Service:**
+***Terminal 2: Monitor the status***
 ```bash
-# Terminal 1: Run the zone coordinator service
+ros2 topic echo /robot_status
+
+```
+***Expected: RobotStatusLaunch messages with robot info, battery level, location***
+
+**Test Zone Coordinator Service:**
+
+***Terminal 1: Run the zone coordinator service***
+
+```bash
 ros2 run ce_robot 07_zone_coordinator --ros-args \
   -p robot_id:=AMR-TEST-002 \
   -p zone_id:=WAREHOUSE-A \
   -p robot_type:=picker \
   -p max_capacity:=50.0
 
-# Terminal 2: Call the service to request a task
-ros2 service call /request_task example_interfaces/srv/SetBool "{data: true}"
-
-# Expected: Task assignment response with task type and zone information
 ```
 
-**Test Fleet Monitor (Standalone - Limited Functionality):**
+***Terminal 2: Call the service to request a task***
 ```bash
-# Terminal 1: Run the fleet monitor
+ros2 service call /request_task example_interfaces/srv/SetBool "{data: true}"
+
+```
+***Expected: Task assignment response with task type and zone information***
+
+**Test Fleet Monitor (Standalone - Limited Functionality):**
+
+***Terminal 1: Run the fleet monitor***
+
+```bash
 ros2 run ce_robot 07_fleet_monitor --ros-args \
   -p fleet_id:=TEST-FLEET \
   -p num_robots:=3 \
   -p monitor_rate_hz:=0.5
 
-# Terminal 2: Monitor the fleet status output
+```
+
+***Terminal 2: Monitor the fleet status output***
+```bash
 ros2 topic echo /fleet_status
 
-# Expected: Fleet monitoring reports every 2 seconds with:
-# - Fleet ID and robot count
-# - System metrics (CPU, Memory, Disk usage)
-# - Fleet uptime
-# Note: Robot-specific data will be empty since no robots are running
 ```
+***Expected: Fleet monitoring reports every 2 seconds with Fleet ID, robot count, system metrics (CPU, Memory, Disk usage), and fleet uptime***
+
+***Note: Robot-specific data will be empty since no robots are running***
 
 **Important:** The fleet monitor is designed to aggregate data from multiple robot namespaces. For full functionality testing, see Step 4 where it monitors the complete multi-robot system with all three robots running.
 
