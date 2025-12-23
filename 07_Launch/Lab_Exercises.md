@@ -1611,63 +1611,78 @@ ce_robot 07_task_processor
 ### **🧪 Test Individual Nodes**
 
 **Test Battery Monitor Node:**
+
+***Terminal 1: Run the battery monitor***
+
 ```bash
-# Terminal 1: Run the battery monitor
 ros2 run ce_robot 07_battery_monitor --ros-args \
   -p robot_id:=AMR-BATTERY-001 \
   -p battery_capacity_ah:=100.0 \
   -p battery_voltage_nominal:=48.0 \
   -p monitor_rate_hz:=2.0 \
   -p simulate_failure:=false
+
 ```
 
-# Terminal 2: Monitor battery status
+***Terminal 2: Monitor battery status***
+
 ```bash
 ros2 topic echo /battery_status
+
 ```
 
-# Expected: JSON-formatted battery data (voltage, current, temperature, SoC)
+***Expected: JSON-formatted battery data with voltage, current, temperature, state of charge (SoC)***
 
 **Test Navigation Controller Node:**
 
-# Terminal 1: Run the navigation controller
+***Terminal 1: Run the navigation controller***
+
 ```bash
 ros2 run ce_robot 07_navigation_controller --ros-args \
   -p robot_id:=AMR-NAV-001 \
   -p max_speed_ms:=2.5 \
   -p safety_radius_m:=0.75 \
   -p simulate_failure:=false
+
 ```
 
-# Terminal 2: Monitor navigation status
+***Terminal 2: Monitor navigation status***
+
 ```bash
 ros2 topic echo /navigation_status
+
 ```
 
-# Terminal 3: Start navigation
+***Terminal 3: Start navigation***
+
 ```bash
 ros2 service call /navigation_command example_interfaces/srv/SetBool "{data: true}"
+
 ```
 
-# Expected: Real-time position updates, obstacle detection, path planning
+***Expected: Real-time position updates, obstacle detection, path planning data***
 
 **Test Task Processor Node:**
 
-# Terminal 1: Run the task processor
+***Terminal 1: Run the task processor***
+
 ```bash
 ros2 run ce_robot 07_task_processor --ros-args \
   -p robot_id:=AMR-TASK-001 \
   -p robot_type:=picker \
   -p max_tasks_per_hour:=50 \
   -p simulate_failure:=false
+
 ```
 
-# Terminal 2: Monitor task status
+***Terminal 2: Monitor task status***
+
 ```bash
 ros2 topic echo /task_status
+
 ```
 
-# Expected: Task queue updates (completed, pending, failed), performance metrics
+***Expected: Task queue updates showing completed, pending, and failed tasks with performance metrics***
 
 ---
 
