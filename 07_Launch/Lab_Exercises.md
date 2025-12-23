@@ -855,7 +855,7 @@ ros2 run ce_robot 07_robot_status --ros-args \
 
 ***Terminal 2: Monitor the status***
 ```bash
-ros2 topic echo /robot_status
+ros2 topic echo /robot_status --once --full-length
 
 ```
 ***Expected: RobotStatusLaunch messages with robot info, battery level, location***
@@ -894,7 +894,7 @@ ros2 run ce_robot 07_fleet_monitor --ros-args \
 
 ***Terminal 2: Monitor the fleet status output***
 ```bash
-ros2 topic echo /fleet_status
+ros2 topic echo /fleet_status --once --full-length
 
 ```
 ***Expected: Fleet monitoring reports every 2 seconds with Fleet ID, robot count, system metrics (CPU, Memory, Disk usage), and fleet uptime***
@@ -1145,7 +1145,18 @@ ros2 node list
 ros2 topic echo /robot1/robot_status --once
 ```
 
-***Expected: RobotStatusLaunch message with robot_id=AMR-TRANSPORT-HEAVY-001, battery_level=78.0, location=DOCK-A1***
+***Expected output:***
+```
+robot_id: "AMR-TRANSPORT-HEAVY-001"
+robot_type: "transport"
+zone_id: "LOADING-DOCK"
+fleet_number: 1
+max_payload_kg: 1000.0
+battery_level: 78.0
+current_location: "DOCK-A1"
+assigned_task: "PALLET-LOADING"
+status: "ACTIVE"
+```
 
 ***Terminal 2: Check Robot 2 status (Light Picker - Low Battery)***
 
@@ -1153,7 +1164,18 @@ ros2 topic echo /robot1/robot_status --once
 ros2 topic echo /robot2/robot_status --once
 ```
 
-***Expected: RobotStatusLaunch message with robot_id=AMR-PICKER-LIGHT-002, battery_level=18.0, status=CHARGING***
+***Expected output:***
+```
+robot_id: "AMR-PICKER-LIGHT-002"
+robot_type: "picker"
+zone_id: "PICKING-AREA"
+fleet_number: 2
+max_payload_kg: 50.0
+battery_level: 18.0
+current_location: "PICK-B3"
+assigned_task: "RETURN-TO-CHARGE"
+status: "CHARGING"
+```
 
 ***Terminal 3: Check Robot 3 status (Multi-function Delivery)***
 
@@ -1161,7 +1183,18 @@ ros2 topic echo /robot2/robot_status --once
 ros2 topic echo /robot3/robot_status --once
 ```
 
-***Expected: RobotStatusLaunch message with robot_id=AMR-DELIVERY-MULTI-003, battery_level=92.0, assigned_task=DELIVERY***
+***Expected output:***
+```
+robot_id: "AMR-DELIVERY-MULTI-003"
+robot_type: "delivery"
+zone_id: "SORTING-STATION"
+fleet_number: 3
+max_payload_kg: 300.0
+battery_level: 92.0
+current_location: "SORT-C2"
+assigned_task: "DELIVERY"
+status: "ACTIVE"
+```
 
 ---
 
@@ -1222,13 +1255,30 @@ ros2 service call /robot3/request_task example_interfaces/srv/SetBool "{data: tr
 
 **Test 6 - Monitor Fleet-Wide Status:**
 
-***Terminal 1: Monitor aggregated fleet status***
+***Terminal 1: Monitor aggregated fleet status (truncated view)***
 
 ```bash
 ros2 topic echo /fleet_status
 ```
 
 ***Expected: Fleet monitor publishes aggregated report every 2 seconds with all three robots' data, system metrics (CPU, Memory, Disk), and fleet uptime***
+
+***Note: Output will be truncated with "..." due to long formatted report***
+
+***Terminal 1 (Alternative): See full fleet status report***
+
+```bash
+# Option 1: See one complete message without truncation
+ros2 topic echo /fleet_status --once --full-length
+
+# Option 2: Continuously monitor with full messages
+ros2 topic echo /fleet_status --full-length
+
+# Option 3: Save to file for detailed analysis
+ros2 topic echo /fleet_status --once > fleet_report.txt && cat fleet_report.txt
+```
+
+***Expected full output: Complete formatted report with border characters, all robot data, system metrics, and timestamps***
 
 ***Terminal 2: Check fleet monitor details***
 
@@ -1239,6 +1289,31 @@ ros2 node info /fleet_monitor
 ***Expected subscriptions: /robot1/robot_status, /robot2/robot_status, /robot3/robot_status***
 
 ***Expected publications: /fleet_status***
+
+***Terminal 3: Subscribe to individual robot status topics***
+
+```bash
+# Subscribe to Robot 1 status
+ros2 topic echo /robot1/robot_status
+
+# Or in separate terminals:
+ros2 topic echo /robot2/robot_status
+ros2 topic echo /robot3/robot_status
+```
+
+***Expected: See RobotStatusLaunch messages with robot details, battery, location, tasks***
+
+***Terminal 4: Verify topic connections***
+
+```bash
+# Check how many subscribers are listening to robot1's status
+ros2 topic info /robot1/robot_status
+
+# Expected output:
+# Type: ce_robot_interfaces/msg/RobotStatusLaunch
+# Publisher count: 1 (robot_status_publisher)
+# Subscription count: 1 (fleet_monitor)
+```
 
 ---
 
