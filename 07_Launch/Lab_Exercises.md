@@ -1627,7 +1627,7 @@ ros2 run ce_robot 07_battery_monitor --ros-args \
 ***Terminal 2: Monitor battery status***
 
 ```bash
-ros2 topic echo /battery_status
+ros2 topic echo /battery_status --full-length
 
 ```
 
@@ -1649,7 +1649,7 @@ ros2 run ce_robot 07_navigation_controller --ros-args \
 ***Terminal 2: Monitor navigation status***
 
 ```bash
-ros2 topic echo /navigation_status
+ros2 topic echo /navigation_status --full-length
 
 ```
 
@@ -1678,7 +1678,7 @@ ros2 run ce_robot 07_task_processor --ros-args \
 ***Terminal 2: Monitor task status***
 
 ```bash
-ros2 topic echo /task_status
+ros2 topic echo /task_status --full-length
 
 ```
 
@@ -1922,44 +1922,6 @@ def generate_launch_description():
             )
         
         return [
-            LogInfo(msg='❌ CRITICAL: Rectangle Service failed! Shutting down system...'),
-            LogInfo(msg='🚨 SAFETY ALERT: Navigation compromised - emergency stop initiated'),
-            EmitEvent(event=Shutdown(reason='Critical service failure - safety system')),
-        ]
-    
-    service_exit_handler = RegisterEventHandler(
-        OnProcessExit(
-            target_action=service_node,
-            on_exit=[OpaqueFunction(function=handle_service_exit)]
-        )
-    )
-    
-    # Event handler: Log action server lifecycle
-    action_start_handler = RegisterEventHandler(
-        OnProcessStart(
-            target_action=action_node,
-            on_start=[
-                LogInfo(msg='✅ Count Action Server started successfully'),
-            ]
-        )
-    )
-    
-    action_exit_handler = RegisterEventHandler(
-        OnProcessExit(
-            target_action=action_node,
-            on_exit=[
-                LogInfo(msg='⚠️  Count Action Server exited (non-critical)'),
-            ]
-        )
-    )
-    
-    return LaunchDescription([
-        # Arguments
-        enable_auto_restart_arg,
-        critical_node_arg,
-        max_restart_attempts_arg,
-        
-        return [
             LogInfo(msg='❌ CRITICAL: Navigation Controller failed!'),
             LogInfo(msg='🚨 SAFETY ALERT: Collision avoidance compromised'),
             LogInfo(msg='🛑 EMERGENCY STOP: Shutting down all robot systems'),
@@ -2059,18 +2021,7 @@ def generate_launch_description():
 | Navigation Controller Crash | CRITICAL | Immediate emergency stop |
 | Task Processor Crash | NON-CRITICAL | Log and continue |
 
-**Testing Failure Recovery:**
-
-```bash
-# Test battery monitor auto-restart (will restart 3 times)
-ros2 launch ce_robot_launch monitored_system_launch.py simulate_failures:=true
-
-# In another terminal, watch the failure counter
-watch -n 1 cat /tmp/robot_failures/failure_counts.json
-
-# View failure log
-tail -f /tmp/robot_failures/failure_log.txt
-```
+---
 
 ### **🧪 Step 4: Build and Test Production System**
 
@@ -2079,18 +2030,6 @@ tail -f /tmp/robot_failures/failure_log.txt
 cd ~/ros2_ws
 colcon build --packages-select ce_robot --symlink-install
 source install/setup.bash
-```
-
-**Verify nodes are installed:**
-```bash
-ros2 pkg executables ce_robot | grep "07_"
-```
-
-**Expected output:**
-```
-ce_robot 07_battery_monitor
-ce_robot 07_navigation_controller
-ce_robot 07_task_processor
 ```
 
 ---
@@ -2123,44 +2062,245 @@ ros2 launch ce_robot_launch monitored_system_launch.py
 **Monitor node outputs:**
 ```bash
 # Terminal 2: Battery status
-ros2 topic echo /battery_status --once
+ros2 topic echo /battery_status --once --full-length
 
 # Terminal 3: Navigation status
-ros2 topic echo /navigation_status --once
+ros2 topic echo /navigation_status --once --full-length
 
 # Terminal 4: Task status
-ros2 topic echo /task_status --once
+ros2 topic echo /task_status --once --full-length
 ```
 
 #### **Test 2: Battery Monitor Auto-Restart**
 
-**Terminal 1 - Run launch:**
+This test demonstrates automatic node restart when a non-critical node crashes. The battery monitor will simulate failures and the launch system will automatically restart it.
+
+***Terminal 1: Launch system with simulated failures enabled***
+
 ```bash
 ros2 launch ce_robot_launch monitored_system_launch.py simulate_failures:=true
 ```
 
-**Wait for battery_monitor to crash automatically, observe behavior:**
+***Expected output (Basic Monitoring - without failure_counter.py):***
+
+**System Startup:**
 ```
-⚠️ Battery Monitor exited! Attempt 1/3. Restarting in 3 seconds...
-📊 Failure logged with robot tracking ID
-[3 second delay]
-✅ Battery Monitor started successfully
-[continues until 3 failures]
-❌ CRITICAL: Battery monitor failed 3 times! Manual intervention required.
-⚠️ Alerting maintenance team...
-📧 Email sent to: maintenance@warehouse.com
-📱 SMS alert sent to on-call engineer
-[System shutdown]
+[INFO] [launch]: All log files can be found below /home/admin/.ros/log/...
+[INFO] [launch]: Default logging verbosity is set to INFO
+⚠️ Warning: failure_counter.py not found. Using basic monitoring.
+[INFO] [launch.user]: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[INFO] [launch.user]: 🔍 Production Robot Monitoring System Starting...
+[INFO] [launch.user]: 📊 Failure tracking: /path/to/config/failure_counter.py
+[INFO] [launch.user]: ⚙️ Max restart attempts: 3
+[INFO] [launch.user]: 🚨 Critical nodes: navigation_controller
+[INFO] [launch.user]: 🔄 Auto-restart enabled: battery_monitor
+[INFO] [launch.user]: 📋 Non-critical: task_processor
+[INFO] [launch.user]: ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[INFO] [07_battery_monitor-1]: process started with pid [200557]
+[INFO] [07_navigation_controller-2]: process started with pid [200558]
+[INFO] [07_task_processor-3]: process started with pid [200559]
+[INFO] [launch.user]: ✅ Battery Monitor started successfully
+[INFO] [launch.user]: ✅ Navigation Controller started successfully
+[INFO] [launch.user]: 🗺️ Safety systems online - collision avoidance active
+[INFO] [launch.user]: ✅ Task Processor started successfully
 ```
 
-**Check failure tracking:**
+**Nodes Running Normally (~10 seconds):**
+```
+[07_battery_monitor-1] [INFO] [battery_monitor]: 🔋 Battery Monitor Node Started
+[07_battery_monitor-1] [INFO] [battery_monitor]:    Robot ID: AMR-BATTERY-MONITOR-001
+[07_navigation_controller-2] [INFO] [navigation_controller]: 🗺️  Navigation Controller Started
+[07_task_processor-3] [INFO] [task_processor]: 📋 Task Processor Node Started
+[07_battery_monitor-1] [INFO] [battery_monitor]: 🔋 Battery: 84.8% | 40.7V | 13.1A | 25.2°C
+[07_navigation_controller-2] [INFO] [navigation_controller]: 🗺️  Nav [IDLE]: Pos(5.0, 3.0)
+[07_task_processor-3] [INFO] [task_processor]: 🔄 Processing TRANSPORT_ITEM: TASK-0001
+```
+
+**First Battery Monitor Crash:**
+```
+[07_battery_monitor-1] [ERROR] [battery_monitor]: 💥 SIMULATED BATTERY MONITOR CRASH!
+[07_battery_monitor-1] [ERROR] [battery_monitor]: Battery monitor exception: Simulated failure
+[INFO] [07_battery_monitor-1]: process has finished cleanly [pid 200557]
+[INFO] [launch.user]: ⚠️ Battery Monitor exited! Attempting restart in 3 seconds...
+
+[Wait 3 seconds...]
+
+[INFO] [07_battery_monitor-4]: process started with pid [200724]
+[07_battery_monitor-4] [INFO] [battery_monitor]: 🔋 Battery Monitor Node Started (RESTARTED)
+```
+
+**Pattern continues - crashes every ~10 seconds, restarts after 3 second delay:**
+```
+[Battery monitor runs normally for ~10 seconds]
+[07_battery_monitor-4] [ERROR] [battery_monitor]: 💥 SIMULATED BATTERY MONITOR CRASH!
+[INFO] [07_battery_monitor-4]: process has finished cleanly [pid 200724]
+[INFO] [launch.user]: ⚠️ Battery Monitor exited! Attempting restart in 3 seconds...
+
+[Wait 3 seconds...]
+
+[INFO] [07_battery_monitor-7]: process started with pid [200891]
+[Cycle repeats indefinitely...]
+```
+
+> **⚠️ Important:** Without `failure_counter.py`, the system will restart the battery monitor **indefinitely**. This is basic monitoring mode. Press `Ctrl+C` to stop the launch system.
+
+---
+
+***Expected output (With failure_counter.py installed):***
+
+Same startup sequence, but after 3 consecutive failures:
+
+```
+[First crash]
+[INFO] [launch.user]: ⚠️ Battery Monitor exited! Attempt 1/3. Restarting in 3 seconds...
+[INFO] [launch.user]: 📊 Failure logged with robot tracking ID
+
+[Second crash]
+[INFO] [launch.user]: ⚠️ Battery Monitor exited! Attempt 2/3. Restarting in 3 seconds...
+[INFO] [launch.user]: 📊 Failure logged with robot tracking ID
+
+[Third crash]
+[INFO] [launch.user]: ❌ CRITICAL: Battery monitor failed 3 times! Manual intervention required.
+[INFO] [launch.user]: ⚠️ Alerting maintenance team...
+[INFO] [launch.user]: 📧 Email sent to: maintenance@warehouse.com
+[INFO] [launch.user]: 📱 SMS alert sent to on-call engineer
+[INFO] [launch.user]: Shutting down entire system...
+[All processes receive SIGINT and terminate]
+```
+
+***Terminal 2: Monitor failure tracking (if failure_counter.py is available)***
+
 ```bash
-# View failure count JSON
+# View failure count
 cat /tmp/robot_failures/failure_counts.json
+```
 
+***Expected:***
+```json
+{
+  "battery_monitor": 3
+}
+```
+
+```bash
 # View detailed failure log
 tail -20 /tmp/robot_failures/failure_log.txt
 ```
+
+***Expected:***
+```
+2025-12-23 08:27:49 | battery_monitor | Battery monitoring system crashed
+2025-12-23 08:28:02 | battery_monitor | Battery monitoring system crashed
+2025-12-23 08:28:15 | battery_monitor | Battery monitoring system crashed
+```
+
+**🔧 Troubleshooting Launch File Errors:**
+
+**Error 1: Missing context parameter**
+
+If you see:
+```
+[ERROR] [launch]: Caught exception in launch: 
+handle_battery_exit() missing 1 required positional argument: 'context'
+```
+
+**Root cause:** Your event handler function is missing the `context` parameter or has incomplete code.
+
+**Fix:** Open `~/ros2_ws/src/ce_robot_launch/launch/monitored_system_launch.py` and verify:
+
+```python
+# ✅ CORRECT - Both event and context parameters
+def handle_battery_exit(event, context):
+    """Handle battery monitor exit with failure counting and escalation"""
+    if failure_counter:
+        node_name = 'battery_monitor'
+        count = failure_counter.increment_failure_count(node_name)
+        failure_counter.log_failure(node_name, "Battery monitoring system crashed")
+        
+        if count >= 3:
+            return [
+                LogInfo(msg=f'❌ CRITICAL: Battery monitor failed {count} times!'),
+                LogInfo(msg='⚠️ Alerting maintenance team...'),
+                EmitEvent(event=Shutdown(reason=f'Persistent failure: {node_name}'))
+            ]
+        else:
+            return [
+                LogInfo(msg=f'⚠️ Battery Monitor exited! Attempt {count}/3. Restarting...'),
+                TimerAction(
+                    period=3.0,
+                    actions=[
+                        Node(
+                            package='ce_robot',
+                            executable='07_battery_monitor',
+                            name='battery_monitor',
+                            output='screen',
+                            parameters=[
+                                {'robot_id': f'AMR-RESTART-{count}'},
+                                {'battery_capacity_ah': 100.0},
+                                {'monitor_rate_hz': 2.0},
+                                {'simulate_failure': False},
+                            ],
+                        ),
+                    ]
+                ),
+            ]
+    else:
+        # Fallback without failure counter
+        return [
+            LogInfo(msg='⚠️ Battery Monitor exited! Attempting restart in 3 seconds...'),
+            TimerAction(
+                period=3.0,
+                actions=[
+                    Node(
+                        package='ce_robot',
+                        executable='07_battery_monitor',
+                        name='battery_monitor',
+                        output='screen',
+                        parameters=[
+                            {'robot_id': 'AMR-BATTERY-MONITOR-RESTART'},
+                            {'battery_capacity_ah': 100.0},
+                            {'monitor_rate_hz': 2.0},
+                        ],
+                    ),
+                ]
+            ),
+        ]
+
+def handle_navigation_exit(event, context):
+    """Handle critical navigation controller failure - immediate shutdown"""
+    if failure_counter:
+        node_name = 'navigation_controller'
+        failure_counter.log_failure(node_name, "CRITICAL: Navigation crashed!")
+    
+    return [
+        LogInfo(msg='❌ CRITICAL: Navigation Controller failed!'),
+        LogInfo(msg='🚨 SAFETY ALERT: Collision avoidance compromised'),
+        LogInfo(msg='🛑 EMERGENCY STOP: Shutting down all robot systems'),
+        EmitEvent(event=Shutdown(reason='Critical safety system failure')),
+    ]
+```
+
+**Common mistakes:**
+- ❌ `def handle_battery_exit(event):` - Missing `context` parameter
+- ❌ Function exists but has no `return` statement
+- ❌ `return` statement is outside the function (indentation error)
+- ❌ Incomplete function body (only first few lines copied)
+
+**After fixing, rebuild and test:**
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot_launch --symlink-install
+source install/setup.bash
+ros2 launch ce_robot_launch monitored_system_launch.py simulate_failures:=true
+```
+
+**Quick verification:** Compare your file with the reference:
+```bash
+diff ~/ros2_ws/src/ce_robot_launch/launch/monitored_system_launch.py \
+     ~/path/to/07_Launch/src/exercise_3/launch/monitored_system_launch.py
+```
+
+---
 
 #### **Test 3: Critical Navigation Failure**
 
