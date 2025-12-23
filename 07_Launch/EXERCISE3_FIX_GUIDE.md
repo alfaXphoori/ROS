@@ -162,3 +162,110 @@ The complete, working reference file is at:
 ```
 
 This is the master copy that works correctly.
+
+---
+
+## 🛑 Troubleshooting: Battery Monitor Doesn't Auto-Restart
+
+### Problem: Battery crashes but doesn't restart
+
+**Symptoms:**
+```
+[07_battery_monitor-1] [ERROR] 💥 SIMULATED BATTERY MONITOR CRASH!
+[INFO] [07_battery_monitor-1]: process has finished cleanly
+[INFO] [07_task_processor-3]: sending signal 'SIGINT' to process
+[INFO] [07_navigation_controller-2]: sending signal 'SIGINT' to process
+[ERROR] [07_task_processor-3]: process has died
+[ERROR] [07_navigation_controller-2]: process has died
+[Entire system shuts down - NO RESTART]
+```
+
+### Root Cause
+
+The event handler function has an error or the `OpaqueFunction` isn't being called.
+
+### Fix Steps
+
+**Step 1: Check your launch file has BOTH complete handler functions**
+
+```bash
+# On ROS machine, check the file
+grep -A 5 "def handle_battery_exit" ~/ros2_ws/src/ce_robot_launch/launch/monitored_system_launch.py
+```
+
+**Must show:**
+```python
+def handle_battery_exit(event, context):
+    """Handle battery monitor exit with failure counting and escalation"""
+    if failure_counter:
+        node_name = 'battery_monitor'
+        count = failure_counter.increment_failure_count(node_name)
+```
+
+If you see `def handle_battery_exit(event):` (missing context) → **WRONG, fix it!**
+
+**Step 2: Verify the handler is registered correctly**
+
+```bash
+grep "OpaqueFunction" ~/ros2_ws/src/ce_robot_launch/launch/monitored_system_launch.py
+```
+
+**Must show:**
+```python
+on_exit=[OpaqueFunction(function=handle_battery_exit)]
+```
+
+**Step 3: Copy the complete reference file**
+
+```bash
+# Replace your broken file with the working reference
+cp /path/to/07_Launch/src/exercise_3/launch/monitored_system_launch.py \
+   ~/ros2_ws/src/ce_robot_launch/launch/monitored_system_launch.py
+
+# Also copy failure_counter.py (optional but recommended)
+mkdir -p ~/ros2_ws/src/ce_robot_launch/config
+cp /path/to/07_Launch/src/exercise_3/config/failure_counter.py \
+   ~/ros2_ws/src/ce_robot_launch/config/failure_counter.py
+
+# Rebuild
+cd ~/ros2_ws
+colcon build --packages-select ce_robot_launch --symlink-install
+source install/setup.bash
+
+# Test again
+ros2 launch ce_robot_launch monitored_system_launch.py simulate_failures:=true
+```
+
+**Step 4: Watch for the restart**
+
+After battery monitor crashes, you should see:
+```
+[INFO] [07_battery_monitor-1]: process has finished cleanly [pid 200557]
+⚠️ Battery Monitor exited! Attempting restart in 3 seconds...
+
+[Wait 3 seconds - other nodes keep running]
+
+[INFO] [07_battery_monitor-4]: process started with pid [200724]
+[07_battery_monitor-4] [INFO] [battery_monitor]: 🔋 Battery Monitor Node Started
+```
+
+### If still not working
+
+**Check Python syntax errors:**
+```bash
+python3 ~/ros2_ws/src/ce_robot_launch/launch/monitored_system_launch.py
+```
+
+Should show no errors.
+
+**Check colcon build output:**
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot_launch --symlink-install 2>&1 | grep -i error
+```
+
+Should be empty.
+
+**Last resort - Use the reference files:**
+
+The files in `07_Launch/src/exercise_3/` are guaranteed to work. Copy them exactly as-is.
