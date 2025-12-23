@@ -1255,108 +1255,26 @@ ros2 service call /robot3/request_task example_interfaces/srv/SetBool "{data: tr
 
 **Test 6 - Monitor Fleet-Wide Status:**
 
-***Terminal 1: Monitor aggregated fleet status (truncated view)***
+***Terminal 1: View full fleet status report***
 
 ```bash
-ros2 topic echo /fleet_status
-```
-
-***Expected: Fleet monitor publishes aggregated report every 2 seconds with all three robots' data, system metrics (CPU, Memory, Disk), and fleet uptime***
-
-***Note: Output will be truncated with "..." due to long formatted report***
-
-***Terminal 1 (Alternative): See full fleet status report***
-
-```bash
-# Option 1: See one complete message without truncation
 ros2 topic echo /fleet_status --once --full-length
+```
 
-# Option 2: Continuously monitor with full messages
+***Expected: Complete formatted report with border characters showing:***
+- Fleet ID and active robot count
+- System metrics (CPU, Memory, Disk usage)
+- Fleet uptime and monitoring duration
+- Status from all robots (robot1, robot2, robot3)
+- Individual robot details (battery, location, tasks)
+
+***Terminal 2: Continuously monitor fleet status***
+
+```bash
 ros2 topic echo /fleet_status --full-length
-
-# Option 3: Save to file for detailed analysis
-ros2 topic echo /fleet_status --once > fleet_report.txt && cat fleet_report.txt
 ```
 
-***Expected full output: Complete formatted report with border characters, all robot data, system metrics, and timestamps***
-
-***Terminal 2: Check fleet monitor details***
-
-```bash
-ros2 node info /fleet_monitor
-```
-
-***Expected subscriptions: /robot1/robot_status, /robot2/robot_status, /robot3/robot_status***
-
-***Expected publications: /fleet_status***
-
-***Terminal 3: Subscribe to individual robot status topics***
-
-```bash
-# Subscribe to Robot 1 status
-ros2 topic echo /robot1/robot_status
-
-# Or in separate terminals:
-ros2 topic echo /robot2/robot_status
-ros2 topic echo /robot3/robot_status
-```
-
-***Expected: See RobotStatusLaunch messages with robot details, battery, location, tasks***
-
-***Terminal 4: Verify topic connections***
-
-```bash
-# Check how many subscribers are listening to robot1's status
-ros2 topic info /robot1/robot_status
-
-# Expected output:
-# Type: ce_robot_interfaces/msg/RobotStatusLaunch
-# Publisher count: 1 (robot_status_publisher)
-# Subscription count: 1 (fleet_monitor)
-```
-
----
-
-**Test 7 - Verify Fleet Monitor Configuration:**
-
-***Terminal 1: List fleet monitor parameters***
-
-```bash
-ros2 param list /fleet_monitor
-```
-
-***Terminal 2: Check specific parameter values***
-
-```bash
-ros2 param get /fleet_monitor fleet_id
-ros2 param get /fleet_monitor num_robots
-ros2 param get /fleet_monitor monitor_rate_hz
-```
-
-***Expected output:***
-```
-fleet_id: WAREHOUSE-FLEET-A
-num_robots: 3
-monitor_rate_hz: 0.5
-```
-
----
-
-**Test 8 - Compare Individual vs Fleet Data:**
-
-***Terminal 1: Monitor Robot 1 individual status***
-
-```bash
-ros2 topic echo /robot1/robot_status
-```
-
-***Terminal 2: Monitor fleet aggregated status simultaneously***
-
-```bash
-ros2 topic echo /fleet_status
-```
-
-***Expected: Robot 1's data appears in both - individual topic shows detailed robot info, fleet status shows aggregated summary of all robots***
+***Expected: Real-time updates every 2 seconds with aggregated fleet data***
 
 ---
 
