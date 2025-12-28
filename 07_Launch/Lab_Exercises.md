@@ -2263,61 +2263,6 @@ cat /tmp/robot_failures/failure_counts.json
 cat /tmp/robot_failures/failure_log.txt
 ```
 
-**Expected output:**
-```
-[2025-12-28 10:15:23] ROBOT:UNKNOWN | NODE:battery_monitor | COUNT:1 | ERROR:Battery monitoring system crashed
-[2025-12-28 10:16:01] ROBOT:UNKNOWN | NODE:battery_monitor | COUNT:2 | ERROR:Battery monitoring system crashed  
-[2025-12-28 10:16:45] ROBOT:UNKNOWN | NODE:battery_monitor | COUNT:3 | ERROR:Battery monitoring system crashed
-```
-
-**Terminal 4 - Test the failure counter module directly:**
-```bash
-python3 ~/ros2_ws/src/ce_robot_launch/config/failure_counter.py
-```
-
-**Expected CLI test output:**
-```
-📊 Failure Counter initialized
-   Storage: /tmp/robot_failures
-   Robot ID: UNKNOWN
-
-🧪 Testing Failure Counter...
-⚠️ Failure count for test_node: 1
-📝 Logged failure: test_node (count: 1)
-⚠️ Failure count for test_node: 2
-📝 Logged failure: test_node (count: 2)
-⚠️ Failure count for test_node: 3
-📝 Logged failure: test_node (count: 3)
-⚠️ Failure count for test_node: 4
-📝 Logged failure: test_node (count: 4)
-⚠️ Failure count for test_node: 5
-📝 Logged failure: test_node (count: 5)
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 FAILURE SUMMARY
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🔧 test_node:
-   Count: 5
-   First: 2025-12-28T10:20:15.123456
-   Last: 2025-12-28T10:20:17.987654
-   Robot: UNKNOWN
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-✅ Failure count reset for test_node
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 FAILURE SUMMARY
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🔧 test_node:
-   Count: 0
-   First: 2025-12-28T10:20:15.123456
-   Last: 2025-12-28T10:20:17.987654
-   Robot: UNKNOWN
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
-
 ---
 
 **🔍 Troubleshooting: If FailureCounter is Not Loading**
@@ -2599,11 +2544,21 @@ config/
 ├── robot_small.yaml      # Customer A specs
 ├── robot_large.yaml      # Customer B specs
 ├── robot_simulation.yaml # Testing environment
-└── robot_maintenance.yaml # Service mode
+└── robot_hardware.yaml   # Production hardware mode
 ```
 
 One codebase, multiple deployments! Change config file = different robot behavior. No code recompilation needed!
 
+> **📦 Reference Files Available:** All complete files for this exercise are available in `07_Launch/src/exercise_4/` for reference. You can use these as examples or copy them to your workspace.
+
+### **📝 Step 1: Create Directory Structure**
+
+```bash
+cd ~/ros2_ws/src/ce_robot_launch/launch
+mkdir -p config
+```
+
+### **📝 Step 2: Create Configuration Files**
 
 ### **📁 File: launch/config/robot_small.yaml**
 
@@ -2687,6 +2642,98 @@ count_server:
     default_period: 2.0
 ```
 
+### **📁 File: launch/config/robot_simulation.yaml**
+
+```yaml
+# Simulation mode - faster, no real hardware
+robot_tag_publisher:
+  ros__parameters:
+    use_sim_time: true  # ROS 2 simulation time
+    robot_id: "SIM-TEST-001"
+    robot_type: "simulation"
+    zone_id: "GAZEBO-WAREHOUSE"
+    fleet_number: 999
+    tag_publish_rate: 10.0  # Fast for testing
+    max_payload_kg: 100.0
+    priority_level: 1
+    # Physical dimensions (meters)
+    robot_width: 0.60
+    robot_length: 0.80
+    robot_height: 1.00
+    # Performance specs
+    max_speed: 5.0  # Unrealistic speed OK in sim
+    turning_radius: 0.2
+    # Battery specs
+    battery_capacity: 100.0
+    charging_time: 0.5
+    # Operational
+    current_location: "SIM-ORIGIN"
+    status: "testing"
+    assigned_task: "SIMULATION-TEST"
+    # Simulation specific
+    lidar_topic: "/scan_simulated"
+    camera_topic: "/camera/image_raw_sim"
+    enable_physics: true
+    collision_checking: "gazebo"  # Use simulator
+
+rect_server:
+  ros__parameters:
+    max_dimension: 500.0
+    min_dimension: 5.0
+
+count_server:
+  ros__parameters:
+    max_count: 500
+    default_period: 1.0
+```
+
+### **📁 File: launch/config/robot_hardware.yaml**
+
+```yaml
+# Hardware mode - real robot, safe speeds
+robot_tag_publisher:
+  ros__parameters:
+    use_sim_time: false  # Real system time
+    robot_id: "AMR-PROD-001"
+    robot_type: "production"
+    zone_id: "WAREHOUSE-A-REAL"
+    fleet_number: 1
+    tag_publish_rate: 2.0  # Realistic rate
+    max_payload_kg: 200.0
+    priority_level: 5
+    # Physical dimensions (meters)
+    robot_width: 0.75
+    robot_length: 1.00
+    robot_height: 1.20
+    # Performance specs
+    max_speed: 1.2  # Safe human-compatible speed
+    turning_radius: 0.5
+    # Battery specs
+    battery_capacity: 80.0
+    charging_time: 4.0
+    # Operational
+    current_location: "DOCK-A-REAL-1"
+    status: "operational"
+    assigned_task: "PRODUCTION-READY"
+    # Hardware specific
+    lidar_topic: "/sick_lms_1xx/scan"
+    camera_topic: "/realsense/color/image_raw"
+    enable_physics: false
+    collision_checking: "hardware_estop"  # Physical e-stop
+
+rect_server:
+  ros__parameters:
+    max_dimension: 750.0
+    min_dimension: 5.0
+
+count_server:
+  ros__parameters:
+    max_count: 750
+    default_period: 1.5
+```
+
+### **📝 Step 3: Create Launch File**
+
 ### **📁 File: yaml_config_launch.py**
 
 ```python
@@ -2701,7 +2748,8 @@ from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
     IncludeLaunchDescription,
-    SetEnvironmentVariable
+    SetEnvironmentVariable,
+    LogInfo
 )
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -2714,15 +2762,16 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     """Generate launch description with YAML config"""
     
-    # Get package directory
-    pkg_share = FindPackageShare('ce_robot_launch').find('ce_robot_launch')
+    # Get package directory - using os.path for compatibility
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    config_dir = os.path.join(current_dir, 'config')
     
     # Declare arguments
     robot_config_arg = DeclareLaunchArgument(
         'robot_config',
         default_value='small',
-        description='Robot configuration to load (small or large)',
-        choices=['small', 'large']
+        description='Robot configuration to load (small, large, simulation, or hardware)',
+        choices=['small', 'large', 'simulation', 'hardware']
     )
     
     include_simple_launch_arg = DeclareLaunchArgument(
@@ -2735,11 +2784,9 @@ def generate_launch_description():
     robot_config = LaunchConfiguration('robot_config')
     include_simple = LaunchConfiguration('include_simple_launch')
     
-    # Build YAML file path
+    # Build YAML file path - direct path construction
     config_file = PathJoinSubstitution([
-        pkg_share,
-        'launch',
-        'config',
+        config_dir,
         ['robot_', robot_config, '.yaml']
     ])
     
@@ -2773,25 +2820,42 @@ def generate_launch_description():
         parameters=[config_file]
     )
     
-    # Include another launch file conditionally
-    simple_launch_include = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([
-            PathJoinSubstitution([
-                pkg_share,
-                'launch',
-                'simple_launch.py'
-            ])
-        ]),
-        condition=IfCondition(include_simple)
-    )
+    # Try to include another launch file conditionally
+    # Note: This requires simple_launch.py to exist in the same directory
+    try:
+        pkg_share = FindPackageShare('ce_robot_launch').find('ce_robot_launch')
+        simple_launch_include = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                PathJoinSubstitution([
+                    pkg_share,
+                    'launch',
+                    'simple_launch.py'
+                ])
+            ]),
+            condition=IfCondition(include_simple)
+        )
+        has_simple_launch = True
+    except:
+        # If simple_launch.py doesn't exist, create a dummy action
+        simple_launch_include = LogInfo(
+            msg='Note: simple_launch.py not found - skipping composition',
+            condition=IfCondition(include_simple)
+        )
+        has_simple_launch = False
     
-    return LaunchDescription([
+    return LaunchDescription([  # type: ignore
         # Environment
         set_env,
         
         # Arguments
         robot_config_arg,
         include_simple_launch_arg,
+        
+        # Startup messages
+        LogInfo(msg='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'),
+        LogInfo(msg='📋 YAML Configuration Launch - Exercise 4'),
+        LogInfo(msg=['🔧 Loading config: ', config_file]),
+        LogInfo(msg='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'),
         
         # Nodes with YAML config
         publisher_node,
@@ -2803,14 +2867,7 @@ def generate_launch_description():
     ])
 ```
 
-### **🧪 Testing Exercise 4**
-
-**First, create the config directory:**
-```bash
-cd ~/ros2_ws/src/ce_robot_launch/launch
-mkdir -p config
-# Create robot_small.yaml and robot_large.yaml with content above
-```
+### **🧪 Step 4: Build and Test**
 
 **Build:**
 ```bash
@@ -2827,10 +2884,13 @@ ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=small
 **Verify parameters:**
 ```bash
 ros2 param get /robot_tag_publisher robot_id
-# Expected: ROBOT-SMALL-S01
+# Expected: AMR-COMPACT-PICKER-S01
 
 ros2 param get /robot_tag_publisher max_payload_kg
-# Expected: 50.0
+# Expected: 25.0
+
+ros2 param get /robot_tag_publisher tag_publish_rate
+# Expected: 3.0
 ```
 
 **Test 2 - Large robot config:**
@@ -2841,20 +2901,57 @@ ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=large
 **Verify parameters:**
 ```bash
 ros2 param get /robot_tag_publisher robot_id
-# Expected: ROBOT-LARGE-L01
+# Expected: AMR-HEAVY-TRANSPORT-L01
 
 ros2 param get /robot_tag_publisher max_payload_kg
-# Expected: 500.0
+# Expected: 1500.0
+
+ros2 param get /robot_tag_publisher tag_publish_rate
+# Expected: 1.0
 ```
 
-**Test 3 - Include composition:**
+**Test 3 - Simulation config:**
+```bash
+ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=simulation
+```
+
+**Verify parameters:**
+```bash
+ros2 param get /robot_tag_publisher robot_id
+# Expected: SIM-TEST-001
+
+ros2 param get /robot_tag_publisher max_payload_kg
+# Expected: 100.0
+
+ros2 param get /robot_tag_publisher tag_publish_rate
+# Expected: 10.0
+```
+
+**Test 4 - Hardware config:**
+```bash
+ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=hardware
+```
+
+**Verify parameters:**
+```bash
+ros2 param get /robot_tag_publisher robot_id
+# Expected: AMR-PROD-001
+
+ros2 param get /robot_tag_publisher max_payload_kg
+# Expected: 200.0
+
+ros2 param get /robot_tag_publisher tag_publish_rate
+# Expected: 2.0
+```
+
+**Test 5 - Include composition:**
 ```bash
 ros2 launch ce_robot_launch yaml_config_launch.py \
   robot_config:=small \
   include_simple_launch:=true
 ```
 
-**Expected:** 4 publishers running (3 from yaml_config + 1 from simple_launch)
+**Expected:** 4 nodes running (3 from yaml_config + 1 from simple_launch) if simple_launch.py exists
 
 ```bash
 ros2 node list
