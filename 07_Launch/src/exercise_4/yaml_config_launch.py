@@ -57,26 +57,27 @@ def generate_launch_description():
     )
     
     # Load nodes with YAML parameters
+    # Using nodes from 07_Launch exercises
     publisher_node = Node(
         package='ce_robot',
-        executable='05_robot_tag_param',
-        name='robot_tag_publisher',
+        executable='07_robot_status_publisher',
+        name='robot_status_publisher',
         output='screen',
         parameters=[config_file]
     )
     
     service_node = Node(
         package='ce_robot',
-        executable='04_CalRect_server',
-        name='rect_server',
+        executable='07_zone_coordinator',
+        name='zone_coordinator',
         output='screen',
         parameters=[config_file]
     )
     
     action_node = Node(
         package='ce_robot',
-        executable='06_count_until_server',
-        name='count_server',
+        executable='07_task_queue_action',
+        name='task_queue_action',
         output='screen',
         parameters=[config_file]
     )

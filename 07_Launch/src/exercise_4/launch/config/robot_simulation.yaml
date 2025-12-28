@@ -1,40 +1,31 @@
 # Simulation mode - faster, no real hardware
-robot_tag_publisher:
+robot_status_publisher:
   ros__parameters:
     use_sim_time: true  # ROS 2 simulation time
     robot_id: "SIM-TEST-001"
     robot_type: "simulation"
     zone_id: "GAZEBO-WAREHOUSE"
     fleet_number: 999
-    tag_publish_rate: 10.0  # Fast for testing
+    status_rate_hz: 10.0  # Fast for testing
     max_payload_kg: 100.0
-    priority_level: 1
-    # Physical dimensions (meters)
-    robot_width: 0.60
-    robot_length: 0.80
-    robot_height: 1.00
-    # Performance specs
-    max_speed: 5.0  # Unrealistic speed OK in sim
-    turning_radius: 0.2
-    # Battery specs
-    battery_capacity: 100.0
-    charging_time: 0.5
-    # Operational
+    battery_level: 100.0
     current_location: "SIM-ORIGIN"
-    status: "testing"
     assigned_task: "SIMULATION-TEST"
-    # Simulation specific
-    lidar_topic: "/scan_simulated"
-    camera_topic: "/camera/image_raw_sim"
-    enable_physics: true
-    collision_checking: "gazebo"  # Use simulator
 
-rect_server:
+zone_coordinator:
   ros__parameters:
-    max_dimension: 500.0
-    min_dimension: 5.0
+    use_sim_time: true
+    robot_id: "SIM-TEST-001"
+    zone_id: "GAZEBO-WAREHOUSE"
+    robot_type: "simulation"
+    max_capacity: 100.0
 
-count_server:
+task_queue_action:
   ros__parameters:
-    max_count: 500
-    default_period: 1.0
+    use_sim_time: true
+    robot_id: "SIM-TEST-001"
+    robot_type: "simulation"
+    zone_id: "GAZEBO-WAREHOUSE"
+    max_items_per_trip: 500
+    battery_level: 100.0
+    picking_speed_items_per_min: 50.0
