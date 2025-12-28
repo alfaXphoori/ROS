@@ -1,0 +1,34 @@
+# Small robot configuration - Compact picker for narrow aisles
+robot_tag_publisher:
+  ros__parameters:
+    robot_id: "AMR-COMPACT-PICKER-S01"
+    robot_type: "picker"
+    zone_id: "WAREHOUSE-NARROW-AISLE-B"
+    fleet_number: 10
+    tag_publish_rate: 3.0  # Fast updates for agile movement
+    max_payload_kg: 25.0  # Small capacity
+    priority_level: 3
+    # Physical dimensions (meters)
+    robot_width: 0.45
+    robot_length: 0.60
+    robot_height: 1.20
+    # Performance specs
+    max_speed: 1.2  # m/s
+    turning_radius: 0.3  # meters
+    # Battery specs
+    battery_capacity: 50.0  # Amp-hours
+    charging_time: 2.5  # hours
+    # Operational
+    current_location: "AISLE-B-NARROW-12"
+    status: "picking"
+    assigned_task: "PICK-ORDER-54321"
+
+rect_server:
+  ros__parameters:
+    max_dimension: 100.0
+    min_dimension: 1.0
+
+count_server:
+  ros__parameters:
+    max_count: 100
+    default_period: 0.5

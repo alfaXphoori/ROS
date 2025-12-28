@@ -147,7 +147,7 @@ def generate_launch_description():
     )
     
     # Event handler: Battery monitor exit with intelligent failure tracking
-    def handle_battery_exit(event, context):
+    def handle_battery_exit(event):
         """Handle battery monitor exit with failure counting and escalation"""
         if failure_counter:
             node_name = 'battery_monitor'
@@ -227,7 +227,7 @@ def generate_launch_description():
     )
     
     # Event handler: CRITICAL navigation controller failure
-    def handle_navigation_exit(event, context):
+    def handle_navigation_exit(event):
         """Handle critical navigation controller failure - immediate shutdown"""
         if failure_counter:
             node_name = 'navigation_controller'

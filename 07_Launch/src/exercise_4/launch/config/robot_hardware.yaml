@@ -1,0 +1,40 @@
+# Hardware mode - real robot, safe speeds
+robot_tag_publisher:
+  ros__parameters:
+    use_sim_time: false  # Real system time
+    robot_id: "AMR-PROD-001"
+    robot_type: "production"
+    zone_id: "WAREHOUSE-A-REAL"
+    fleet_number: 1
+    tag_publish_rate: 2.0  # Realistic rate
+    max_payload_kg: 200.0
+    priority_level: 5
+    # Physical dimensions (meters)
+    robot_width: 0.75
+    robot_length: 1.00
+    robot_height: 1.20
+    # Performance specs
+    max_speed: 1.2  # Safe human-compatible speed
+    turning_radius: 0.5
+    # Battery specs
+    battery_capacity: 80.0
+    charging_time: 4.0
+    # Operational
+    current_location: "DOCK-A-REAL-1"
+    status: "operational"
+    assigned_task: "PRODUCTION-READY"
+    # Hardware specific
+    lidar_topic: "/sick_lms_1xx/scan"
+    camera_topic: "/realsense/color/image_raw"
+    enable_physics: false
+    collision_checking: "hardware_estop"  # Physical e-stop
+
+rect_server:
+  ros__parameters:
+    max_dimension: 750.0
+    min_dimension: 5.0
+
+count_server:
+  ros__parameters:
+    max_count: 750
+    default_period: 1.5

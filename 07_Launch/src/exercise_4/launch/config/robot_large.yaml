@@ -1,0 +1,38 @@
+# Large robot configuration - Heavy-duty industrial transport
+robot_tag_publisher:
+  ros__parameters:
+    robot_id: "AMR-HEAVY-TRANSPORT-L01"
+    robot_type: "transport"
+    zone_id: "WAREHOUSE-MAIN-LOADING"
+    fleet_number: 100
+    tag_publish_rate: 1.0  # Slower updates for stable transport
+    max_payload_kg: 1500.0  # Heavy industrial capacity
+    priority_level: 8
+    # Physical dimensions (meters)
+    robot_width: 1.20
+    robot_length: 1.80
+    robot_height: 0.50  # Low profile for stability
+    # Performance specs
+    max_speed: 2.0  # m/s
+    turning_radius: 1.5  # meters - wider turns
+    # Battery specs
+    battery_capacity: 200.0  # Amp-hours - large battery
+    charging_time: 6.0  # hours
+    # Operational
+    current_location: "LOADING-DOCK-MAIN-3"
+    status: "transporting_pallet"
+    assigned_task: "PALLET-MOVE-DOCK3-TO-STORAGE-A"
+    # Safety features
+    lidar_range: 25.0  # meters
+    emergency_stop_distance: 3.0  # meters
+    max_slope: 5.0  # degrees
+
+rect_server:
+  ros__parameters:
+    max_dimension: 1000.0
+    min_dimension: 10.0
+
+count_server:
+  ros__parameters:
+    max_count: 1000
+    default_period: 2.0
