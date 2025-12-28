@@ -24,13 +24,23 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 # Import the failure counter (add config directory to path)
-config_dir = Path(__file__).parent.parent / 'config'
-sys.path.insert(0, str(config_dir))
+# Use resolve() for absolute path - critical for ROS launch environments
+config_dir = Path(__file__).resolve().parent.parent / 'config'
+
+# Verify path exists and add to sys.path
+if config_dir.exists():
+    sys.path.insert(0, str(config_dir))
+    print(f"✅ Config directory found: {config_dir}")
+else:
+    print(f"⚠️ Config directory not found: {config_dir}")
 
 try:
     from failure_counter import FailureCounter
-except ImportError:
-    print("⚠️ Warning: failure_counter.py not found. Using basic monitoring.")
+    print("✅ FailureCounter module loaded successfully")
+except ImportError as e:
+    print(f"⚠️ Warning: failure_counter.py not found. Using basic monitoring.")
+    print(f"   Import error: {e}")
+    print(f"   Searched in: {config_dir}")
     FailureCounter = None
 
 
