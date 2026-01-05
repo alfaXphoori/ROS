@@ -2931,6 +2931,22 @@ If you see errors like:
 ```
 This means the Exercise 3 nodes haven't been built. **Stop the launch** (Ctrl+C) and see the troubleshooting section below.
 
+**If the launch appears to start but nodes crash immediately:**
+Look for Python errors in the terminal output like:
+```
+[07_battery_monitor-1] Traceback (most recent call last):
+[07_battery_monitor-1]   File "...", line X, in <module>
+[07_battery_monitor-1] ModuleNotFoundError: No module named 'rclpy'
+```
+
+Or:
+```
+[07_battery_monitor-1] [ERROR] [battery_monitor]: Failed to initialize
+[INFO] [07_battery_monitor-1]: process has died [pid XXXXX, exit code 1]
+```
+
+These indicate the nodes are starting but crashing. See troubleshooting section for solutions.
+
 **First, verify nodes are running:**
 ```bash
 ros2 node list
@@ -3100,37 +3116,117 @@ This allows testing the YAML configuration functionality even without Exercise 3
 Node not found
 ```
 
-**Or `ros2 node list` returns empty output.**
+**Or `ros2 node list` returns empty output even though launch seems to run.**
 
-**Solution:** The launch failed to start the nodes. Check:
+**This is the most common issue** - nodes are starting but crashing immediately.
 
-1. **Look at the launch terminal output carefully.** You should see:
+**Solution:** Debug the node crashes:
+
+**Step 1: Check if processes started then died**
+
+Look carefully at your launch terminal. You should see either:
+
+**Good (nodes stay running):**
 ```
 [INFO] [07_battery_monitor-1]: process started with pid [12345]
 [INFO] [07_navigation_controller-2]: process started with pid [12346]
 [INFO] [07_task_processor-3]: process started with pid [12347]
 [INFO] [07_fleet_monitor-4]: process started with pid [12348]
+
+[Nodes keep running, printing their status messages]
 ```
 
-If instead you see:
+**Bad (nodes crash):**
 ```
-[ERROR] [launch]: Caught exception in launch (see debug for traceback): 
-Executable '07_battery_monitor' not found on the libexec directory...
+[INFO] [07_battery_monitor-1]: process started with pid [12345]
+[INFO] [07_navigation_controller-2]: process started with pid [12346]
+[07_battery_monitor-1] Traceback (most recent call last):
+[07_battery_monitor-1]   File "...", line X
+[07_battery_monitor-1] AttributeError: module 'rclpy.node' has no attribute 'Node'
+[INFO] [07_battery_monitor-1]: process has died [pid 12345, exit code 1]
+[INFO] [07_navigation_controller-2]: process has died [pid 12346, exit code 1]
 ```
 
-This means the nodes don't exist. Follow Option 1 or Option 2 above.
+**If you see "process has died"**, the nodes are crashing. Continue to Step 2.
 
-2. **Verify nodes are actually running:**
+**Step 2: Run a single node manually to see the full error**
+
 ```bash
-ros2 node list
+# Source workspace first
+source ~/ros2_ws/install/setup.bash
+
+# Run one node manually
+ros2 run ce_robot 07_battery_monitor
 ```
 
-**If the output is empty,** the launch completely failed. Check the terminal output for error messages.
+**Common errors and solutions:**
 
-3. **Common mistakes:**
-   - Forgot to source the workspace: `source ~/ros2_ws/install/setup.bash`
-   - Built the wrong package: Should build both `ce_robot` (for nodes) and `ce_robot_launch` (for launch files)
-   - Nodes have Python syntax errors: Check launch terminal for traceback
+**Error: `ModuleNotFoundError: No module named 'rclpy'`**
+```bash
+# Solution: ROS 2 not sourced
+source /opt/ros/humble/setup.bash  # or your ROS version
+source ~/ros2_ws/install/setup.bash
+```
+
+**Error: `AttributeError: module has no attribute 'Node'`**
+```bash
+# Solution: Python file has syntax errors or missing imports
+# Check the node file:
+cat ~/ros2_ws/src/ce_robot/ce_robot/07_battery_monitor.py | head -20
+```
+
+Make sure it starts with:
+```python
+#!/usr/bin/env python3
+import rclpy
+from rclpy.node import Node
+```
+
+**Error: `No module named 'ce_robot_interfaces'`**
+```bash
+# Solution: Interfaces package not built
+cd ~/ros2_ws
+colcon build --packages-select ce_robot_interfaces
+source install/setup.bash
+```
+
+**Error: Node runs but exits immediately with no error**
+```bash
+# Solution: Missing main() function or missing entry point
+# Check that the node file has:
+def main(args=None):
+    rclpy.init(args=args)
+    node = BatteryMonitor()  # Your node class
+    rclpy.spin(node)
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
+```
+
+**Step 3: If nodes still crash, check the full Python implementation**
+
+```bash
+# View the entire node file
+cat ~/ros2_ws/src/ce_robot/ce_robot/07_battery_monitor.py
+
+# Compare with reference
+diff ~/ros2_ws/src/ce_robot/ce_robot/07_battery_monitor.py \
+     "/Volumes/ExDisk/Google Drive Ksu/KSU/Git/ROS/07_Launch/src/exercise_3/nodes/07_battery_monitor.py"
+```
+
+**Step 4: Rebuild after fixing**
+
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot
+source install/setup.bash
+
+# Test manual run again
+ros2 run ce_robot 07_battery_monitor
+```
+
+If the node runs successfully manually, try the launch file again.
 
 ---
 
