@@ -2592,6 +2592,14 @@ One codebase, multiple deployments! Change config file = different robot behavio
 
 > **📦 Reference Files Available:** All complete files for this exercise are available in `07_Launch/src/exercise_4/` for reference. You can use these as examples or copy them to your workspace.
 
+> **⚠️ Prerequisites:** This exercise requires the nodes from Exercise 3 to be built and available:
+> - `07_battery_monitor`
+> - `07_navigation_controller`
+> - `07_task_processor`
+> - `07_fleet_monitor`
+> 
+> If these nodes are not yet created, complete Exercise 3 first, or you can create simple placeholder nodes for testing purposes.
+
 ### **📝 Step 1: Create Directory Structure**
 
 ```bash
@@ -2895,10 +2903,26 @@ colcon build --packages-select ce_robot_launch --symlink-install
 source install/setup.bash
 ```
 
+> **Note:** If you haven't completed Exercise 3, the launch will fail with "Executable '07_battery_monitor' not found". You have two options:
+> 1. Complete Exercise 3 first to create the required nodes
+> 2. Or copy the nodes from `07_Launch/src/exercise_3/nodes/` to `~/ros2_ws/src/ce_robot/ce_robot/` and rebuild the ce_robot package
+
 **Test 1 - Small robot config:**
 ```bash
 ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=small
 ```
+
+**First, verify nodes are running:**
+```bash
+ros2 node list
+# Expected output:
+# /battery_monitor
+# /navigation_controller
+# /task_processor
+# /fleet_monitor
+```
+
+**If nodes are not found, this means Exercise 3 nodes haven't been built. Skip to the troubleshooting section below.**
 
 **Verify parameters:**
 ```bash
@@ -2993,6 +3017,78 @@ ros2 node list
 # /fleet_monitor
 # /robot_tag_publisher (if simple_launch included)
 ```
+
+---
+
+### **🔧 Troubleshooting**
+
+#### **Issue: "Executable not found" errors**
+
+**Error message:**
+```
+[ERROR] [launch]: Caught exception in launch (see debug for traceback): Executable '07_battery_monitor' not found on the libexec directory '/home/user/ros2_ws/install/ce_robot/lib/ce_robot'
+```
+
+**Solution:** The Exercise 3 nodes haven't been created yet. You have several options:
+
+**Option 1: Complete Exercise 3 First (Recommended)**
+Complete Exercise 3 to build all required monitoring nodes, then return to Exercise 4.
+
+**Option 2: Copy Reference Nodes**
+```bash
+# Copy nodes from reference implementation
+cp "/Volumes/ExDisk/Google Drive Ksu/KSU/Git/ROS/07_Launch/src/exercise_3/nodes/"* \
+   ~/ros2_ws/src/ce_robot/ce_robot/
+
+# Update setup.py to add entry points
+# Then rebuild
+cd ~/ros2_ws
+colcon build --packages-select ce_robot
+source install/setup.bash
+```
+
+**Option 3: Use Placeholder Nodes (Quick Test)**
+Modify the launch file to use existing nodes instead:
+```python
+# In yaml_config_launch.py, replace with existing nodes
+battery_monitor_node = Node(
+    package='ce_robot',
+    executable='05_robot_tag_param',  # Use existing node
+    name='battery_monitor',
+    output='screen',
+    parameters=[config_file]
+)
+```
+
+This allows testing the YAML configuration functionality even without Exercise 3 nodes.
+
+#### **Issue: "Node not found" when checking parameters**
+
+**Error message:**
+```
+Node not found
+```
+
+**Solution:** The launch failed to start the nodes. Check:
+
+1. **Verify launch succeeded:**
+```bash
+# Look for this in the launch output:
+[INFO] [07_battery_monitor-1]: process started with pid [12345]
+```
+
+If you see errors instead, the nodes aren't starting.
+
+2. **Check if nodes are running:**
+```bash
+ros2 node list
+```
+
+If the list is empty or doesn't show the expected nodes, the launch failed.
+
+3. **Check the exact error in launch output** - it will indicate which executable is missing.
+
+---
 
 ### **💡 Key Concepts Learned**
 
