@@ -1,28 +1,28 @@
 # Large robot configuration - Heavy-duty industrial transport
-robot_status_publisher:
+battery_monitor:
   ros__parameters:
     robot_id: "AMR-HEAVY-TRANSPORT-L01"
-    robot_type: "transport"
-    zone_id: "WAREHOUSE-MAIN-LOADING"
-    fleet_number: 100
-    status_rate_hz: 1.0  # Slower updates for stable transport
-    max_payload_kg: 1500.0  # Heavy industrial capacity
-    battery_level: 78.0
-    current_location: "LOADING-DOCK-MAIN-3"
-    assigned_task: "PALLET-MOVE-DOCK3-TO-STORAGE-A"
+    battery_capacity_ah: 200.0  # Large battery for heavy loads
+    battery_voltage_nominal: 48.0
+    monitor_rate_hz: 1.0  # Slower updates for stable transport
+    simulate_failure: false
 
-zone_coordinator:
+navigation_controller:
   ros__parameters:
     robot_id: "AMR-HEAVY-TRANSPORT-L01"
-    zone_id: "WAREHOUSE-MAIN-LOADING"
-    robot_type: "transport"
-    max_capacity: 1500.0
+    max_speed_ms: 1.0  # Slower for safety with heavy loads
+    safety_radius_m: 1.5  # Wide safety zone
+    simulate_failure: false
 
-task_queue_action:
+task_processor:
   ros__parameters:
     robot_id: "AMR-HEAVY-TRANSPORT-L01"
     robot_type: "transport"
-    zone_id: "WAREHOUSE-MAIN-LOADING"
-    max_items_per_trip: 1000
-    battery_level: 78.0
-    picking_speed_items_per_min: 5.0
+    max_tasks_per_hour: 20  # Fewer tasks, heavy items
+    simulate_failure: false
+
+fleet_monitor:
+  ros__parameters:
+    fleet_id: "HEAVY-TRANSPORT-FLEET"
+    num_robots: 5
+    monitor_rate_hz: 0.5

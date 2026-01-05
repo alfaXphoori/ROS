@@ -1,28 +1,28 @@
 # Small robot configuration - Compact picker for narrow aisles
-robot_status_publisher:
+battery_monitor:
   ros__parameters:
     robot_id: "AMR-COMPACT-PICKER-S01"
-    robot_type: "picker"
-    zone_id: "WAREHOUSE-NARROW-AISLE-B"
-    fleet_number: 10
-    status_rate_hz: 3.0  # Fast updates for agile movement
-    max_payload_kg: 25.0  # Small capacity
-    battery_level: 95.0
-    current_location: "AISLE-B-NARROW-12"
-    assigned_task: "PICK-ORDER-54321"
+    battery_capacity_ah: 50.0  # Small battery
+    battery_voltage_nominal: 24.0
+    monitor_rate_hz: 3.0  # Fast updates for agile movement
+    simulate_failure: false
 
-zone_coordinator:
+navigation_controller:
   ros__parameters:
     robot_id: "AMR-COMPACT-PICKER-S01"
-    zone_id: "WAREHOUSE-NARROW-AISLE-B"
-    robot_type: "picker"
-    max_capacity: 25.0
+    max_speed_ms: 1.5  # Slower for narrow aisles
+    safety_radius_m: 0.5  # Compact safety zone
+    simulate_failure: false
 
-task_queue_action:
+task_processor:
   ros__parameters:
     robot_id: "AMR-COMPACT-PICKER-S01"
     robot_type: "picker"
-    zone_id: "WAREHOUSE-NARROW-AISLE-B"
-    max_items_per_trip: 50
-    battery_level: 95.0
-    picking_speed_items_per_min: 15.0
+    max_tasks_per_hour: 80  # High frequency for small items
+    simulate_failure: false
+
+fleet_monitor:
+  ros__parameters:
+    fleet_id: "COMPACT-PICKER-FLEET"
+    num_robots: 10
+    monitor_rate_hz: 1.0

@@ -2605,172 +2605,140 @@ mkdir -p config
 
 ```yaml
 # Small robot configuration - Compact picker for narrow aisles
-robot_tag_publisher:
+battery_monitor:
+  ros__parameters:
+    robot_id: "AMR-COMPACT-PICKER-S01"
+    battery_capacity_ah: 50.0  # Small battery
+    battery_voltage_nominal: 24.0
+    monitor_rate_hz: 3.0  # Fast updates for agile movement
+    simulate_failure: false
+
+navigation_controller:
+  ros__parameters:
+    robot_id: "AMR-COMPACT-PICKER-S01"
+    max_speed_ms: 1.5  # Slower for narrow aisles
+    safety_radius_m: 0.5  # Compact safety zone
+    simulate_failure: false
+
+task_processor:
   ros__parameters:
     robot_id: "AMR-COMPACT-PICKER-S01"
     robot_type: "picker"
-    zone_id: "WAREHOUSE-NARROW-AISLE-B"
-    fleet_number: 10
-    tag_publish_rate: 3.0  # Fast updates for agile movement
-    max_payload_kg: 25.0  # Small capacity
-    priority_level: 3
-    # Physical dimensions (meters)
-    robot_width: 0.45
-    robot_length: 0.60
-    robot_height: 1.20
-    # Performance specs
-    max_speed: 1.2  # m/s
-    turning_radius: 0.3  # meters
-    # Battery specs
-    battery_capacity: 50.0  # Amp-hours
-    charging_time: 2.5  # hours
-    # Operational
-    current_location: "AISLE-B-NARROW-12"
-    status: "picking"
-    assigned_task: "PICK-ORDER-54321"
+    max_tasks_per_hour: 80  # High frequency for small items
+    simulate_failure: false
 
-rect_server:
+fleet_monitor:
   ros__parameters:
-    max_dimension: 100.0
-    min_dimension: 1.0
-
-count_server:
-  ros__parameters:
-    max_count: 100
-    default_period: 0.5
+    fleet_id: "COMPACT-PICKER-FLEET"
+    num_robots: 10
+    monitor_rate_hz: 1.0
 ```
 
 ### **📁 File: launch/config/robot_large.yaml**
 
 ```yaml
 # Large robot configuration - Heavy-duty industrial transport
-robot_tag_publisher:
+battery_monitor:
+  ros__parameters:
+    robot_id: "AMR-HEAVY-TRANSPORT-L01"
+    battery_capacity_ah: 200.0  # Large battery for heavy loads
+    battery_voltage_nominal: 48.0
+    monitor_rate_hz: 1.0  # Slower updates for stable transport
+    simulate_failure: false
+
+navigation_controller:
+  ros__parameters:
+    robot_id: "AMR-HEAVY-TRANSPORT-L01"
+    max_speed_ms: 1.0  # Slower for safety with heavy loads
+    safety_radius_m: 1.5  # Wide safety zone
+    simulate_failure: false
+
+task_processor:
   ros__parameters:
     robot_id: "AMR-HEAVY-TRANSPORT-L01"
     robot_type: "transport"
-    zone_id: "WAREHOUSE-MAIN-LOADING"
-    fleet_number: 100
-    tag_publish_rate: 1.0  # Slower updates for stable transport
-    max_payload_kg: 1500.0  # Heavy industrial capacity
-    priority_level: 8
-    # Physical dimensions (meters)
-    robot_width: 1.20
-    robot_length: 1.80
-    robot_height: 0.50  # Low profile for stability
-    # Performance specs
-    max_speed: 2.0  # m/s
-    turning_radius: 1.5  # meters - wider turns
-    # Battery specs
-    battery_capacity: 200.0  # Amp-hours - large battery
-    charging_time: 6.0  # hours
-    # Operational
-    current_location: "LOADING-DOCK-MAIN-3"
-    status: "transporting_pallet"
-    assigned_task: "PALLET-MOVE-DOCK3-TO-STORAGE-A"
-    # Safety features
-    lidar_range: 25.0  # meters
-    emergency_stop_distance: 3.0  # meters
-    max_slope: 5.0  # degrees
+    max_tasks_per_hour: 20  # Fewer tasks, heavy items
+    simulate_failure: false
 
-rect_server:
+fleet_monitor:
   ros__parameters:
-    max_dimension: 1000.0
-    min_dimension: 10.0
-
-count_server:
-  ros__parameters:
-    max_count: 1000
-    default_period: 2.0
+    fleet_id: "HEAVY-TRANSPORT-FLEET"
+    num_robots: 5
+    monitor_rate_hz: 0.5
 ```
 
 ### **📁 File: launch/config/robot_simulation.yaml**
 
 ```yaml
 # Simulation mode - faster, no real hardware
-robot_tag_publisher:
+battery_monitor:
   ros__parameters:
     use_sim_time: true  # ROS 2 simulation time
     robot_id: "SIM-TEST-001"
+    battery_capacity_ah: 100.0
+    battery_voltage_nominal: 48.0
+    monitor_rate_hz: 10.0  # Fast for testing
+    simulate_failure: false
+
+navigation_controller:
+  ros__parameters:
+    use_sim_time: true
+    robot_id: "SIM-TEST-001"
+    max_speed_ms: 5.0  # Fast simulation speed
+    safety_radius_m: 0.75
+    simulate_failure: false
+
+task_processor:
+  ros__parameters:
+    use_sim_time: true
+    robot_id: "SIM-TEST-001"
     robot_type: "simulation"
-    zone_id: "GAZEBO-WAREHOUSE"
-    fleet_number: 999
-    tag_publish_rate: 10.0  # Fast for testing
-    max_payload_kg: 100.0
-    priority_level: 1
-    # Physical dimensions (meters)
-    robot_width: 0.60
-    robot_length: 0.80
-    robot_height: 1.00
-    # Performance specs
-    max_speed: 5.0  # Unrealistic speed OK in sim
-    turning_radius: 0.2
-    # Battery specs
-    battery_capacity: 100.0
-    charging_time: 0.5
-    # Operational
-    current_location: "SIM-ORIGIN"
-    status: "testing"
-    assigned_task: "SIMULATION-TEST"
-    # Simulation specific
-    lidar_topic: "/scan_simulated"
-    camera_topic: "/camera/image_raw_sim"
-    enable_physics: true
-    collision_checking: "gazebo"  # Use simulator
+    max_tasks_per_hour: 200  # High rate for testing
+    simulate_failure: false
 
-rect_server:
+fleet_monitor:
   ros__parameters:
-    max_dimension: 500.0
-    min_dimension: 5.0
-
-count_server:
-  ros__parameters:
-    max_count: 500
-    default_period: 1.0
+    use_sim_time: true
+    fleet_id: "SIMULATION-FLEET"
+    num_robots: 3
+    monitor_rate_hz: 2.0
 ```
 
 ### **📁 File: launch/config/robot_hardware.yaml**
 
 ```yaml
 # Hardware mode - real robot, safe speeds
-robot_tag_publisher:
+battery_monitor:
   ros__parameters:
     use_sim_time: false  # Real system time
     robot_id: "AMR-PROD-001"
+    battery_capacity_ah: 100.0
+    battery_voltage_nominal: 48.0
+    monitor_rate_hz: 2.0  # Realistic rate
+    simulate_failure: false
+
+navigation_controller:
+  ros__parameters:
+    use_sim_time: false
+    robot_id: "AMR-PROD-001"
+    max_speed_ms: 2.0  # Safe production speed
+    safety_radius_m: 1.0
+    simulate_failure: false
+
+task_processor:
+  ros__parameters:
+    use_sim_time: false
+    robot_id: "AMR-PROD-001"
     robot_type: "production"
-    zone_id: "WAREHOUSE-A-REAL"
-    fleet_number: 1
-    tag_publish_rate: 2.0  # Realistic rate
-    max_payload_kg: 200.0
-    priority_level: 5
-    # Physical dimensions (meters)
-    robot_width: 0.75
-    robot_length: 1.00
-    robot_height: 1.20
-    # Performance specs
-    max_speed: 1.2  # Safe human-compatible speed
-    turning_radius: 0.5
-    # Battery specs
-    battery_capacity: 80.0
-    charging_time: 4.0
-    # Operational
-    current_location: "DOCK-A-REAL-1"
-    status: "operational"
-    assigned_task: "PRODUCTION-READY"
-    # Hardware specific
-    lidar_topic: "/sick_lms_1xx/scan"
-    camera_topic: "/realsense/color/image_raw"
-    enable_physics: false
-    collision_checking: "hardware_estop"  # Physical e-stop
+    max_tasks_per_hour: 50  # Realistic production rate
+    simulate_failure: false
 
-rect_server:
+fleet_monitor:
   ros__parameters:
-    max_dimension: 750.0
-    min_dimension: 5.0
-
-count_server:
-  ros__parameters:
-    max_count: 750
-    default_period: 1.5
+    use_sim_time: false
+    fleet_id: "PRODUCTION-FLEET"
+    num_robots: 3
+    monitor_rate_hz: 1.0
 ```
 
 ### **📝 Step 3: Create Launch File**
@@ -2837,26 +2805,35 @@ def generate_launch_description():
     )
     
     # Load nodes with YAML parameters
-    publisher_node = Node(
+    # Using nodes from 07_Launch exercises
+    battery_monitor_node = Node(
         package='ce_robot',
-        executable='05_robot_tag_param',
-        name='robot_tag_publisher',
+        executable='07_battery_monitor',
+        name='battery_monitor',
         output='screen',
         parameters=[config_file]
     )
     
-    service_node = Node(
+    navigation_node = Node(
         package='ce_robot',
-        executable='04_CalRect_server',
-        name='rect_server',
+        executable='07_navigation_controller',
+        name='navigation_controller',
         output='screen',
         parameters=[config_file]
     )
     
-    action_node = Node(
+    task_processor_node = Node(
         package='ce_robot',
-        executable='06_count_until_server',
-        name='count_server',
+        executable='07_task_processor',
+        name='task_processor',
+        output='screen',
+        parameters=[config_file]
+    )
+    
+    fleet_monitor_node = Node(
+        package='ce_robot',
+        executable='07_fleet_monitor',
+        name='fleet_monitor',
         output='screen',
         parameters=[config_file]
     )
@@ -2899,9 +2876,10 @@ def generate_launch_description():
         LogInfo(msg='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'),
         
         # Nodes with YAML config
-        publisher_node,
-        service_node,
-        action_node,
+        battery_monitor_node,
+        navigation_node,
+        task_processor_node,
+        fleet_monitor_node,
         
         # Composed launch file
         simple_launch_include,
@@ -2924,14 +2902,17 @@ ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=small
 
 **Verify parameters:**
 ```bash
-ros2 param get /robot_tag_publisher robot_id
+ros2 param get /battery_monitor robot_id
 # Expected: AMR-COMPACT-PICKER-S01
 
-ros2 param get /robot_tag_publisher max_payload_kg
-# Expected: 25.0
+ros2 param get /battery_monitor battery_capacity_ah
+# Expected: 50.0
 
-ros2 param get /robot_tag_publisher tag_publish_rate
-# Expected: 3.0
+ros2 param get /navigation_controller max_speed_ms
+# Expected: 1.5
+
+ros2 param get /task_processor max_tasks_per_hour
+# Expected: 80
 ```
 
 **Test 2 - Large robot config:**
@@ -2941,14 +2922,17 @@ ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=large
 
 **Verify parameters:**
 ```bash
-ros2 param get /robot_tag_publisher robot_id
+ros2 param get /battery_monitor robot_id
 # Expected: AMR-HEAVY-TRANSPORT-L01
 
-ros2 param get /robot_tag_publisher max_payload_kg
-# Expected: 1500.0
+ros2 param get /battery_monitor battery_capacity_ah
+# Expected: 200.0
 
-ros2 param get /robot_tag_publisher tag_publish_rate
+ros2 param get /navigation_controller max_speed_ms
 # Expected: 1.0
+
+ros2 param get /task_processor max_tasks_per_hour
+# Expected: 20
 ```
 
 **Test 3 - Simulation config:**
@@ -2958,14 +2942,17 @@ ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=simulation
 
 **Verify parameters:**
 ```bash
-ros2 param get /robot_tag_publisher robot_id
+ros2 param get /battery_monitor robot_id
 # Expected: SIM-TEST-001
 
-ros2 param get /robot_tag_publisher max_payload_kg
+ros2 param get /battery_monitor battery_capacity_ah
 # Expected: 100.0
 
-ros2 param get /robot_tag_publisher tag_publish_rate
-# Expected: 10.0
+ros2 param get /navigation_controller max_speed_ms
+# Expected: 5.0
+
+ros2 param get /task_processor max_tasks_per_hour
+# Expected: 200
 ```
 
 **Test 4 - Hardware config:**
@@ -2975,14 +2962,17 @@ ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=hardware
 
 **Verify parameters:**
 ```bash
-ros2 param get /robot_tag_publisher robot_id
+ros2 param get /battery_monitor robot_id
 # Expected: AMR-PROD-001
 
-ros2 param get /robot_tag_publisher max_payload_kg
-# Expected: 200.0
+ros2 param get /battery_monitor battery_capacity_ah
+# Expected: 100.0
 
-ros2 param get /robot_tag_publisher tag_publish_rate
+ros2 param get /navigation_controller max_speed_ms
 # Expected: 2.0
+
+ros2 param get /task_processor max_tasks_per_hour
+# Expected: 50
 ```
 
 **Test 5 - Include composition:**
@@ -2992,10 +2982,16 @@ ros2 launch ce_robot_launch yaml_config_launch.py \
   include_simple_launch:=true
 ```
 
-**Expected:** 4 nodes running (3 from yaml_config + 1 from simple_launch) if simple_launch.py exists
+**Expected:** 5 nodes running (4 from yaml_config + 1 from simple_launch) if simple_launch.py exists
 
 ```bash
 ros2 node list
+# Expected nodes:
+# /battery_monitor
+# /navigation_controller
+# /task_processor
+# /fleet_monitor
+# /robot_tag_publisher (if simple_launch included)
 ```
 
 ### **💡 Key Concepts Learned**
@@ -3015,33 +3011,37 @@ ros2 node list
 **File: config/robot_simulation.yaml**
 ```yaml
 # Simulation mode - faster, no real hardware
-robot_tag_publisher:
+battery_monitor:
   ros__parameters:
     use_sim_time: true  # ROS 2 simulation time
     robot_id: "SIM-TEST-001"
-    zone_id: "GAZEBO-WAREHOUSE"
-    tag_publish_rate: 10.0  # Fast for testing
-    max_speed: 5.0  # Unrealistic speed OK in sim
-    lidar_topic: "/scan_simulated"
-    camera_topic: "/camera/image_raw_sim"
-    enable_physics: true
-    collision_checking: "gazebo"  # Use simulator
+    battery_capacity_ah: 100.0
+    monitor_rate_hz: 10.0  # Fast for testing
+
+navigation_controller:
+  ros__parameters:
+    use_sim_time: true
+    robot_id: "SIM-TEST-001"
+    max_speed_ms: 5.0  # Unrealistic speed OK in sim
+    safety_radius_m: 0.75
 ```
 
 **File: config/robot_hardware.yaml**
 ```yaml
 # Hardware mode - real robot, safe speeds
-robot_tag_publisher:
+battery_monitor:
   ros__parameters:
     use_sim_time: false  # Real system time
     robot_id: "AMR-PROD-001"
-    zone_id: "WAREHOUSE-A-REAL"
-    tag_publish_rate: 2.0  # Realistic rate
-    max_speed: 1.2  # Safe human-compatible speed
-    lidar_topic: "/sick_lms_1xx/scan"
-    camera_topic: "/realsense/color/image_raw"
-    enable_physics: false
-    collision_checking: "hardware_estop"  # Physical e-stop
+    battery_capacity_ah: 100.0
+    monitor_rate_hz: 2.0  # Realistic rate
+
+navigation_controller:
+  ros__parameters:
+    use_sim_time: false
+    robot_id: "AMR-PROD-001"
+    max_speed_ms: 2.0  # Safe human-compatible speed
+    safety_radius_m: 1.0
 ```
 
 **Launch command:**

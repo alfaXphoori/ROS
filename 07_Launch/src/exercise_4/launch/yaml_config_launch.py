@@ -58,26 +58,34 @@ def generate_launch_description():
     
     # Load nodes with YAML parameters
     # Using nodes from 07_Launch exercises
-    publisher_node = Node(
+    battery_monitor_node = Node(
         package='ce_robot',
-        executable='07_robot_status_publisher',
-        name='robot_status_publisher',
+        executable='07_battery_monitor',
+        name='battery_monitor',
         output='screen',
         parameters=[config_file]
     )
     
-    service_node = Node(
+    navigation_node = Node(
         package='ce_robot',
-        executable='07_zone_coordinator',
-        name='zone_coordinator',
+        executable='07_navigation_controller',
+        name='navigation_controller',
         output='screen',
         parameters=[config_file]
     )
     
-    action_node = Node(
+    task_processor_node = Node(
         package='ce_robot',
-        executable='07_task_queue_action',
-        name='task_queue_action',
+        executable='07_task_processor',
+        name='task_processor',
+        output='screen',
+        parameters=[config_file]
+    )
+    
+    fleet_monitor_node = Node(
+        package='ce_robot',
+        executable='07_fleet_monitor',
+        name='fleet_monitor',
         output='screen',
         parameters=[config_file]
     )
@@ -120,9 +128,10 @@ def generate_launch_description():
         LogInfo(msg='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'),
         
         # Nodes with YAML config
-        publisher_node,
-        service_node,
-        action_node,
+        battery_monitor_node,
+        navigation_node,
+        task_processor_node,
+        fleet_monitor_node,
         
         # Composed launch file
         simple_launch_include,
