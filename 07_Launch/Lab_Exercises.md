@@ -3057,6 +3057,71 @@ ros2 node list
 
 ### **🔧 Troubleshooting**
 
+#### **Issue: `ros2 node list` shows empty in new terminal**
+
+**Symptom:** 
+- Launch command runs perfectly: `ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=small`
+- Nodes appear to be running in the launch terminal
+- But when you open a **new terminal** and run `ros2 node list`, it shows nothing
+
+**Cause:** The new terminal doesn't have ROS 2 environment sourced!
+
+**Solution:**
+
+**In EVERY new terminal, you must source ROS 2:**
+
+```bash
+# Source ROS 2 installation
+source /opt/ros/humble/setup.bash  # or your ROS 2 version (foxy, galactic, iron, etc.)
+
+# Source your workspace
+source ~/ros2_ws/install/setup.bash
+
+# NOW ros2 commands will work
+ros2 node list
+```
+
+**Expected output after sourcing:**
+```
+/battery_monitor
+/navigation_controller
+/task_processor
+/fleet_monitor
+```
+
+**Verify your terminal is properly sourced:**
+```bash
+# Check ROS_DISTRO is set
+echo $ROS_DISTRO
+# Should show: humble (or your version)
+
+# Check workspace is sourced
+echo $AMENT_PREFIX_PATH
+# Should include: /home/user/ros2_ws/install
+```
+
+**🔧 Optional: Auto-source in every terminal**
+
+To avoid sourcing manually every time, add these lines to your shell configuration:
+
+**For bash users (~/.bashrc):**
+```bash
+echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+echo "source ~/ros2_ws/install/setup.bash" >> ~/.bashrc
+source ~/.bashrc
+```
+
+**For zsh users (~/.zshrc):**
+```bash
+echo "source /opt/ros/humble/setup.bash" >> ~/.zshrc
+echo "source ~/ros2_ws/install/setup.bash" >> ~/.zshrc
+source ~/.zshrc
+```
+
+**After this, every new terminal will automatically have ROS 2 sourced!**
+
+---
+
 #### **Issue: "Executable not found" errors**
 
 **Error message:**
