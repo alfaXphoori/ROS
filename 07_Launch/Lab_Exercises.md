@@ -376,6 +376,8 @@ Or create them manually with the code from the files in `exercise_1/nodes/`.
 
 ***Terminal 1: Run the navigation service***
 
+![Run the navigation service](imgs/Lab_Ex1_1%20Run%20the%20navigation%20service.png)
+
 ```bash
 ros2 run ce_robot 07_navigate_service --ros-args \
   -p robot_id:=AMR-TEST-001 \
@@ -398,6 +400,8 @@ ros2 service call /navigation_path ce_robot_interfaces/srv/NavigationPath \
 **Test Task Queue Action Server (standalone):**
 
 ***Terminal 1: Run the action server***
+
+![Run the action server](imgs/Lab_Ex1_2%20Run%20the%20action%20server.png)
 
 ```bash
 ros2 run ce_robot 07_task_queue_action --ros-args \
@@ -425,6 +429,8 @@ ros2 action send_goal /pick_items ce_robot_interfaces/action/PickItems \
 **Test Debug Monitor (standalone):**
 
 ***Terminal 1: Run the debug monitor***
+
+![Run the debug monitor](imgs/Lab_Ex1_3%20Run%20the%20debug%20monitor.png)
 
 ```bash
 ros2 run ce_robot 07_debug_monitor --ros-args \
@@ -633,6 +639,8 @@ ros2 interface show ce_robot_interfaces/action/PickItems
 
 ### **🧪 Testing Exercise 1**
 
+![Testing Exercise 1](imgs/Lab_Ex1_4%20Testing%20Exercise%201.png)
+
 **Test 1 - All nodes enabled (default):**
 ```bash
 ros2 launch ce_robot_launch conditional_robot_launch.py
@@ -665,6 +673,8 @@ ros2 launch ce_robot_launch conditional_robot_launch.py robot_mode:=development
 ```bash
 ros2 node list
 ```
+
+![ros2 node list output](imgs/Lab_Ex1_5%20Testing%20Exercise%201%20ros2%20node%20list.png)
 
 ---
 
@@ -837,6 +847,8 @@ entry_points={
 
 **Test Robot Status Publisher:**
 
+![Test Robot Status Publisher](imgs/Lab_Ex2_1%20Test%20Robot%20Status%20Publisher.png)
+
 ***Terminal 1: Run the robot status publisher***
 
 ```bash
@@ -862,6 +874,8 @@ ros2 topic echo /robot_status --once --full-length
 
 **Test Zone Coordinator Service:**
 
+![Test Zone Coordinator Service](imgs/Lab_Ex2_2%20Test%20Zone%20Coordinator%20Service.png)
+
 ***Terminal 1: Run the zone coordinator service***
 
 ```bash
@@ -881,6 +895,8 @@ ros2 service call /request_task example_interfaces/srv/SetBool "{data: true}"
 ***Expected: Task assignment response with task type and zone information***
 
 **Test Fleet Monitor (Standalone - Limited Functionality):**
+
+![Test Fleet Monitor](imgs/Lab_Ex2_3%20Test%20Fleet%20Monitor%20.png)
 
 ***Terminal 1: Run the fleet monitor***
 
@@ -1139,6 +1155,8 @@ ros2 node list
 
 **Test 3 - Monitor Individual Robot Status:**
 
+![Monitor Individual Robot Status](imgs/Lab_Ex2_4%20Monitor%20Individual%20Robot%20Status.png)
+
 ***Terminal 1: Check Robot 1 status (Heavy Transport)***
 
 ```bash
@@ -1227,6 +1245,8 @@ ros2 topic info /robot3/robot_status
 
 **Test 5 - Test Zone Coordinator Services:**
 
+![Test Zone Coordinator Services](imgs/Lab_Ex2_5%20Test%20Zone%20Coordinator%20Services.png)
+
 ***Terminal 1: Request task from Robot 1 zone coordinator***
 
 ```bash
@@ -1254,6 +1274,8 @@ ros2 service call /robot3/request_task example_interfaces/srv/SetBool "{data: tr
 ---
 
 **Test 6 - Monitor Fleet-Wide Status:**
+
+![Monitor Fleet-Wide Status](imgs/Lab_Ex2_6%20Monitor%20Fleet-Wide%20Status.png)
 
 ***Terminal 1: View full fleet status report***
 
@@ -1612,6 +1634,8 @@ ce_robot 07_task_processor
 
 **Test Battery Monitor Node:**
 
+![Test Battery Monitor Node](imgs/Lab_Ex3_1%20Test%20Battery%20Monitor%20Node.png)
+
 ***Terminal 1: Run the battery monitor***
 
 ```bash
@@ -1634,6 +1658,8 @@ ros2 topic echo /battery_status --full-length
 ***Expected: JSON-formatted battery data with voltage, current, temperature, state of charge (SoC)***
 
 **Test Navigation Controller Node:**
+
+![Test Navigation Controller Node](imgs/Lab_Ex3_2%20Test%20Navigation%20Controller%20Node.png)
 
 ***Terminal 1: Run the navigation controller***
 
@@ -1663,6 +1689,8 @@ ros2 service call /navigation_command example_interfaces/srv/SetBool "{data: tru
 ***Expected: Real-time position updates, obstacle detection, path planning data***
 
 **Test Task Processor Node:**
+
+![Test Task Processor Node](imgs/Lab_Ex3_3%20Test%20Task%20Processor%20Node.png)
 
 ***Terminal 1: Run the task processor***
 
@@ -2056,6 +2084,8 @@ python3 ~/ros2_ws/src/ce_robot_launch/config/failure_counter.py
 
 #### **Test 1: Normal Operation (No Failures)**
 
+![Normal Operation](imgs/Lab_Ex3_3%20Normal%20Operation.png)
+
 **Terminal 1 - Launch the monitored system:**
 ```bash
 ros2 launch ce_robot_launch monitored_system_launch.py
@@ -2128,6 +2158,8 @@ ros2 node list
 ---
 
 #### **Test 2: Battery Monitor Auto-Restart with Failure Tracking**
+
+![Battery Monitor Auto-Restart](imgs/Lab_Ex3_4%20Battery%20Monitor%20Auto-Restart.png)
 
 This test demonstrates intelligent failure recovery with the production-grade FailureCounter system.
 
@@ -2241,6 +2273,9 @@ total 8.0K
 ```
 
 **Terminal 3 - View failure data (after crashes occur):**
+
+![View failure data](imgs/Lab_Ex3_5%20View%20failure%20data%20(after%20crashes%20occur).png)
+
 ```bash
 # View failure counts JSON
 cat /tmp/robot_failures/failure_counts.json
@@ -2354,6 +2389,8 @@ ros2 launch ce_robot_launch monitored_system_launch.py
 
 #### **Test 3: Critical Navigation Controller Failure**
 
+![Critical Navigation Controller Failure](imgs/Lab_Ex3_6%20Critical%20Navigation%20Controller%20Failure.png)
+
 This test demonstrates immediate system shutdown when a critical safety node fails.
 
 **Terminal 1 - Launch the system:**
@@ -2395,6 +2432,8 @@ pkill -f navigation_controller
 
 #### **Test 4: Non-Critical Task Processor Failure**
 
+![Non-Critical Task Processor Failure](imgs/Lab_Ex3_7%20Non-Critical%20Task%20Processor%20Failure.png)
+
 This test shows that non-critical nodes exit without affecting other systems.
 
 **Terminal 1 - Launch the system:**
@@ -2435,6 +2474,8 @@ ros2 node list
 ---
 
 #### **Test 5: Test Cleanup and Reset Failure Counter**
+
+![Test Cleanup and Reset Failure Counter](imgs/Lab_Ex3_8%20Test%20Cleanup%20and%20Reset%20Failure%20Counter.png)
 
 After testing, clean up the failure tracking data:
 
