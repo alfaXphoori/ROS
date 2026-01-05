@@ -3122,6 +3122,74 @@ source ~/.zshrc
 
 ---
 
+#### **How to Monitor Running Processes**
+
+**Check ROS 2 Nodes:**
+```bash
+# List all running ROS 2 nodes
+ros2 node list
+
+# Get detailed info about a specific node
+ros2 node info /battery_monitor
+
+# Check node parameters
+ros2 param list /battery_monitor
+```
+
+**Check System Processes:**
+```bash
+# Find ROS 2 Python nodes
+ps aux | grep "ros2\|python3.*07_"
+
+# Expected output (if nodes are running):
+# user  12345  ... python3 /path/to/07_battery_monitor
+# user  12346  ... python3 /path/to/07_navigation_controller
+# user  12347  ... python3 /path/to/07_task_processor
+# user  12348  ... python3 /path/to/07_fleet_monitor
+```
+
+**Check specific node process:**
+```bash
+# Search for specific node
+pgrep -af battery_monitor
+
+# Count running ROS nodes
+pgrep -c python3
+```
+
+**Real-time process monitoring:**
+```bash
+# Watch processes in real-time (updates every 2 seconds)
+watch -n 2 'ros2 node list'
+
+# Or use top/htop to see CPU/memory usage
+htop
+# Then press F4 and search for "07_"
+```
+
+**Check launch file processes:**
+```bash
+# Find the launch process and all child processes
+pgrep -af "yaml_config_launch"
+
+# Show process tree
+pstree -p $(pgrep -f yaml_config_launch)
+```
+
+**Verify nodes are communicating:**
+```bash
+# List all topics (nodes publish/subscribe to these)
+ros2 topic list
+
+# See which nodes are connected to a topic
+ros2 topic info /battery_status
+
+# Monitor topic data in real-time
+ros2 topic echo /battery_status
+```
+
+---
+
 #### **Issue: "Executable not found" errors**
 
 **Error message:**
