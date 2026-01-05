@@ -2903,14 +2903,33 @@ colcon build --packages-select ce_robot_launch --symlink-install
 source install/setup.bash
 ```
 
-> **Note:** If you haven't completed Exercise 3, the launch will fail with "Executable '07_battery_monitor' not found". You have two options:
-> 1. Complete Exercise 3 first to create the required nodes
-> 2. Or copy the nodes from `07_Launch/src/exercise_3/nodes/` to `~/ros2_ws/src/ce_robot/ce_robot/` and rebuild the ce_robot package
+> **⚠️ IMPORTANT - Check Node Availability First:**
+> Before running the launch file, verify the required nodes exist:
+> ```bash
+> ros2 pkg executables ce_robot | grep -E '07_battery_monitor|07_navigation_controller|07_task_processor|07_fleet_monitor'
+> ```
+> 
+> **If no output appears:** The Exercise 3 nodes don't exist yet. See troubleshooting section below for solutions.
+> 
+> **Expected output if nodes exist:**
+> ```
+> ce_robot 07_battery_monitor
+> ce_robot 07_navigation_controller
+> ce_robot 07_task_processor
+> ce_robot 07_fleet_monitor
+> ```
 
 **Test 1 - Small robot config:**
 ```bash
 ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=small
 ```
+
+**Check for launch errors:**
+If you see errors like:
+```
+[ERROR] [launch]: Caught exception in launch (see debug for traceback): Executable '07_battery_monitor' not found
+```
+This means the Exercise 3 nodes haven't been built. **Stop the launch** (Ctrl+C) and see the troubleshooting section below.
 
 **First, verify nodes are running:**
 ```bash
@@ -3037,14 +3056,26 @@ Complete Exercise 3 to build all required monitoring nodes, then return to Exerc
 **Option 2: Copy Reference Nodes**
 ```bash
 # Copy nodes from reference implementation
-cp "/Volumes/ExDisk/Google Drive Ksu/KSU/Git/ROS/07_Launch/src/exercise_3/nodes/"* \
+cp "/Volumes/ExDisk/Google Drive Ksu/KSU/Git/ROS/07_Launch/src/exercise_3/nodes/"*.py \
    ~/ros2_ws/src/ce_robot/ce_robot/
 
+# Make them executable
+chmod +x ~/ros2_ws/src/ce_robot/ce_robot/07_*.py
+
 # Update setup.py to add entry points
-# Then rebuild
+# Edit ~/ros2_ws/src/ce_robot/setup.py and add these lines to console_scripts:
+#   '07_battery_monitor = ce_robot.07_battery_monitor:main',
+#   '07_navigation_controller = ce_robot.07_navigation_controller:main',
+#   '07_task_processor = ce_robot.07_task_processor:main',
+#   '07_fleet_monitor = ce_robot.07_fleet_monitor:main',
+
+# Rebuild ce_robot package
 cd ~/ros2_ws
 colcon build --packages-select ce_robot
 source install/setup.bash
+
+# Verify nodes are now available
+ros2 pkg executables ce_robot | grep 07_
 ```
 
 **Option 3: Use Placeholder Nodes (Quick Test)**
@@ -3069,24 +3100,37 @@ This allows testing the YAML configuration functionality even without Exercise 3
 Node not found
 ```
 
+**Or `ros2 node list` returns empty output.**
+
 **Solution:** The launch failed to start the nodes. Check:
 
-1. **Verify launch succeeded:**
-```bash
-# Look for this in the launch output:
+1. **Look at the launch terminal output carefully.** You should see:
+```
 [INFO] [07_battery_monitor-1]: process started with pid [12345]
+[INFO] [07_navigation_controller-2]: process started with pid [12346]
+[INFO] [07_task_processor-3]: process started with pid [12347]
+[INFO] [07_fleet_monitor-4]: process started with pid [12348]
 ```
 
-If you see errors instead, the nodes aren't starting.
+If instead you see:
+```
+[ERROR] [launch]: Caught exception in launch (see debug for traceback): 
+Executable '07_battery_monitor' not found on the libexec directory...
+```
 
-2. **Check if nodes are running:**
+This means the nodes don't exist. Follow Option 1 or Option 2 above.
+
+2. **Verify nodes are actually running:**
 ```bash
 ros2 node list
 ```
 
-If the list is empty or doesn't show the expected nodes, the launch failed.
+**If the output is empty,** the launch completely failed. Check the terminal output for error messages.
 
-3. **Check the exact error in launch output** - it will indicate which executable is missing.
+3. **Common mistakes:**
+   - Forgot to source the workspace: `source ~/ros2_ws/install/setup.bash`
+   - Built the wrong package: Should build both `ce_robot` (for nodes) and `ce_robot_launch` (for launch files)
+   - Nodes have Python syntax errors: Check launch terminal for traceback
 
 ---
 
