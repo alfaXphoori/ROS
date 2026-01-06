@@ -3009,11 +3009,12 @@ ros2 param get /task_processor max_tasks_per_hour
 
 **Test 4 - Hardware config:**
 ```bash
-ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=hardware
+ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=hardware ros_domain_id:=42
 ```
 
 **Verify parameters:**
 ```bash
+export ROS_DOMAIN_ID=42
 ros2 param get /battery_monitor robot_id
 ```
 **Expected:** `AMR-PROD-001`
