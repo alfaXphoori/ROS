@@ -2917,6 +2917,7 @@ colcon build --packages-select ce_robot_launch --symlink-install
 source install/setup.bash
 ```
 **Test 1 - Small robot config:**
+
 ```bash
 ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=small ros_domain_id:=42
 ```
@@ -2953,7 +2954,10 @@ ros2 param get /task_processor max_tasks_per_hour
 ```
 **Expected:** `80`
 
+![Test 1 - Small robot config](imgs/Lab_Ex4_1%20Test%201%20-%20Small%20robot%20config.png)
+
 **Test 2 - Large robot config:**
+
 ```bash
 ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=large ros_domain_id:=42
 ```
@@ -2980,7 +2984,10 @@ ros2 param get /task_processor max_tasks_per_hour
 ```
 **Expected:** `20`
 
+![Test 2 - Large robot config](imgs/Lab_Ex4_2%20Test%202%20-%20Large%20robot%20config.png)
+
 **Test 3 - Simulation config:**
+
 ```bash
 ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=simulation ros_domain_id:=42
 ```
@@ -3007,7 +3014,10 @@ ros2 param get /task_processor max_tasks_per_hour
 ```
 **Expected:** `200`
 
+![Test 3 - Simulation config](imgs/Lab_Ex4_3%20Test%203%20-%20Simulation%20config.png)
+
 **Test 4 - Hardware config:**
+
 ```bash
 ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=hardware ros_domain_id:=42
 ```
@@ -3034,28 +3044,19 @@ ros2 param get /task_processor max_tasks_per_hour
 ```
 **Expected:** `50`
 
+![Test 4 - Hardware config](imgs/Lab_Ex4_4%20Test%204%20-%20Hardware%20config.png)
+
 **Test 5 - Include composition:**
+
 ```bash
-ros2 launch ce_robot_launch yaml_config_launch.py \
-  robot_config:=small \
-  include_simple_launch:=true
+ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=small ros_domain_id:=42 include_simple_launch:=true
 ```
-
-**Expected:** 5 nodes running (4 from yaml_config + 1 from simple_launch) if simple_launch.py exists
-
+**Verify nodes including those from simple_launch.py:**
 ```bash
+export ROS_DOMAIN_ID=42
 ros2 node list
 ```
-
-**Expected nodes:**
-```
-/battery_monitor
-/navigation_controller
-/task_processor
-/fleet_monitor
-/robot_tag_publisher (if simple_launch included)
-```
-
+![Test 5 - Include composition](imgs/Lab_Ex4_5%20Test%205%20-%20Include%20composition.png)
 ---
 
 ### **🔧 Troubleshooting**
