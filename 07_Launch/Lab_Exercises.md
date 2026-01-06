@@ -2927,13 +2927,7 @@ export ROS_DOMAIN_ID=42
 ros2 node list
 ```
 
-**Expected output:**
-```
-/battery_monitor
-/navigation_controller
-/task_processor
-/fleet_monitor
-```
+**Expected:** `battery_monitor`, `navigation_controller`, `task_processor`, `fleet_monitor`
 
 **If nodes are not found, this means Exercise 3 nodes haven't been built. Skip to the troubleshooting section below.**
 
