@@ -1,7 +1,10 @@
-hw_status_validated_pub:
+robot_tag_publisher:
   ros__parameters:
-    robot_name: "robot_warehouse"
-    robot_number: 100
-    publish_rate: 2.0
-    temperature_min: 20
-    temperature_max: 35
+    robot_id: "INSP-001"
+    robot_type: "inspection"
+    zone_id: "QUALITY-CONTROL"
+    fleet_number: 1
+    max_payload_kg: 10.0
+    priority_level: 3
+    tag_publish_rate: 5.0
+    firmware_version: "v2.1.5"

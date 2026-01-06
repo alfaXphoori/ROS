@@ -1,0 +1,11 @@
+robot_tag_validated_pub:
+  ros__parameters:
+    robot_id: "WH-TRP-100"
+    robot_type: "transport"
+    zone_id: "WAREHOUSE-FLOOR-2"
+    fleet_number: 100
+    max_payload_kg: 750.0
+    priority_level: 7
+    tag_publish_rate: 2.0
+    firmware_version: "v2.5.0"
+    safety_check_enabled: true
