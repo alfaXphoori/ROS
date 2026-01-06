@@ -153,41 +153,230 @@ source ~/.bashrc
 
 ---
 
-## **🚀 Step 2: Understand Webots Robot Description & World Files**
+## **🚀 Step 2: Create Workspace Structure**
 
-### **2.1 Webots World File Structure**
+### **2.1 Setup Project Directories**
 
-Create a basic Webots world file (`my_world.wbt`):
+Create the necessary folder structure:
 
+```bash
+cd ~/ros2_ws/src/ce_robot
+mkdir -p worlds controllers launch config
 ```
+
+**Directory Structure:**
+```
+ce_robot/
+├── controllers/          # Robot controller Python scripts
+├── worlds/              # Webots world files (.wbt)
+├── launch/              # ROS 2 launch files
+├── config/              # Configuration files
+└── ce_robot/            # Python package for ROS 2 nodes
+```
+
+---
+
+## **🎯 Step 3: Create Your First Simulation World**
+
+### **3.1 Complete Differential Drive Robot World**
+
+Create `worlds/my_first_robot.wbt`:
+
+```bash
+cd ~/ros2_ws/src/ce_robot/worlds
+nano my_first_robot.wbt
+```
+
+Paste this complete world file:
+
+```vrml
 #VRML_SIM R2024b utf8
 
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2024b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2024b/projects/objects/floors/protos/RectangleArena.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2024b/projects/robots/universal_robots/ur/protos/UR5e.proto"
 
 WorldInfo {
-  info "ROS 2 Robot Simulation"
-  title "Webots ROS 2 Integration"
+  info "My First ROS 2 Robot Simulation"
+  title "Webots ROS 2 Lab"
+  basicTimeStep 32
 }
 
 Viewpoint {
-  orientation 0.577 0.577 0.577 2.094
-  position 0 0 3
+  orientation -0.5 0.5 0.707 1.8
+  position 0 0 5
 }
 
 TexturedBackgroundLight {
 }
 
 RectangleArena {
-  floorSize 10 10
+  floorSize 5 5
+  wallHeight 0.5
 }
 
-UR5e {
-  translation 0 0 0
-  rotation 0 0 1 0
+# Simple differential drive robot
+Robot {
+  translation 0 0 0.05
+  children [
+    # Robot body
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.2 0.5 0.8
+        metalness 0
+      }
+      geometry Box {
+        size 0.3 0.2 0.1
+      }
+    }
+    
+    # Left wheel
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        position 0
+        axis 0 1 0
+        anchor -0.15 -0.13 0
+      }
+      device [
+        RotationalMotor {
+          name "left_motor"
+          maxVelocity 10
+        }
+        PositionSensor {
+          name "left_encoder"
+        }
+      ]
+      endPoint Solid {
+        translation -0.15 -0.13 0
+        rotation 1 0 0 1.5708
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.1 0.1 0.1
+              metalness 0
+            }
+            geometry Cylinder {
+              height 0.04
+              radius 0.05
+            }
+          }
+        ]
+        boundingObject Cylinder {
+          height 0.04
+          radius 0.05
+        }
+        physics Physics {
+          density -1
+          mass 0.1
+        }
+      }
+    }
+    
+    # Right wheel
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        position 0
+        axis 0 1 0
+        anchor -0.15 0.13 0
+      }
+      device [
+        RotationalMotor {
+          name "right_motor"
+          maxVelocity 10
+        }
+        PositionSensor {
+          name "right_encoder"
+        }
+      ]
+      endPoint Solid {
+        translation -0.15 0.13 0
+        rotation 1 0 0 1.5708
+        children [
+          Shape {
+            appearance PBRAppearance {
+              baseColor 0.1 0.1 0.1
+              metalness 0
+            }
+            geometry Cylinder {
+              height 0.04
+              radius 0.05
+            }
+          }
+        ]
+        boundingObject Cylinder {
+          height 0.04
+          radius 0.05
+        }
+        physics Physics {
+          density -1
+          mass 0.1
+        }
+      }
+    }
+    
+    # Distance sensor (front)
+    DistanceSensor {
+      translation 0.15 0 0
+      rotation 0 0 1 0
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 1 0 0
+            metalness 0
+          }
+          geometry Cylinder {
+            height 0.02
+            radius 0.01
+          }
+        }
+      ]
+      name "front_sensor"
+      lookupTable [
+        0 0 0
+        0.5 500 0
+        1.0 1000 0
+      ]
+      type "infra-red"
+      numberOfRays 1
+    }
+  ]
+  boundingObject Box {
+    size 0.3 0.2 0.1
+  }
+  physics Physics {
+    density -1
+    mass 1
+  }
+  controller "my_robot_controller"
+  supervisor FALSE
+}
+
+# Add an obstacle
+Solid {
+  translation 1 0 0.1
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.8 0.2 0.2
+        metalness 0
+      }
+      geometry Box {
+        size 0.3 0.3 0.2
+      }
+    }
+  ]
+  boundingObject Box {
+    size 0.3 0.3 0.2
+  }
 }
 ```
+
+**What this world contains:**
+- ✅ Differential drive robot (2 wheels)
+- ✅ Two motors: `left_motor`, `right_motor`
+- ✅ Two encoders: `left_encoder`, `right_encoder`
+- ✅ Distance sensor: `front_sensor`
+- ✅ 5m x 5m arena with walls
+- ✅ One obstacle for testing
 
 ### **2.2 Robot Proto Description**
 
@@ -227,162 +416,509 @@ PROTO MyRobot [
 
 ---
 
-## **💻 Step 3: Create Robot Controller & ROS 2 Bridge**
+## **💻 Step 4: Create Robot Controller with ROS 2 Integration**
 
-### **3.1 Basic Robot Controller in Python**
+### **4.1 Complete Differential Drive Controller**
 
-Create `robot_controller.py`:
+Create `controllers/my_robot_controller.py`:
+
+```bash
+cd ~/ros2_ws/src/ce_robot/controllers
+nano my_robot_controller.py
+```
+
+Paste this complete controller implementation:
 
 ```python
 #!/usr/bin/env python3
-"""Basic Webots robot controller with ROS 2 integration"""
+"""
+Webots Robot Controller with ROS 2 Integration
+Reads distance sensor and controls differential drive motors
+"""
 
-from controller import Robot, Motor, DistanceSensor
+from controller import Robot, Motor, DistanceSensor, PositionSensor
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Float64
+from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Range
+from nav_msgs.msg import Odometry
+import math
 
-class WebotRobotController(Node):
+class WebotsRobotController(Node):
     def __init__(self):
         super().__init__('webots_robot_controller')
         
-        # Webots robot
+        # Initialize Webots Robot
         self.robot = Robot()
         self.timestep = int(self.robot.getBasicTimeStep())
         
-        # Motors
+        # Get motor devices
         self.left_motor = self.robot.getDevice('left_motor')
         self.right_motor = self.robot.getDevice('right_motor')
         
-        # Sensors
-        self.distance_sensor = self.robot.getDevice('distance_sensor')
+        # Set motors to velocity control mode
+        self.left_motor.setPosition(float('inf'))
+        self.right_motor.setPosition(float('inf'))
+        self.left_motor.setVelocity(0.0)
+        self.right_motor.setVelocity(0.0)
+        
+        # Get encoder sensors
+        self.left_encoder = self.robot.getDevice('left_encoder')
+        self.right_encoder = self.robot.getDevice('right_encoder')
+        self.left_encoder.enable(self.timestep)
+        self.right_encoder.enable(self.timestep)
+        
+        # Get distance sensor
+        self.distance_sensor = self.robot.getDevice('front_sensor')
         self.distance_sensor.enable(self.timestep)
         
-        # ROS 2 Publishers & Subscribers
-        self.cmd_vel_sub = self.create_subscription(
-            Float64, 'cmd_motor', self.cmd_callback, 10
-        )
-        self.sensor_pub = self.create_publisher(Range, 'sensor_data', 10)
+        # Robot physical parameters
+        self.wheel_radius = 0.05  # meters
+        self.wheel_separation = 0.26  # meters
         
-        self.get_logger().info('Webots robot controller initialized')
-    
-    def cmd_callback(self, msg):
-        """Receive motor command from ROS 2"""
-        self.left_motor.setVelocity(msg.data)
-        self.right_motor.setVelocity(msg.data)
-    
-    def update_sensors(self):
-        """Read sensors and publish to ROS 2"""
+        # Odometry
+        self.x = 0.0
+        self.y = 0.0
+        self.theta = 0.0
+        self.last_left_encoder = 0.0
+        self.last_right_encoder = 0.0
+        
+        # ROS 2 Subscribers
+        self.cmd_vel_sub = self.create_subscription(
+            Twist,
+            'cmd_vel',
+            self.cmd_vel_callback,
+            10
+        )
+        
+        # ROS 2 Publishers
+        self.sensor_pub = self.create_publisher(Range, 'distance_sensor', 10)
+        self.odom_pub = self.create_publisher(Odometry, 'odom', 10)
+        
+        # Create timer for sensor publishing
+        self.create_timer(0.1, self.publish_sensors)
+        
+        self.get_logger().info('🤖 Webots Robot Controller initialized')
+        self.get_logger().info(f'   Timestep: {self.timestep}ms')
+        self.get_logger().info(f'   Wheel radius: {self.wheel_radius}m')
+        self.get_logger().info(f'   Wheel separation: {self.wheel_separation}m')
+
+    def cmd_vel_callback(self, msg):
+        """
+        Convert Twist message to wheel velocities
+        msg.linear.x: forward/backward velocity (m/s)
+        msg.angular.z: rotation velocity (rad/s)
+        """
+        # Differential drive kinematics
+        linear_vel = msg.linear.x
+        angular_vel = msg.angular.z
+        
+        # Convert to wheel velocities
+        left_vel = (linear_vel - angular_vel * self.wheel_separation / 2.0) / self.wheel_radius
+        right_vel = (linear_vel + angular_vel * self.wheel_separation / 2.0) / self.wheel_radius
+        
+        # Set motor velocities
+        self.left_motor.setVelocity(left_vel)
+        self.right_motor.setVelocity(right_vel)
+        
+        self.get_logger().info(
+            f'Motor commands: Left={left_vel:.2f}, Right={right_vel:.2f} rad/s'
+        )
+
+    def update_odometry(self):
+        """Calculate robot position from wheel encoders"""
+        # Get current encoder values
+        left_encoder = self.left_encoder.getValue()
+        right_encoder = self.right_encoder.getValue()
+        
+        # Calculate wheel movements
+        delta_left = left_encoder - self.last_left_encoder
+        delta_right = right_encoder - self.last_right_encoder
+        
+        # Update last encoder values
+        self.last_left_encoder = left_encoder
+        self.last_right_encoder = right_encoder
+        
+        # Calculate linear and angular displacement
+        delta_distance = self.wheel_radius * (delta_left + delta_right) / 2.0
+        delta_theta = self.wheel_radius * (delta_right - delta_left) / self.wheel_separation
+        
+        # Update pose
+        self.theta += delta_theta
+        self.x += delta_distance * math.cos(self.theta)
+        self.y += delta_distance * math.sin(self.theta)
+
+    def publish_sensors(self):
+        """Read sensors and publish to ROS 2 topics"""
+        
+        # Update odometry
+        self.update_odometry()
+        
+        # Publish odometry
+        odom_msg = Odometry()
+        odom_msg.header.stamp = self.get_clock().now().to_msg()
+        odom_msg.header.frame_id = 'odom'
+        odom_msg.child_frame_id = 'base_link'
+        
+        odom_msg.pose.pose.position.x = self.x
+        odom_msg.pose.pose.position.y = self.y
+        odom_msg.pose.pose.position.z = 0.0
+        
+        # Convert theta to quaternion
+        odom_msg.pose.pose.orientation.z = math.sin(self.theta / 2.0)
+        odom_msg.pose.pose.orientation.w = math.cos(self.theta / 2.0)
+        
+        self.odom_pub.publish(odom_msg)
+        
+        # Publish distance sensor
         distance = self.distance_sensor.getValue()
         
-        msg = Range()
-        msg.header.frame_id = 'sensor_frame'
-        msg.min_range = 0.0
-        msg.max_range = 1.0
-        msg.range = float(distance)
+        range_msg = Range()
+        range_msg.header.stamp = self.get_clock().now().to_msg()
+        range_msg.header.frame_id = 'front_sensor'
+        range_msg.radiation_type = Range.INFRARED
+        range_msg.field_of_view = 0.1
+        range_msg.min_range = 0.0
+        range_msg.max_range = 1.0
+        range_msg.range = min(distance / 1000.0, 1.0)  # Convert to meters
         
-        self.sensor_pub.publish(msg)
-    
+        self.sensor_pub.publish(range_msg)
+        
+        # Log sensor data
+        if distance < 500:  # Obstacle detected
+            self.get_logger().warn(f'⚠️  Obstacle detected: {distance:.0f}mm')
+
     def run(self):
         """Main control loop"""
+        self.get_logger().info('🚀 Starting robot control loop...')
+        
         while self.robot.step(self.timestep) != -1:
+            # Process ROS 2 callbacks
             rclpy.spin_once(self, timeout_sec=0.001)
-            self.update_sensors()
 
-def main():
-    rclpy.init()
-    controller = WebotRobotController()
-    controller.run()
-    rclpy.shutdown()
+def main(args=None):
+    rclpy.init(args=args)
+    controller = WebotsRobotController()
+    
+    try:
+        controller.run()
+    except KeyboardInterrupt:
+        controller.get_logger().info('Shutting down...')
+    finally:
+        controller.destroy_node()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
 ```
 
+Make it executable:
+
+```bash
+chmod +x my_robot_controller.py
+```
+
+**Key Features:**
+- ✅ **Differential Drive Kinematics** - Converts Twist to wheel velocities
+- ✅ **Odometry** - Calculates position from wheel encoders
+- ✅ **Sensor Publishing** - Publishes distance sensor data
+- ✅ **ROS 2 Integration** - Standard geometry_msgs/Twist interface
+
 ---
 
-## **🎯 Step 4: Create Launch File for Webots Simulation**
+## **🎯 Step 5: Create Launch File for Webots Simulation**
 
-### **4.1 Webots Launch File**
+### **5.1 Complete Launch File with Timing**
 
-Create `webots_launch.py`:
+Create `launch/webots_sim_launch.py`:
+
+```bash
+cd ~/ros2_ws/src/ce_robot/launch
+nano webots_sim_launch.py
+```
+
+Paste this complete launch file:
 
 ```python
 #!/usr/bin/env python3
-"""Launch file for Webots simulator with ROS 2 nodes"""
+"""
+Launch file for Webots simulation with ROS 2 integration
+Starts Webots simulator and robot controller node
+"""
 
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess, DeclareLaunchArgument
-from launch.substitutions import LaunchConfiguration
+from launch.actions import ExecuteProcess, DeclareLaunchArgument, TimerAction
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
+import os
 
 def generate_launch_description():
-    # Arguments
+    # Package paths
+    pkg_share = FindPackageShare('ce_robot').find('ce_robot')
+    
+    # Declare arguments
     world_file_arg = DeclareLaunchArgument(
-        'world', default_value='my_world.wbt',
-        description='Webots world file'
+        'world',
+        default_value=os.path.join(pkg_share, '..', '..', 'src', 'ce_robot', 'worlds', 'my_first_robot.wbt'),
+        description='Full path to Webots world file'
     )
     
+    mode_arg = DeclareLaunchArgument(
+        'mode',
+        default_value='realtime',
+        description='Webots mode: realtime, fast, pause'
+    )
+    
+    # Get launch configurations
     world_file = LaunchConfiguration('world')
+    mode = LaunchConfiguration('mode')
     
     # Start Webots simulator
-    webots = ExecuteProcess(
-        cmd=['webots', '--batch', '--mode=headless', world_file],
-        output='screen'
+    webots_process = ExecuteProcess(
+        cmd=['webots', '--mode=realtime', world_file],
+        output='screen',
+        shell=False
     )
     
-    # Start robot controller
-    controller = Node(
-        package='ce_robot',
-        executable='robot_controller',
-        name='webots_controller',
-        output='screen'
+    # Start robot controller (delayed to let Webots initialize)
+    robot_controller = TimerAction(
+        period=3.0,  # Wait 3 seconds for Webots to start
+        actions=[
+            Node(
+                package='ce_robot',
+                executable='my_robot_controller',
+                name='webots_controller',
+                output='screen',
+                parameters=[{
+                    'use_sim_time': True
+                }]
+            )
+        ]
     )
     
     return LaunchDescription([
         world_file_arg,
-        webots,
-        controller,
+        mode_arg,
+        webots_process,
+        robot_controller,
     ])
+```
+
+**Launch File Features:**
+- ✅ **Configurable World File** - Pass world file as argument
+- ✅ **Simulation Mode** - Choose realtime, fast, or pause
+- ✅ **Delayed Start** - Wait for Webots to initialize before starting controller
+- ✅ **Sim Time** - Use simulation time instead of wall clock
+
+---
+
+## **🔧 Step 6: Build and Configure Package**
+
+### **6.1 Update setup.py**
+
+Edit `~/ros2_ws/src/ce_robot/setup.py` to include new files:
+
+```python
+from setuptools import setup
+import os
+from glob import glob
+
+package_name = 'ce_robot'
+
+setup(
+    name=package_name,
+    version='0.0.0',
+    packages=[package_name],
+    data_files=[
+        ('share/ament_index/resource_index/packages',
+            ['resource/' + package_name]),
+        ('share/' + package_name, ['package.xml']),
+        # Install launch files
+        (os.path.join('share', package_name, 'launch'), 
+            glob('launch/*_launch.py')),
+        # Install world files
+        (os.path.join('share', package_name, 'worlds'), 
+            glob('worlds/*.wbt')),
+        # Install controller files
+        (os.path.join('share', package_name, 'controllers'), 
+            glob('controllers/*.py')),
+    ],
+    install_requires=['setuptools'],
+    zip_safe=True,
+    maintainer='student',
+    maintainer_email='student@ksu.ac.th',
+    description='CE Robot ROS 2 Webots Integration',
+    license='Apache License 2.0',
+    tests_require=['pytest'],
+    entry_points={
+        'console_scripts': [
+            # Add controller as executable
+            'my_robot_controller = ce_robot.controllers.my_robot_controller:main',
+        ],
+    },
+)
+```
+
+### **6.2 Build the Package**
+
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot --symlink-install
+source install/setup.bash
+```
+
+**Expected Output:**
+```
+Starting >>> ce_robot
+Finished <<< ce_robot [2.5s]
+
+Summary: 1 package finished [2.6s]
 ```
 
 ---
 
-## **✅ Step 5: Verify Simulation and Test Integration**
+## **✅ Step 7: Launch and Test Simulation**
 
-### **5.1 Run Webots Simulator**
+### **7.1 Launch Webots Simulation**
 
-Start Webots with a world file:
-
+**Terminal 1 - Start Simulation:**
 ```bash
-webots ~/ros2_ws/src/ce_robot/worlds/my_world.wbt
+cd ~/ros2_ws
+source install/setup.bash
+ros2 launch ce_robot webots_sim_launch.py
 ```
 
-### **5.2 Verify ROS 2 Integration**
+**Expected Output:**
+```
+[INFO] [webots_controller]: 🤖 Webots Robot Controller initialized
+[INFO] [webots_controller]:    Timestep: 32ms
+[INFO] [webots_controller]:    Wheel radius: 0.05m
+[INFO] [webots_controller]:    Wheel separation: 0.26m
+[INFO] [webots_controller]: 🚀 Starting robot control loop...
+```
 
-In new terminal, check topics:
+You should see:
+- ✅ Webots window opens with the robot in the arena
+- ✅ Robot controller node starts successfully
+- ✅ ROS 2 topics are publishing
 
+### **7.2 Verify ROS 2 Integration**
+
+**Terminal 2 - Check Topics:**
 ```bash
 ros2 topic list
-ros2 topic echo /sensor_data
 ```
 
-Send motor commands:
+**Expected Topics:**
+```
+/cmd_vel           # Command velocity input
+/distance_sensor   # Distance sensor data
+/odom              # Odometry output
+/parameter_events
+/rosout
+```
+
+### **7.3 Test Robot Control**
+
+**Terminal 3 - Send Movement Commands:**
 
 ```bash
-ros2 topic pub /cmd_motor std_msgs/msg/Float64 "{data: 1.0}"
+# Move forward at 0.5 m/s
+ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.5}, angular: {z: 0.0}}"
+
+# Rotate in place at 1.0 rad/s
+ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.0}, angular: {z: 1.0}}"
+
+# Move in a circle
+ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.3}, angular: {z: 0.5}}"
+
+# Stop the robot
+ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.0}, angular: {z: 0.0}}"
 ```
 
-### **5.3 Monitor Simulation**
+### **7.4 Monitor Sensor Data**
 
-Use ROS 2 tools:
+**Terminal 4 - Watch Sensors:**
 
 ```bash
-rqt_graph          # Visualize node/topic connections
-rqt_plot            # Plot sensor data over time
-rviz2               # 3D visualization of robot state
+# Monitor distance sensor (watch for obstacles)
+ros2 topic echo /distance_sensor
+
+# Monitor robot position (odometry)
+ros2 topic echo /odom
 ```
+
+### **7.5 Visualize System**
+
+**Use ROS 2 Visualization Tools:**
+
+```bash
+# View node/topic graph
+rqt_graph
+
+# Plot sensor data over time
+rqt_plot /distance_sensor/range
+
+# 3D visualization (requires additional configuration)
+rviz2
+```
+
+---
+
+## **🎯 Step 8: Practice Exercises**
+
+### **Exercise 1: Wall Following**
+
+Create a simple wall-following behavior:
+
+```python
+# Add to controller
+def wall_follow_callback(self):
+    distance = self.distance_sensor.getValue()
+    
+    if distance < 300:  # Too close to wall
+        # Turn away from wall
+        twist = Twist()
+        twist.linear.x = 0.1
+        twist.angular.z = -0.5
+    elif distance > 700:  # Too far from wall
+        # Turn towards wall
+        twist = Twist()
+        twist.linear.x = 0.2
+        twist.angular.z = 0.3
+    else:  # Good distance
+        # Move straight
+        twist = Twist()
+        twist.linear.x = 0.3
+        twist.angular.z = 0.0
+```
+
+### **Exercise 2: Obstacle Avoidance**
+
+Implement simple obstacle avoidance:
+
+```python
+def obstacle_avoidance(self):
+    distance = self.distance_sensor.getValue()
+    
+    twist = Twist()
+    
+    if distance < 400:  # Obstacle ahead
+        self.get_logger().warn('⚠️  Obstacle! Turning...')
+        twist.linear.x = 0.0
+        twist.angular.z = 1.0  # Turn in place
+    else:
+        twist.linear.x = 0.5  # Move forward
+        twist.angular.z = 0.0
+    
+    # Publish to cmd_vel
+    self.cmd_vel_pub.publish(twist)
+```
+
+### **Exercise 3: Add More Sensors**
+
+Modify the world file to add a camera or LiDAR sensor, then publish the data to ROS 2 topics.
 
 ---
 
@@ -480,42 +1016,121 @@ grep "basicTimeStep" my_world.wbt
 
 ## **✅ Verification Checklist**
 
-Installation and configuration complete when you can verify:
+Your Webots simulation lab is complete when you can verify:
 
-- [ ] Webots simulator installed and launches successfully
-- [ ] `webots --version` displays version information
-- [ ] ROS 2 Webots bridge package installed (`ros2 pkg list | grep webots`)
-- [ ] Webots environment variables configured in `.bashrc`
-- [ ] Sample world file (`my_world.wbt`) loads in Webots
-- [ ] Custom robot proto file parses without errors
-- [ ] Robot controller Python script runs without import errors
-- [ ] ROS 2 nodes can connect to Webots simulator
-- [ ] Sensor data publishes to ROS 2 topics
-- [ ] Motor commands from ROS 2 topics control Webots actuators
-- [ ] `rqt_graph` shows proper connections between Webots and ROS 2 nodes
-- [ ] Simulation runs at expected physics timestep (32ms typical)
+**Installation & Setup:**
+- [ ] Webots simulator installed: `webots --version` shows version
+- [ ] ROS 2 Webots bridge installed: `ros2 pkg list | grep webots`
+- [ ] Environment variables set in `~/.bashrc`
+- [ ] Workspace directories created: `worlds/`, `controllers/`, `launch/`
+
+**World & Robot:**
+- [ ] World file created: `worlds/my_first_robot.wbt`
+- [ ] World file loads in Webots without errors
+- [ ] Robot appears in simulation with 2 wheels and 1 sensor
+- [ ] Robot has proper physics (not floating or falling through floor)
+
+**Controller & ROS 2:**
+- [ ] Controller created: `controllers/my_robot_controller.py`
+- [ ] Controller is executable: `chmod +x`
+- [ ] Package builds successfully: `colcon build`
+- [ ] Launch file created: `launch/webots_sim_launch.py`
+- [ ] Launch file starts both Webots and controller
+
+**ROS 2 Integration:**
+- [ ] Topics visible: `ros2 topic list` shows `/cmd_vel`, `/distance_sensor`, `/odom`
+- [ ] Controller subscribes to `/cmd_vel` successfully
+- [ ] Distance sensor publishes to `/distance_sensor`
+- [ ] Odometry publishes to `/odom`
+- [ ] `rqt_graph` shows proper node connections
+
+**Robot Control:**
+- [ ] Robot moves forward with: `ros2 topic pub /cmd_vel ...`
+- [ ] Robot rotates with angular velocity commands
+- [ ] Robot stops when commanded
+- [ ] Distance sensor detects obstacle when robot approaches it
+- [ ] Odometry updates as robot moves
+
+**Advanced Features:**
+- [ ] Can monitor sensor data: `ros2 topic echo /distance_sensor`
+- [ ] Can visualize topics: `rqt_plot /distance_sensor/range`
+- [ ] Simulation runs at consistent 32ms timestep
+- [ ] No lag or crashes during operation
 
 ---
 
-## **🚀 Next Steps**
+## **🚀 Next Steps & Advanced Topics**
 
-After mastering Webots simulation, advance your ROS 2 skills with:
+After mastering Webots simulation basics, expand your skills:
 
-1. **09_Hardware_Integration** - Connect real sensors and actuators to ROS 2
+### **Immediate Next Steps:**
+
+1. **Add More Sensors**
+   - Camera sensor for vision processing
+   - LiDAR for mapping and navigation
+   - IMU for orientation tracking
+   - GPS for absolute positioning
+
+2. **Implement Autonomous Behaviors**
+   - Obstacle avoidance algorithm
+   - Wall following behavior
+   - Goal-seeking navigation
+   - Simple SLAM implementation
+
+3. **Multi-Robot Simulation**
+   - Add multiple robots to world file
+   - Implement robot-to-robot communication
+   - Coordinate fleet behavior
+   - Test formation control
+
+### **Advanced Modules:**
+
+1. **09_Hardware_Integration** - Connect real sensors and actuators
    - GPIO control for motors and sensors
    - I2C/SPI communication protocols
    - Real-time performance tuning
+   - Bridge simulation to real hardware
 
-2. **10_Advanced_Composition** - Multi-robot systems and swarm robotics
-   - Coordinate multiple robots through ROS 2
-   - Implement distributed control algorithms
-   - Practice leader-follower and formation control
+2. **10_Navigation_Stack** - Implement ROS 2 Nav2
+   - Map building with SLAM
+   - Path planning algorithms
+   - Costmap configuration
+   - Recovery behaviors
 
-3. **11_Real_Robot_Deployment** - Deploy to actual hardware
-   - Transfer sim2real learned controllers
+3. **11_Real_Robot_Deployment** - Deploy to physical robots
+   - Sim2real transfer techniques
    - Handle real-world sensor noise
-   - Implement safety and error recovery
+   - Safety and error recovery
+   - Performance optimization
+
+### **Practice Projects:**
+
+**Project 1: Warehouse Robot**
+- Navigate between waypoints
+- Avoid dynamic obstacles
+- Report battery status
+- Return to charging station
+
+**Project 2: Line Following Robot**
+- Add color sensor to world
+- Detect line on floor
+- Follow path autonomously
+- Handle intersections
+
+**Project 3: Mapping Robot**
+- Add LiDAR sensor
+- Build map of environment
+- Localize within map
+- Navigate to goals
 
 ---
 
 **✅ Simulation Foundation Complete! Ready for Advanced Robotics!** 🚀🤖✨
+
+**Key Achievements:**
+- ✅ Webots simulation environment configured
+- ✅ Differential drive robot created and controlled
+- ✅ ROS 2 integration with sensors and actuators
+- ✅ Launch file orchestration mastered
+- ✅ Odometry and sensor data publishing
+- ✅ Foundation for advanced robotics development
