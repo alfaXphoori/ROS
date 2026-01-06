@@ -2923,11 +2923,12 @@ source install/setup.bash
 
 **Test 1 - Small robot config:**
 ```bash
-ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=small
+ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=small ros_domain_id:=42
 ```
 
 **First, verify nodes are running:**
 ```bash
+export ROS_DOMAIN_ID=42
 ros2 node list
 # Expected output:
 # /battery_monitor
