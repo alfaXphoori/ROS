@@ -14,18 +14,14 @@ from launch.actions import (
 )
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, TextSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-from ament_index_python.packages import get_package_share_directory
+
 
 
 def generate_launch_description():
     """Generate launch description with YAML config"""
-    
-    # Get package directory - using os.path for compatibility
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    config_dir = os.path.join(current_dir, 'config')
     
     # Declare arguments
     robot_config_arg = DeclareLaunchArgument(
@@ -33,6 +29,12 @@ def generate_launch_description():
         default_value='small',
         description='Robot configuration to load (small, large, simulation, or hardware)',
         choices=['small', 'large', 'simulation', 'hardware']
+    )
+
+    ros_domain_id_arg = DeclareLaunchArgument(
+        'ros_domain_id',
+        default_value='0',
+        description='ROS_DOMAIN_ID to use. Must match across terminals to discover nodes.'
     )
     
     include_simple_launch_arg = DeclareLaunchArgument(
@@ -44,17 +46,21 @@ def generate_launch_description():
     # Get configurations
     robot_config = LaunchConfiguration('robot_config')
     include_simple = LaunchConfiguration('include_simple_launch')
+    ros_domain_id = LaunchConfiguration('ros_domain_id')
     
-    # Build YAML file path - direct path construction
+    # Build YAML file path (works both in src workspace and after install)
+    # Installed config files live under: <pkg_share>/launch/config/
     config_file = PathJoinSubstitution([
-        config_dir,
-        ['robot_', robot_config, '.yaml']
+        FindPackageShare('ce_robot_launch'),
+        'launch',
+        'config',
+        TextSubstitution(text='robot_'),
+        robot_config,
+        TextSubstitution(text='.yaml'),
     ])
     
     # Set environment variable (optional, but useful for debugging)
-    set_env = SetEnvironmentVariable(
-        'ROS_DOMAIN_ID', '42'
-    )
+    set_env = SetEnvironmentVariable('ROS_DOMAIN_ID', ros_domain_id)
     
     # Load nodes with YAML parameters
     # Using nodes from 07_Launch exercises
@@ -120,11 +126,13 @@ def generate_launch_description():
         # Arguments
         robot_config_arg,
         include_simple_launch_arg,
+        ros_domain_id_arg,
         
         # Startup messages
         LogInfo(msg='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'),
         LogInfo(msg='📋 YAML Configuration Launch - Exercise 4'),
         LogInfo(msg=['🔧 Loading config: ', config_file]),
+        LogInfo(msg=['🌐 ROS_DOMAIN_ID: ', ros_domain_id]),
         LogInfo(msg='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'),
         
         # Nodes with YAML config

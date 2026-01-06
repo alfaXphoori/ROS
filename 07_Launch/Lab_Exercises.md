@@ -2796,20 +2796,32 @@ def generate_launch_description():
         default_value='false',
         description='Include the simple_launch.py as well'
     )
+
+    ros_domain_id_arg = DeclareLaunchArgument(
+        'ros_domain_id',
+        default_value='0',
+        description='ROS_DOMAIN_ID to use (must match across terminals to discover nodes)'
+    )
     
     # Get configurations
     robot_config = LaunchConfiguration('robot_config')
     include_simple = LaunchConfiguration('include_simple_launch')
+
+    ros_domain_id = LaunchConfiguration('ros_domain_id')
     
-    # Build YAML file path - direct path construction
+    # Build YAML file path (works both in src workspace and after install)
     config_file = PathJoinSubstitution([
-        config_dir,
-        ['robot_', robot_config, '.yaml']
+        FindPackageShare('ce_robot_launch'),
+        'launch',
+        'config',
+        TextSubstitution(text='robot_'),
+        robot_config,
+        TextSubstitution(text='.yaml'),
     ])
     
     # Set environment variable (optional, but useful for debugging)
     set_env = SetEnvironmentVariable(
-        'ROS_DOMAIN_ID', '42'
+        'ROS_DOMAIN_ID', ros_domain_id
     )
     
     # Load nodes with YAML parameters
@@ -2876,11 +2888,13 @@ def generate_launch_description():
         # Arguments
         robot_config_arg,
         include_simple_launch_arg,
+        ros_domain_id_arg,
         
         # Startup messages
         LogInfo(msg='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'),
         LogInfo(msg='📋 YAML Configuration Launch - Exercise 4'),
         LogInfo(msg=['🔧 Loading config: ', config_file]),
+        LogInfo(msg=['🌐 ROS_DOMAIN_ID: ', ros_domain_id]),
         LogInfo(msg='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'),
         
         # Nodes with YAML config
@@ -2903,49 +2917,14 @@ colcon build --packages-select ce_robot_launch --symlink-install
 source install/setup.bash
 ```
 
-> **⚠️ IMPORTANT - Check Node Availability First:**
-> Before running the launch file, verify the required nodes exist:
-> ```bash
-> ros2 pkg executables ce_robot | grep -E '07_battery_monitor|07_navigation_controller|07_task_processor|07_fleet_monitor'
-> ```
-> 
-> **If no output appears:** The Exercise 3 nodes don't exist yet. See troubleshooting section below for solutions.
-> 
-> **Expected output if nodes exist:**
-> ```
-> ce_robot 07_battery_monitor
-> ce_robot 07_navigation_controller
-> ce_robot 07_task_processor
-> ce_robot 07_fleet_monitor
-> ```
+> **Note:** If you haven't completed Exercise 3, the launch will fail with "Executable '07_battery_monitor' not found". You have two options:
+> 1. Complete Exercise 3 first to create the required nodes
+> 2. Or copy the nodes from `07_Launch/src/exercise_3/nodes/` to `~/ros2_ws/src/ce_robot/ce_robot/` and rebuild the ce_robot package
 
 **Test 1 - Small robot config:**
 ```bash
 ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=small
 ```
-
-**Check for launch errors:**
-If you see errors like:
-```
-[ERROR] [launch]: Caught exception in launch (see debug for traceback): Executable '07_battery_monitor' not found
-```
-This means the Exercise 3 nodes haven't been built. **Stop the launch** (Ctrl+C) and see the troubleshooting section below.
-
-**If the launch appears to start but nodes crash immediately:**
-Look for Python errors in the terminal output like:
-```
-[07_battery_monitor-1] Traceback (most recent call last):
-[07_battery_monitor-1]   File "...", line X, in <module>
-[07_battery_monitor-1] ModuleNotFoundError: No module named 'rclpy'
-```
-
-Or:
-```
-[07_battery_monitor-1] [ERROR] [battery_monitor]: Failed to initialize
-[INFO] [07_battery_monitor-1]: process has died [pid XXXXX, exit code 1]
-```
-
-These indicate the nodes are starting but crashing. See troubleshooting section for solutions.
 
 **First, verify nodes are running:**
 ```bash
@@ -3057,135 +3036,32 @@ ros2 node list
 
 ### **🔧 Troubleshooting**
 
-#### **Issue: `ros2 node list` shows empty in new terminal**
+#### **Issue: Launch runs, but `ros2 node list -c` shows `0`**
 
-**Symptom:** 
-- Launch command runs perfectly: `ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=small`
-- Nodes appear to be running in the launch terminal
-- But when you open a **new terminal** and run `ros2 node list`, it shows nothing
+If the launch terminal shows nodes started, but another terminal shows `0` nodes, the most common cause is a **ROS domain mismatch**.
 
-**Cause:** The new terminal doesn't have ROS 2 environment sourced!
-
-**Solution:**
-
-**In EVERY new terminal, you must source ROS 2:**
-
+**Step 1 - Check ROS domain in both terminals:**
 ```bash
-# Source ROS 2 installation
-source /opt/ros/humble/setup.bash  # or your ROS 2 version (foxy, galactic, iron, etc.)
+echo $ROS_DOMAIN_ID
+```
 
-# Source your workspace
+**Step 2 - Make them match:**
+
+- If you launched with `ros_domain_id:=42`, then in every other terminal run:
+```bash
+export ROS_DOMAIN_ID=42
+ros2 node list -c
+```
+
+- Or launch in the default domain (0):
+```bash
+ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=small ros_domain_id:=0
+```
+
+**Step 3 - Ensure ROS 2 is sourced in the terminal where you run `ros2 node list`:**
+```bash
+source /opt/ros/jazzy/setup.bash
 source ~/ros2_ws/install/setup.bash
-
-# NOW ros2 commands will work
-ros2 node list
-```
-
-**Expected output after sourcing:**
-```
-/battery_monitor
-/navigation_controller
-/task_processor
-/fleet_monitor
-```
-
-**Verify your terminal is properly sourced:**
-```bash
-# Check ROS_DISTRO is set
-echo $ROS_DISTRO
-# Should show: humble (or your version)
-
-# Check workspace is sourced
-echo $AMENT_PREFIX_PATH
-# Should include: /home/user/ros2_ws/install
-```
-
-**🔧 Optional: Auto-source in every terminal**
-
-To avoid sourcing manually every time, add these lines to your shell configuration:
-
-**For bash users (~/.bashrc):**
-```bash
-echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
-echo "source ~/ros2_ws/install/setup.bash" >> ~/.bashrc
-source ~/.bashrc
-```
-
-**For zsh users (~/.zshrc):**
-```bash
-echo "source /opt/ros/humble/setup.bash" >> ~/.zshrc
-echo "source ~/ros2_ws/install/setup.bash" >> ~/.zshrc
-source ~/.zshrc
-```
-
-**After this, every new terminal will automatically have ROS 2 sourced!**
-
----
-
-#### **How to Monitor Running Processes**
-
-**Check ROS 2 Nodes:**
-```bash
-# List all running ROS 2 nodes
-ros2 node list
-
-# Get detailed info about a specific node
-ros2 node info /battery_monitor
-
-# Check node parameters
-ros2 param list /battery_monitor
-```
-
-**Check System Processes:**
-```bash
-# Find ROS 2 Python nodes
-ps aux | grep "ros2\|python3.*07_"
-
-# Expected output (if nodes are running):
-# user  12345  ... python3 /path/to/07_battery_monitor
-# user  12346  ... python3 /path/to/07_navigation_controller
-# user  12347  ... python3 /path/to/07_task_processor
-# user  12348  ... python3 /path/to/07_fleet_monitor
-```
-
-**Check specific node process:**
-```bash
-# Search for specific node
-pgrep -af battery_monitor
-
-# Count running ROS nodes
-pgrep -c python3
-```
-
-**Real-time process monitoring:**
-```bash
-# Watch processes in real-time (updates every 2 seconds)
-watch -n 2 'ros2 node list'
-
-# Or use top/htop to see CPU/memory usage
-htop
-# Then press F4 and search for "07_"
-```
-
-**Check launch file processes:**
-```bash
-# Find the launch process and all child processes
-pgrep -af "yaml_config_launch"
-
-# Show process tree
-pstree -p $(pgrep -f yaml_config_launch)
-```
-
-**Verify nodes are communicating:**
-```bash
-# List all topics (nodes publish/subscribe to these)
-ros2 topic list
-
-# See which nodes are connected to a topic
-ros2 topic info /battery_status
-
-# Monitor topic data in real-time
-ros2 topic echo /battery_status
 ```
 
 ---
@@ -3205,26 +3081,14 @@ Complete Exercise 3 to build all required monitoring nodes, then return to Exerc
 **Option 2: Copy Reference Nodes**
 ```bash
 # Copy nodes from reference implementation
-cp "/Volumes/ExDisk/Google Drive Ksu/KSU/Git/ROS/07_Launch/src/exercise_3/nodes/"*.py \
+cp "/Volumes/ExDisk/Google Drive Ksu/KSU/Git/ROS/07_Launch/src/exercise_3/nodes/"* \
    ~/ros2_ws/src/ce_robot/ce_robot/
 
-# Make them executable
-chmod +x ~/ros2_ws/src/ce_robot/ce_robot/07_*.py
-
 # Update setup.py to add entry points
-# Edit ~/ros2_ws/src/ce_robot/setup.py and add these lines to console_scripts:
-#   '07_battery_monitor = ce_robot.07_battery_monitor:main',
-#   '07_navigation_controller = ce_robot.07_navigation_controller:main',
-#   '07_task_processor = ce_robot.07_task_processor:main',
-#   '07_fleet_monitor = ce_robot.07_fleet_monitor:main',
-
-# Rebuild ce_robot package
+# Then rebuild
 cd ~/ros2_ws
 colcon build --packages-select ce_robot
 source install/setup.bash
-
-# Verify nodes are now available
-ros2 pkg executables ce_robot | grep 07_
 ```
 
 **Option 3: Use Placeholder Nodes (Quick Test)**
@@ -3249,117 +3113,24 @@ This allows testing the YAML configuration functionality even without Exercise 3
 Node not found
 ```
 
-**Or `ros2 node list` returns empty output even though launch seems to run.**
+**Solution:** The launch failed to start the nodes. Check:
 
-**This is the most common issue** - nodes are starting but crashing immediately.
-
-**Solution:** Debug the node crashes:
-
-**Step 1: Check if processes started then died**
-
-Look carefully at your launch terminal. You should see either:
-
-**Good (nodes stay running):**
-```
+1. **Verify launch succeeded:**
+```bash
+# Look for this in the launch output:
 [INFO] [07_battery_monitor-1]: process started with pid [12345]
-[INFO] [07_navigation_controller-2]: process started with pid [12346]
-[INFO] [07_task_processor-3]: process started with pid [12347]
-[INFO] [07_fleet_monitor-4]: process started with pid [12348]
-
-[Nodes keep running, printing their status messages]
 ```
 
-**Bad (nodes crash):**
-```
-[INFO] [07_battery_monitor-1]: process started with pid [12345]
-[INFO] [07_navigation_controller-2]: process started with pid [12346]
-[07_battery_monitor-1] Traceback (most recent call last):
-[07_battery_monitor-1]   File "...", line X
-[07_battery_monitor-1] AttributeError: module 'rclpy.node' has no attribute 'Node'
-[INFO] [07_battery_monitor-1]: process has died [pid 12345, exit code 1]
-[INFO] [07_navigation_controller-2]: process has died [pid 12346, exit code 1]
-```
+If you see errors instead, the nodes aren't starting.
 
-**If you see "process has died"**, the nodes are crashing. Continue to Step 2.
-
-**Step 2: Run a single node manually to see the full error**
-
+2. **Check if nodes are running:**
 ```bash
-# Source workspace first
-source ~/ros2_ws/install/setup.bash
-
-# Run one node manually
-ros2 run ce_robot 07_battery_monitor
+ros2 node list
 ```
 
-**Common errors and solutions:**
+If the list is empty or doesn't show the expected nodes, the launch failed.
 
-**Error: `ModuleNotFoundError: No module named 'rclpy'`**
-```bash
-# Solution: ROS 2 not sourced
-source /opt/ros/humble/setup.bash  # or your ROS version
-source ~/ros2_ws/install/setup.bash
-```
-
-**Error: `AttributeError: module has no attribute 'Node'`**
-```bash
-# Solution: Python file has syntax errors or missing imports
-# Check the node file:
-cat ~/ros2_ws/src/ce_robot/ce_robot/07_battery_monitor.py | head -20
-```
-
-Make sure it starts with:
-```python
-#!/usr/bin/env python3
-import rclpy
-from rclpy.node import Node
-```
-
-**Error: `No module named 'ce_robot_interfaces'`**
-```bash
-# Solution: Interfaces package not built
-cd ~/ros2_ws
-colcon build --packages-select ce_robot_interfaces
-source install/setup.bash
-```
-
-**Error: Node runs but exits immediately with no error**
-```bash
-# Solution: Missing main() function or missing entry point
-# Check that the node file has:
-def main(args=None):
-    rclpy.init(args=args)
-    node = BatteryMonitor()  # Your node class
-    rclpy.spin(node)
-    rclpy.shutdown()
-
-if __name__ == '__main__':
-    main()
-```
-
-**Step 3: If nodes still crash, check the full Python implementation**
-
-```bash
-# View the entire node file
-cat ~/ros2_ws/src/ce_robot/ce_robot/07_battery_monitor.py
-
-# Compare with reference
-diff ~/ros2_ws/src/ce_robot/ce_robot/07_battery_monitor.py \
-     "/Volumes/ExDisk/Google Drive Ksu/KSU/Git/ROS/07_Launch/src/exercise_3/nodes/07_battery_monitor.py"
-```
-
-**Step 4: Rebuild after fixing**
-
-```bash
-cd ~/ros2_ws
-colcon build --packages-select ce_robot
-source install/setup.bash
-
-# Test manual run again
-ros2 run ce_robot 07_battery_monitor
-```
-
-If the node runs successfully manually, try the launch file again.
+3. **Check the exact error in launch output** - it will indicate which executable is missing.
 
 ---
 
