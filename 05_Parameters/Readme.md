@@ -846,8 +846,6 @@ robot_tag_publisher:
     firmware_version: "v2.1.5"
 ```
 
-![Parameter Configuration](imgs/01_Param.png)
-
 **Run with parameter file:**
 ```bash
 ros2 run ce_robot 05_robot_tag_publisher --ros-args --params-file robot_config.yaml
@@ -866,6 +864,8 @@ ros2 run ce_robot 05_robot_tag_publisher --ros-args --params-file robot_config.y
 [INFO] [robot_tag_publisher]:    Firmware: v2.1.5
 [INFO] [robot_tag_publisher]: 🤖 INSP-001 [inspection]: Status=active, Zone=QUALITY-CONTROL, Location=SHELF-A-1, Hours=0.0
 ```
+
+![Parameter Configuration](imgs/01_Param.png)
 
 ---
 
