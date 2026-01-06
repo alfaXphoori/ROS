@@ -2916,11 +2916,6 @@ cd ~/ros2_ws
 colcon build --packages-select ce_robot_launch --symlink-install
 source install/setup.bash
 ```
-
-> **Note:** If you haven't completed Exercise 3, the launch will fail with "Executable '07_battery_monitor' not found". You have two options:
-> 1. Complete Exercise 3 first to create the required nodes
-> 2. Or copy the nodes from `07_Launch/src/exercise_3/nodes/` to `~/ros2_ws/src/ce_robot/ce_robot/` and rebuild the ce_robot package
-
 **Test 1 - Small robot config:**
 ```bash
 ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=small ros_domain_id:=42
@@ -2930,11 +2925,14 @@ ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=small ros_domain
 ```bash
 export ROS_DOMAIN_ID=42
 ros2 node list
-# Expected output:
-# /battery_monitor
-# /navigation_controller
-# /task_processor
-# /fleet_monitor
+```
+
+**Expected output:**
+```
+/battery_monitor
+/navigation_controller
+/task_processor
+/fleet_monitor
 ```
 
 **If nodes are not found, this means Exercise 3 nodes haven't been built. Skip to the troubleshooting section below.**
@@ -2942,17 +2940,23 @@ ros2 node list
 **Verify parameters:**
 ```bash
 ros2 param get /battery_monitor robot_id
-# Expected: AMR-COMPACT-PICKER-S01
-
-ros2 param get /battery_monitor battery_capacity_ah
-# Expected: 50.0
-
-ros2 param get /navigation_controller max_speed_ms
-# Expected: 1.5
-
-ros2 param get /task_processor max_tasks_per_hour
-# Expected: 80
 ```
+**Expected:** `AMR-COMPACT-PICKER-S01`
+
+```bash
+ros2 param get /battery_monitor battery_capacity_ah
+```
+**Expected:** `50.0`
+
+```bash
+ros2 param get /navigation_controller max_speed_ms
+```
+**Expected:** `1.5`
+
+```bash
+ros2 param get /task_processor max_tasks_per_hour
+```
+**Expected:** `80`
 
 **Test 2 - Large robot config:**
 ```bash
@@ -2962,17 +2966,23 @@ ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=large
 **Verify parameters:**
 ```bash
 ros2 param get /battery_monitor robot_id
-# Expected: AMR-HEAVY-TRANSPORT-L01
-
-ros2 param get /battery_monitor battery_capacity_ah
-# Expected: 200.0
-
-ros2 param get /navigation_controller max_speed_ms
-# Expected: 1.0
-
-ros2 param get /task_processor max_tasks_per_hour
-# Expected: 20
 ```
+**Expected:** `AMR-HEAVY-TRANSPORT-L01`
+
+```bash
+ros2 param get /battery_monitor battery_capacity_ah
+```
+**Expected:** `200.0`
+
+```bash
+ros2 param get /navigation_controller max_speed_ms
+```
+**Expected:** `1.0`
+
+```bash
+ros2 param get /task_processor max_tasks_per_hour
+```
+**Expected:** `20`
 
 **Test 3 - Simulation config:**
 ```bash
@@ -2982,17 +2992,23 @@ ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=simulation
 **Verify parameters:**
 ```bash
 ros2 param get /battery_monitor robot_id
-# Expected: SIM-TEST-001
-
-ros2 param get /battery_monitor battery_capacity_ah
-# Expected: 100.0
-
-ros2 param get /navigation_controller max_speed_ms
-# Expected: 5.0
-
-ros2 param get /task_processor max_tasks_per_hour
-# Expected: 200
 ```
+**Expected:** `SIM-TEST-001`
+
+```bash
+ros2 param get /battery_monitor battery_capacity_ah
+```
+**Expected:** `100.0`
+
+```bash
+ros2 param get /navigation_controller max_speed_ms
+```
+**Expected:** `5.0`
+
+```bash
+ros2 param get /task_processor max_tasks_per_hour
+```
+**Expected:** `200`
 
 **Test 4 - Hardware config:**
 ```bash
@@ -3002,17 +3018,23 @@ ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=hardware
 **Verify parameters:**
 ```bash
 ros2 param get /battery_monitor robot_id
-# Expected: AMR-PROD-001
-
-ros2 param get /battery_monitor battery_capacity_ah
-# Expected: 100.0
-
-ros2 param get /navigation_controller max_speed_ms
-# Expected: 2.0
-
-ros2 param get /task_processor max_tasks_per_hour
-# Expected: 50
 ```
+**Expected:** `AMR-PROD-001`
+
+```bash
+ros2 param get /battery_monitor battery_capacity_ah
+```
+**Expected:** `100.0`
+
+```bash
+ros2 param get /navigation_controller max_speed_ms
+```
+**Expected:** `2.0`
+
+```bash
+ros2 param get /task_processor max_tasks_per_hour
+```
+**Expected:** `50`
 
 **Test 5 - Include composition:**
 ```bash
@@ -3025,12 +3047,15 @@ ros2 launch ce_robot_launch yaml_config_launch.py \
 
 ```bash
 ros2 node list
-# Expected nodes:
-# /battery_monitor
-# /navigation_controller
-# /task_processor
-# /fleet_monitor
-# /robot_tag_publisher (if simple_launch included)
+```
+
+**Expected nodes:**
+```
+/battery_monitor
+/navigation_controller
+/task_processor
+/fleet_monitor
+/robot_tag_publisher (if simple_launch included)
 ```
 
 ---
