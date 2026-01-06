@@ -213,23 +213,26 @@ ament_package()
 <package format="3">
   <name>ce_robot_interfaces</name>
   <version>0.0.0</version>
-  <description>Custom message and service interfaces for CE Robot</description>
-  <maintainer email="student@ksu.ac.th">Student</maintainer>
-  <license>Apache License 2.0</license>
+  <description>TODO: Package description</description>
+  <maintainer email="admin@todo.todo">admin</maintainer>
+  <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-  <buildtool_depend>rosidl_default_generators</buildtool_depend>
 
-  <depend>builtin_interfaces</depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
 
+  <depend>std_msgs</depend>
+  
+  <build_depend>rosidl_default_generators</build_depend>
   <exec_depend>rosidl_default_runtime</exec_depend>
-
   <member_of_group>rosidl_interface_packages</member_of_group>
-
+  
   <export>
     <build_type>ament_cmake</build_type>
   </export>
 </package>
+
 ```
 
 ### **Build Message Package**
@@ -721,7 +724,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "05_robot_tag_param = ce_robot.robot_tag_param_pub:main",
+            "05_robot_tag_publisher = ce_robot.robot_tag_publisher:main",
         ],
     },
 )
@@ -773,7 +776,7 @@ Run the node with built-in default values:
 
 **Terminal 1:**
 ```bash
-ros2 run ce_robot 05_robot_tag_param
+ros2 run ce_robot 05_robot_tag_publisher
 ```
 
 **Expected Output:**
@@ -796,7 +799,7 @@ Override parameters directly from the command line:
 
 **Terminal 1:**
 ```bash
-ros2 run ce_robot 05_robot_tag_param --ros-args \
+ros2 run ce_robot 05_robot_tag_publisher --ros-args \
   -p robot_id:=DLV-FST-042 \
   -p robot_type:=delivery \
   -p zone_id:=LOADING-BAY-3 \
@@ -823,6 +826,12 @@ ros2 run ce_robot 05_robot_tag_param --ros-args \
 
 Create a configuration file for reusable parameter sets.
 
+**Directory Structure:**
+```
+~/ros2_ws
+    └── robot_config.yaml
+```
+
 **Create file: robot_config.yaml**
 ```yaml
 robot_tag_publisher:
@@ -841,7 +850,7 @@ robot_tag_publisher:
 
 **Run with parameter file:**
 ```bash
-ros2 run ce_robot 05_robot_tag_param --ros-args --params-file robot_config.yaml
+ros2 run ce_robot 05_robot_tag_publisher --ros-args --params-file robot_config.yaml
 ```
 
 **Expected Output:**
