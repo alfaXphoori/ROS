@@ -14,7 +14,7 @@ from launch.actions import (
 )
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, TextSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, TextSubstitution, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
@@ -50,13 +50,12 @@ def generate_launch_description():
     
     # Build YAML file path (works both in src workspace and after install)
     # Installed config files live under: <pkg_share>/launch/config/
+    # Concatenate filename parts first, then join with directory path
     config_file = PathJoinSubstitution([
         FindPackageShare('ce_robot_launch'),
         'launch',
         'config',
-        TextSubstitution(text='robot_'),
-        robot_config,
-        TextSubstitution(text='.yaml'),
+        PythonExpression(['"robot_" + "', robot_config, '" + ".yaml"'])
     ])
     
     # Set environment variable (optional, but useful for debugging)

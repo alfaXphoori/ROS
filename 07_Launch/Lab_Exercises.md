@@ -2933,6 +2933,7 @@ ros2 node list
 
 **Verify parameters:**
 ```bash
+export ROS_DOMAIN_ID=42
 ros2 param get /battery_monitor robot_id
 ```
 **Expected:** `AMR-COMPACT-PICKER-S01`
@@ -2954,11 +2955,12 @@ ros2 param get /task_processor max_tasks_per_hour
 
 **Test 2 - Large robot config:**
 ```bash
-ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=large
+ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=large ros_domain_id:=42
 ```
 
 **Verify parameters:**
 ```bash
+export ROS_DOMAIN_ID=42
 ros2 param get /battery_monitor robot_id
 ```
 **Expected:** `AMR-HEAVY-TRANSPORT-L01`
@@ -2980,11 +2982,12 @@ ros2 param get /task_processor max_tasks_per_hour
 
 **Test 3 - Simulation config:**
 ```bash
-ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=simulation
+ros2 launch ce_robot_launch yaml_config_launch.py robot_config:=simulation ros_domain_id:=42
 ```
 
 **Verify parameters:**
 ```bash
+export ROS_DOMAIN_ID=42
 ros2 param get /battery_monitor robot_id
 ```
 **Expected:** `SIM-TEST-001`
