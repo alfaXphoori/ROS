@@ -93,56 +93,129 @@ After completing this module, you will be able to:
 
 ## **🛠 Step 1: Install and Configure Webots Simulator**
 
-### **1.1 Install Webots from Official Repositories**
+### **1.1 Install Webots (Choose ONE method)**
 
-Add Webots PPA and install:
+#### **Method 1: Snap Installation (Recommended for Ubuntu 24.04)**
+
+This is the easiest and most reliable method for Ubuntu 24.04:
 
 ```bash
-sudo apt-get update
-sudo apt-get install -y apt-transport-https ca-certificates
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys FF36AB6D66C3520D
-sudo sh -c 'echo "deb https://cyberbotics.com/ubuntu focal main" > /etc/apt/sources.list.d/webots.list'
-sudo apt-get update
-sudo apt-get install -y webots
+# Install Webots via snap
+sudo snap install webots
+
+# Verify installation
+webots --version
 ```
 
-Verify installation:
+**Expected output:** `Webots R2024b` (or newer)
+
+#### **Method 2: Download from Official Website**
+
+If snap is not available or you prefer the official package:
 
 ```bash
+# Download Webots R2024b for Ubuntu
+cd ~/Downloads
+wget https://github.com/cyberbotics/webots/releases/download/R2024b/webots_2024b_amd64.deb
+
+# Install the package
+sudo apt install -y ./webots_2024b_amd64.deb
+
+# Install dependencies if needed
+sudo apt-get install -f
+
+# Verify installation
 which webots
 webots --version
 ```
 
-**Expected output:** Webots version information
+#### **Method 3: Build from Source (Advanced)**
+
+For the latest development version:
+
+```bash
+# Install build dependencies
+sudo apt-get update
+sudo apt-get install -y git cmake g++ libavcodec-dev libavformat-dev \
+    libswscale-dev libglu1-mesa-dev libglib2.0-dev libfreeimage-dev \
+    libfreetype6-dev libxml2-dev libzzip-dev libssl-dev libboost-dev \
+    libgd-dev libssh-dev libzip-dev libreadline-dev libassimp-dev \
+    libpci-dev
+
+# Clone and build
+git clone --recurse-submodules https://github.com/cyberbotics/webots.git
+cd webots
+make -j$(nproc)
+
+# Add to PATH
+echo 'export WEBOTS_HOME=~/webots' >> ~/.bashrc
+echo 'export PATH=$WEBOTS_HOME:$PATH' >> ~/.bashrc
+source ~/.bashrc
+```
+
+**Choose Method 1 (Snap) for simplicity and reliability on Ubuntu 24.04.**
 
 ### **1.2 Install Webots ROS 2 Bridge**
 
-Install the official Webots ROS 2 package:
+Install the official Webots ROS 2 package for Jazzy:
 
 ```bash
+# Update package list
+sudo apt-get update
+
+# Install Webots ROS 2 interface
 sudo apt-get install -y ros-jazzy-webots-ros2
+
+# If the package is not available, you can build from source:
+# cd ~/ros2_ws/src
+# git clone --recurse-submodules https://github.com/cyberbotics/webots_ros2.git
+# cd ~/ros2_ws
+# rosdep install --from-paths src --ignore-src -r -y
+# colcon build --packages-select webots_ros2
 ```
 
 Verify ROS 2 integration:
 
 ```bash
+source /opt/ros/jazzy/setup.bash
 ros2 pkg list | grep webots
+```
+
+**Expected output:**
+```
+webots_ros2_driver
+webots_ros2_msgs
+webots_ros2_control
 ```
 
 ### **1.3 Configure Environment Variables**
 
-Update `.bashrc` to include Webots paths:
+Update `.bashrc` to include Webots paths (adjust based on installation method):
 
 ```bash
 nano ~/.bashrc
 ```
 
-Add these lines:
-
+**For Snap Installation:**
 ```bash
+# Webots is automatically added to PATH by snap
+# No additional configuration needed
+```
+
+**For .deb Package Installation:**
+```bash
+# Add to ~/.bashrc
 export WEBOTS_HOME=/usr/local/webots
-export PATH=$WEBOTS_HOME/bin:$PATH
-export LD_LIBRARY_PATH=$WEBOTS_HOME/lib:$LD_LIBRARY_PATH
+export PATH=$WEBOTS_HOME:$PATH
+export LD_LIBRARY_PATH=$WEBOTS_HOME/lib/controller:$LD_LIBRARY_PATH
+```
+
+**For Source Build:**
+```bash
+# Add to ~/.bashrc
+export WEBOTS_HOME=~/webots
+export PATH=$WEBOTS_HOME:$PATH
+export LD_LIBRARY_PATH=$WEBOTS_HOME/lib/controller:$LD_LIBRARY_PATH
 ```
 
 Reload terminal:
@@ -150,6 +223,15 @@ Reload terminal:
 ```bash
 source ~/.bashrc
 ```
+
+**Verify Webots is accessible:**
+
+```bash
+which webots
+webots --version
+```
+
+If installed via snap, the path will be `/snap/bin/webots`.
 
 ---
 
@@ -942,14 +1024,46 @@ Modify the world file to add a camera or LiDAR sensor, then publish the data to 
 - **Rendering Engine** - Real-time 3D visualization
 - **Controllers** - C++/Python/Java robot control programs
 - **Sensors** - Simulated camera, LiDAR, IMU, encoders, touch sensors
-- **Actuators** - Motors with realistic models (friction, backlash)
-- **World Files** - VRML-based environment descriptions
+- **Actuators** - Moinstallation fails with "Unable to locate package"**
+**Cause:** Repository not configured correctly or package not available for Ubuntu 24.04
+**Solution:**
+```bash
+# Use snap installation instead
+sudo snap install webots
 
-### **ROS 2 Bridge Integration**
+# Or download .deb from official site
+wget https://github.com/cyberbotics/webots/releases/download/R2024b/webots_2024b_amd64.deb
+sudo apt install -y ./webots_2024b_amd64.deb
+```
+**Prevention:** Use snap for Ubuntu 24.04 (Noble) - it's the most reliable method
 
-- **Topic Publisher** - Webots sensors → ROS 2 topics
-- **Topic Subscriber** - ROS 2 commands → Webots actuators
-- **Service Server** - Simulator-specific operations
+### **Issue: Webots simulator crashes on launch**
+**Cause:** GPU acceleration not available or OpenGL issues
+**Solution:**
+```bash
+# Check Webots version and help
+webots --version
+webots --help
+
+# Run with debug output
+webots --stdout --stderr my_world.wbt
+
+# Try software rendering mode
+webots --mode=fast my_world.wbt
+```
+**Prevention:** Ensure graphics drivers are installed and use headless mode for servers
+
+### **Issue: "GPG key error" or repository 404 error**
+**Cause:** Old apt repository instructions using deprecated focal release
+**Solution:**
+```bash
+# Remove old repository if added
+sudo rm /etc/apt/sources.list.d/webots.list
+
+# Use snap installation instead
+sudo snap install webots
+```
+**Prevention:** Use snap installation for modern Ubuntu versions (22.04+)
 - **Parameter Server** - Dynamic simulation parameter adjustment
 - **Timestep Synchronization** - Deterministic simulation-ROS 2 timing
 
