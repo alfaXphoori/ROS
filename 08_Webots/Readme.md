@@ -529,7 +529,8 @@ Create `controllers/my_robot_controller.py`:
 
 ```bash
 cd ~/ros2_ws/src/ce_robot/controllers
-nano my_robot_controller.py
+touch my_robot_controller.py
+chmod +x my_robot_controller.py
 ```
 
 Paste this complete controller implementation:
@@ -716,13 +717,6 @@ def main(args=None):
 if __name__ == '__main__':
     main()
 ```
-
-Make it executable:
-
-```bash
-chmod +x my_robot_controller.py
-```
-
 **Key Features:**
 - ✅ **Differential Drive Kinematics** - Converts Twist to wheel velocities
 - ✅ **Odometry** - Calculates position from wheel encoders
@@ -739,7 +733,8 @@ Create `launch/webots_sim_launch.py`:
 
 ```bash
 cd ~/ros2_ws/src/ce_robot/launch
-nano webots_sim_launch.py
+touch webots_sim_launch.py
+chmod +x webots_sim_launch.py
 ```
 
 Paste this complete launch file:
@@ -1101,6 +1096,27 @@ sudo snap install webots
 ---
 
 ## **⚠️ Troubleshooting**
+
+### **Issue: Build fails with "NameError: name 'os' is not defined"**
+**Cause:** Missing `import os` in setup.py file
+**Solution:**
+```bash
+# Edit setup.py and ensure these imports are at the top:
+cd ~/ros2_ws/src/ce_robot
+nano setup.py
+```
+Make sure the file starts with:
+```python
+from setuptools import setup
+import os
+from glob import glob
+```
+Then rebuild:
+```bash
+cd ~/ros2_ws
+colcon build --packages-select ce_robot --symlink-install
+```
+**Prevention:** Always verify imports when creating setup.py files
 
 ### **Issue: Webots simulator crashes on launch**
 **Cause:** GPU acceleration not available or OpenGL issues
