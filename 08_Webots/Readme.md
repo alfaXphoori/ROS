@@ -243,7 +243,7 @@ Create the necessary folder structure:
 
 ```bash
 cd ~/ros2_ws/src/ce_robot
-mkdir -p worlds controllers launch config
+mkdir -p worlds controllers launch config protos
 ```
 
 **Directory Structure:**
@@ -251,6 +251,7 @@ mkdir -p worlds controllers launch config
 ce_robot/
 ├── controllers/          # Robot controller Python scripts
 ├── worlds/              # Webots world files (.wbt)
+├── protos/              # Custom robot PROTO definitions
 ├── launch/              # ROS 2 launch files
 ├── config/              # Configuration files
 └── ce_robot/            # Python package for ROS 2 nodes
@@ -262,11 +263,26 @@ ce_robot/
 
 ### **3.1 Complete Differential Drive Robot World**
 
+**Current Directory Structure:**
+```
+~/ros2_ws/src/ce_robot/
+├── ce_robot/              # Python package
+├── controllers/           # Robot controller scripts (created in Step 2)
+├── worlds/                # Webots world files (created in Step 2)
+│   └── my_first_robot.wbt # ← We'll create this file now
+├── protos/                # Custom PROTO files (created in Step 2)
+├── launch/                # ROS 2 launch files (created in Step 2)
+├── config/                # Configuration files (created in Step 2)
+├── package.xml
+├── setup.py
+└── resource/
+```
+
 Create `worlds/my_first_robot.wbt`:
 
 ```bash
 cd ~/ros2_ws/src/ce_robot/worlds
-nano my_first_robot.wbt
+touch my_first_robot.wbt
 ```
 
 Paste this complete world file:
@@ -460,9 +476,16 @@ Solid {
 - ✅ 5m x 5m arena with walls
 - ✅ One obstacle for testing
 
-### **2.2 Robot Proto Description**
+### **3.2 Robot Proto Description (Optional)**
 
-Create a custom robot proto file (`my_robot.proto`):
+Create a custom robot proto file for reusable robot definitions:
+
+```bash
+cd ~/ros2_ws/src/ce_robot/protos
+touch my_robot.proto
+```
+
+Paste this PROTO definition:
 
 ```
 #VRML_SIM R2025a utf8
