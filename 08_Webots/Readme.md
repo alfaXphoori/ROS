@@ -107,19 +107,19 @@ sudo snap install webots
 webots --version
 ```
 
-**Expected output:** `Webots R2024b` (or newer)
+**Expected output:** `Webots R2025a` (or newer)
 
 #### **Method 2: Download from Official Website**
 
 If snap is not available or you prefer the official package:
 
 ```bash
-# Download Webots R2024b for Ubuntu
+# Download Webots R2025a for Ubuntu
 cd ~/Downloads
-wget https://github.com/cyberbotics/webots/releases/download/R2024b/webots_2024b_amd64.deb
+wget https://github.com/cyberbotics/webots/releases/download/R2025a/webots_2025a_amd64.deb
 
 # Install the package
-sudo apt install -y ./webots_2024b_amd64.deb
+sudo apt install -y ./webots_2025a_amd64.deb
 
 # Install dependencies if needed
 sudo apt-get install -f
@@ -272,10 +272,10 @@ nano my_first_robot.wbt
 Paste this complete world file:
 
 ```vrml
-#VRML_SIM R2024b utf8
+#VRML_SIM R2025a utf8
 
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2024b/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
-EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2024b/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
 
 WorldInfo {
   info "My First ROS 2 Robot Simulation"
@@ -465,7 +465,7 @@ Solid {
 Create a custom robot proto file (`my_robot.proto`):
 
 ```
-#VRML_SIM R2024b utf8
+#VRML_SIM R2025a utf8
 
 PROTO MyRobot [
   field SFVec3f translation 0 0 0
@@ -1032,8 +1032,8 @@ Modify the world file to add a camera or LiDAR sensor, then publish the data to 
 sudo snap install webots
 
 # Or download .deb from official site
-wget https://github.com/cyberbotics/webots/releases/download/R2024b/webots_2024b_amd64.deb
-sudo apt install -y ./webots_2024b_amd64.deb
+wget https://github.com/cyberbotics/webots/releases/download/R2025a/webots_2025a_amd64.deb
+sudo apt install -y ./webots_2025a_amd64.deb
 ```
 **Prevention:** Use snap for Ubuntu 24.04 (Noble) - it's the most reliable method
 
