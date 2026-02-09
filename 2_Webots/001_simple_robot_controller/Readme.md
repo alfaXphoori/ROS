@@ -115,20 +115,20 @@ def cmd_vel_callback(self, msg):
 
 ---
 
-## 🔧 วิธีการสร้าง .wbt File (How to Create World Files)
+## 🔧 How to Create .wbt Files (World File Creation Guide)
 
-### 🎯 .wbt File คืออะไร?
+### 🎯 What is a .wbt File?
 
-**.wbt (Webots World)** ไฟล์เป็น VRML-based format ที่กำหนด:
-- 🤖 Robot models และตำแหน่ง
+**.wbt (Webots World)** files use VRML-based format to define:
+- 🤖 Robot models and positions
 - 🌍 Environment (walls, obstacles, ground)
-- 💡 Lights และ camera viewpoint
+- 💡 Lights and camera viewpoint
 - ⚙️ Physics parameters
 - 🔧 Controller connections
 
-### 📝 วิธี 1: สร้างใหม่ผ่าน GUI (Recommended)
+### 📝 Method 1: Create via GUI (Recommended)
 
-**Step 1: เปิด Webots และ New World**
+**Step 1: Open Webots and Create New World**
 ```
 File → New → New World
 ```
@@ -136,22 +136,22 @@ File → New → New World
 **Step 2: Add Robot**
 ```
 Add → Robot → TurtleBot3
-(หรือ DifferentialWheels, E-puck)
+(or DifferentialWheels, E-puck)
 ```
 
 **Step 3: Position Robot**
 ```
-ใน Scene Tree:
-  • คลิกขวา TurtleBot3
+In Scene Tree:
+  • Right-click TurtleBot3
   • Edit → Translation/Rotation
-  • ปรับตำแหน่ง
+  • Adjust position
 ```
 
 **Step 4: Add Ground/Obstacles**
 ```
 Add → Solid → Box/Cylinder
-  → ตั้งค่า size และ position
-  → ทำให้ static (ถ้าต้องการ)
+  → Set size and position
+  → Make static (if needed)
 ```
 
 **Step 5: Save**
@@ -159,9 +159,9 @@ Add → Solid → Box/Cylinder
 File → Save As → my_world.wbt
 ```
 
-### 💻 วิธี 2: สร้างโดยตรง (Text Editor)
+### 💻 Method 2: Create Directly (Text Editor)
 
-**ไฟล์ .wbt พื้นฐาน:**
+**Basic .wbt File:**
 
 ```proto
 #VRML_SIM R2023b utf8
@@ -405,16 +405,16 @@ Examples:
 
 ### 💡 Tips & Best Practices
 
-**✅ ทำได้:**
-- ใช้ DEF ชื่อให้ meaningful
-- ตั้งค่า physics สำหรับ dynamic objects
-- ใช้ PBRAppearance สำหรับ realistic rendering
-- เพิ่ม Comment (#) อธิบาย
+**✅ Do:**
+- Use meaningful DEF names
+- Set up physics for dynamic objects
+- Use PBRAppearance for realistic rendering
+- Add comments (#) for explanation
 
-**❌ ที่ควรหลีกเลี่ยง:**
+**❌ Avoid:**
 ```proto
 # ❌ DON'T: Impossible settings
-locked TRUE              # แต่มี physics!
+locked TRUE              # But has physics!
 translation "not_a_number"
 
 # ✅ DO: Clear & correct

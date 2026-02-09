@@ -273,8 +273,8 @@ Point Cloud Structure:
 
 ### 📊 Specifications
 
-| คุณสมบัติ | ค่า | หมายเหตุ |
-|---------|-----|--------|
+| Property | Value | Notes |
+|---------|-------|-------|
 | **Points per Frame** | 307,200 | 640×480 RGB-D |
 | **Capture Rate** | ~30 Hz | 33ms per frame |
 | **Accumulation** | Real-time | As robot moves |
@@ -285,14 +285,14 @@ Point Cloud Structure:
 
 ### 💡 Usage Tips
 
-**✅ ทำได้:**
+**✅ Do:**
 - Complete 3D environment mapping
 - Object localization in 3D space
 - Voxel grid representation
 - Surface reconstruction
 - Obstacle avoidance planning
 
-**❌ ที่ควรหลีกเลี่ยง:**
+**❌ Avoid:**
 - Keep ALL points (memory explosion)
 - No filtering/downsampling
 - Processing without GPU

@@ -228,26 +228,26 @@ Data Structure:
 
 ### 📊 Specifications
 
-| คุณสมบัติ | ค่า | หมายเหตุ |
-|---------|-----|--------|
-| **จำนวน Rays** | 360 | One per degree |
-| **ความละเอียด** | 1° | Angular resolution |
-| **ช่วงวัด** | 0.05-2.0 m | Typical range |
-| **ความแม่นยำ** | ±5 cm | ±5% error |
+| Property | Value | Notes |
+|---------|-------|-------|
+| **Number of Rays** | 360 | One per degree |
+| **Resolution** | 1° | Angular resolution |
+| **Measurement Range** | 0.05-2.0 m | Typical range |
+| **Accuracy** | ±5 cm | ±5% error |
 | **Scan Rate** | ~10 Hz | 100 ms/scan |
 | **Max Range** | 2.0 m | Beyond = ∞ |
 | **Dead Zone** | 0.05 m | Too close |
 
 ### 💡 Usage Tips
 
-**✅ ทำได้:**
+**✅ Do:**
 - 360° obstacle detection
 - Sector-based analysis
 - Distance mapping
 - Wall following
 - SLAM applications
 
-**❌ ที่ควรหลีกเลี่ยง:**
+**❌ Avoid:**
 - Treating all rays equally
 - Ignoring angular information
 - Using raw distances without filtering

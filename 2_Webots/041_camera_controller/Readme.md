@@ -270,10 +270,10 @@ Color Detection Flow:
 
 ### 📊 Specifications
 
-| คุณสมบัติ | ค่า | หมายเหตุ |
-|---------|-----|--------|
-| **ความละเอียด** | 640x480 pixels | VGA standard |
-| **ช่องแสง** | ~60° | Typical FOV |
+| Property | Value | Notes |
+|---------|-------|-------|
+| **Resolution** | 640x480 pixels | VGA standard |
+| **Field of View** | ~60° | Typical FOV |
 | **Format** | BGRA | 4 bytes/pixel |
 | **Update Rate** | ~64 Hz | 15.6 ms/frame |
 | **Focus** | Fixed (Infinity) | No focusing needed |
@@ -282,18 +282,18 @@ Color Detection Flow:
 
 ### 💡 Usage Tips
 
-**✅ ทำได้:**
+**✅ Do:**
 - Color filtering (HSV > RGB)
 - Ball/object tracking
 - Line detection
 - Contour analysis
 - Real-time control loop
 
-**❌ ที่ควรหลีกเลี่ยง:**
-- ใช้ Raw RGB (HSV ดีกว่า)
+**❌ Avoid:**
+- Use Raw RGB (HSV is better)
 - Process full resolution image
-- ไม่ downsample ก่อน processing
-- ไม่ทำ edge detection ก่อน
+- Don't downsample before processing
+- Don't do edge detection first
 
 ### ⚠️ Limitations
 

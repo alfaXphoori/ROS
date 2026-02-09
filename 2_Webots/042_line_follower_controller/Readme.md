@@ -232,8 +232,8 @@ ROI Concept:
 
 ### 📊 Specifications
 
-| คุณสมบัติ | ค่า | หมายเหตุ |
-|---------|-----|--------|
+| Property | Value | Notes |
+|---------|-------|-------|
 | **Full Resolution** | 640x480 | Standard VGA |
 | **ROI Height** | ~180 pixels | Bottom portion |
 | **ROI Width** | 640 pixels | Full width |
@@ -244,14 +244,14 @@ ROI Concept:
 
 ### 💡 Usage Tips
 
-**✅ ทำได้:**
+**✅ Do:**
 - Use ROI to reduce processing load
 - Apply brightness thresholding
 - Centroid-based line detection
 - Dynamic threshold adjustment
 - Multi-segment line analysis
 
-**❌ ที่ควรหลีกเลี่ยง:**
+**❌ Avoid:**
 - Process entire image (slow)
 - Use color detection (B/W faster)
 - Static thresholds in changing light

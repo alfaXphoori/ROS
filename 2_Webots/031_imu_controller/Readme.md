@@ -226,7 +226,7 @@ def publish_imu_data(self):
 
 ### 🎯 How It Works
 
-**InertialUnit** วัดการวางตัวของ robot แบบ absolute (ไม่ขึ้นกับการหมุนของล้อ):
+**InertialUnit** measures robot orientation absolutely (independent of wheel rotation):
 
 ```
 Quaternion (4 values)  →  Euler Angles (Roll, Pitch, Yaw)
@@ -237,30 +237,30 @@ Even if wheels slip! ↑
 
 ### 📊 Specifications
 
-| คุณสมบัติ | ค่า | หมายเหตุ |
-|---------|-----|--------|
-| **ประเภท** | Inertial Measurement Unit | 9-axis (accel, gyro, mag) |
+| Property | Value | Notes |
+|---------|-------|-------|
+| **Type** | Inertial Measurement Unit | 9-axis (accel, gyro, mag) |
 | **Orientation Output** | Quaternion (x,y,z,w) | Convert to Euler |
 | **Roll Range** | ±π radians (±180°) | Rotation around X |
 | **Pitch Range** | ±π/2 radians (±90°) | Rotation around Y |
 | **Yaw Range** | ±π radians (±180°) | Rotation around Z (heading) |
-| **ความแม่นยำ** | ±1-2° | ดีมาก |
+| **Accuracy** | ±1-2° | Very good |
 | **Drift Rate** | ~0.1-0.5°/min | Slow accumulation |
-| **ตอบสนอง** | < 1ms | Instant |
+| **Response Time** | < 1ms | Instant |
 
 ### 💡 Usage Tips
 
-**✅ ทำได้:**
+**✅ Do:**
 - Precise heading control (turn to angle)
 - Compass-like navigation
 - Detect tilting/tipping
 - Wall-following with orientation
 
-**❌ หลีกเลี่ยง:**
-- ใช้สำหรับระยะไกล > 1 hour (drift)
-- ลืม quaternion → euler conversion
-- ใช้ raw quaternion (unintuitive)
-- ไม่ check ความเยื้องศูนย์ (biases)
+**❌ Avoid:**
+- Use for long durations > 1 hour (drift)
+- Forget quaternion → euler conversion
+- Use raw quaternion (unintuitive)
+- Don't check biases (offsets)
 
 ### ⚠️ Limitations
 

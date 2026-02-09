@@ -351,8 +351,8 @@ Navigation Loop:
 
 ### 📊 Specifications
 
-| คุณสมบัติ | ค่า | หมายเหตุ |
-|---------|-----|--------|
+| Property | Value | Notes |
+|---------|-------|-------|
 | **Odometry Drift** | ~5% per meter | Accumulates over distance |
 | **IMU Heading Drift** | ~0.1°/min | Gyro drift over time |
 | **Update Rate** | ~10 Hz | Main control loop |
@@ -363,14 +363,14 @@ Navigation Loop:
 
 ### 💡 Usage Tips
 
-**✅ ทำได้:**
+**✅ Do:**
 - Multi-waypoint missions
 - Replanning around obstacles
 - Loop closure correction
 - Odometry + LIDAR fusion
 - Dynamic obstacle avoidance
 
-**❌ ที่ควรหลีกเลี่ยง:**
+**❌ Avoid:**
 - Trust odometry alone (use LIDAR)
 - Ignore compass drift
 - Too tight goal tolerance

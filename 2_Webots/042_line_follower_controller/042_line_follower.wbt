@@ -31,9 +31,9 @@ RectangleArena {
 }
 
 # --- TRACK GENERATION (Black Lines) ---
-# สร้างเส้นทางสีดำด้วยการวางกล่องบางๆ บนพื้น
+# Create black lines by placing thin boxes on ground
 
-# เส้นตรงขวา
+# Straight line right
 Solid {
   translation 1.2 0 0.001
   children [
@@ -45,7 +45,7 @@ Solid {
   name "track_straight_1"
 }
 
-# เส้นตรงซ้าย
+# Straight line left
 Solid {
   translation -1.2 0 0.001
   children [
@@ -57,7 +57,7 @@ Solid {
   name "track_straight_2"
 }
 
-# โค้งบน (สร้างจากท่อนตรงย่อยๆ ต่อกันเป็นรูปครึ่งวงกลม)
+# Upper curve (created from small straight segments arranged in semicircle shape)
 Solid {
   translation 1.1 1.3 0.001
   rotation 0 0 1 0.26
@@ -95,7 +95,7 @@ Solid {
   name "track_curve_top_6"
 }
 
-# โค้งล่าง
+# Lower curve
 Solid {
   translation 1.1 -1.3 0.001
   rotation 0 0 1 -0.26

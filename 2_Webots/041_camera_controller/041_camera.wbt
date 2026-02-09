@@ -185,13 +185,13 @@ DEF VisionBot Robot {
     
     # --- NEW SENSOR: RGB Camera ---
     Camera {
-      translation 0.2 0 0.1  # ติดไว้ด้านหน้าบนสุด
-      rotation 0 0 1 0       # หันหน้าไปทางแกน X (ด้านหน้าหุ่น)
+      translation 0.2 0 0.1  # Mounted on front top
+      rotation 0 0 1 0       # Facing along X-axis (robot front)
       name "camera"
-      fieldOfView 1.0        # มุมมองกว้างประมาณ 57 องศา
+      fieldOfView 1.0        # Wide view angle approximately 57 degrees
       width 640
       height 480
-      recognitionColors [ 1 0 0 ] # ช่วยในการ detect สีแดง (ถ้าเปิด recognition)
+      recognitionColors [ 1 0 0 ] # Helps detect red color (if recognition enabled)
     }
     
     # Wheels

@@ -22,14 +22,14 @@ RectangleArena {
   floorSize 6 6
 }
 
-# --- กำแพงทดสอบ (Obstacle) ---
-# เพิ่มกล่องข้างหน้าเพื่อให้หุ่นยนต์วิ่งชนทดสอบ Bumper
+# --- Test Wall (Obstacle) ---
+# Add a box in front for the robot to crash into and test Bumper
 DEF OBSTACLE Solid {
   translation 0 1.5 0.15
   children [
     Shape {
       appearance PBRAppearance {
-        baseColor 1 0.6 0 # สีส้ม
+        baseColor 1 0.6 0 # Orange color
         roughness 1
         metalness 0
       }
@@ -153,30 +153,30 @@ DEF EncoderBot Robot {
     }
     
     # 5. Front Marker/Nose (Updated to be Bumper)
-    # เราเปลี่ยนจากจมูกธรรมดา เป็น TouchSensor
+    # We changed from simple nose to TouchSensor
     TouchSensor {
-      translation 0.2 0 0 # ติดตั้งไว้หน้าสุด
-      name "bumper"       # ชื่ออุปกรณ์สำหรับ ROS (webots_ros2_msgs/BoolStamped)
-      type "bumper"       # กำหนดประเภทเป็นกันชน
+      translation 0.2 0 0 # Mounted at the front
+      name "bumper"       # Device name for ROS (webots_ros2_msgs/BoolStamped)
+      type "bumper"       # Define as bumper type
       
       children [
-        # รูปร่างของกันชน (แท่งสีแดง)
+        # Shape of the bumper (red bar)
         Shape {
           appearance PBRAppearance {
-            baseColor 1 0 0 # สีแดง (Red Bumper)
+            baseColor 1 0 0 # Red (Red Bumper)
             roughness 0.5
             metalness 0.5
           }
           geometry Box {
-            size 0.05 0.35 0.05 # กว้าง 35cm ขวางหน้ารถ
+            size 0.05 0.35 0.05 # Width 35cm across robot front
           }
         }
       ]
-      # ส่วนที่ใช้ตรวจจับการชน (Collision Detection)
+      # Part used for collision detection (Collision Detection)
       boundingObject Box {
         size 0.05 0.35 0.05
       }
-      # ใส่ Physics เพื่อให้มันเป็นวัตถุที่มีตัวตนจริง (Optional: ถ้าอยากให้มันขยับได้นิดหน่อย)
+      # Add Physics to make it a solid object (Optional: if you want slight movement)
       physics Physics {
       }
     }

@@ -213,30 +213,30 @@ sensor_reading[Z] = motion_z + gravity
 
 ### 📊 Specifications
 
-| คุณสมบัติ | ค่า | หมายเหตุ |
-|---------|-----|--------|
-| **ประเภท** | 3-Axis Accelerometer | X, Y, Z axes |
-| **ช่วงการวัด** | ±50 m/s² | Typical range |
-| **ความแม่นยำ** | ±0.1 m/s² | ±1% of reading |
-| **ความละเอียด** | 0.01 m/s² | Fine resolution |
+| Property | Value | Notes |
+|---------|-------|-------|
+| **Type** | 3-Axis Accelerometer | X, Y, Z axes |
+| **Measurement Range** | ±50 m/s² | Typical range |
+| **Accuracy** | ±0.1 m/s² | ±1% of reading |
+| **Resolution** | 0.01 m/s² | Fine resolution |
 | **Gravity Component** | 9.81 m/s² | Always present when level |
-| **ตอบสนอง** | < 1ms | Very fast |
+| **Response Time** | < 1ms | Very fast |
 | **Output** | (accel_x, accel_y, accel_z) | 3 values per reading |
 
 ### 💡 Usage Tips
 
-**✅ ทำได้:**
+**✅ Do:**
 - Detect acceleration/deceleration
 - Impact detection (collision)
 - Motion pattern analysis
 - Tilt/orientation measurement
 - Free-fall detection
 
-**❌ หลีกเลี่ยง:**
-- ลืม gravity compensation (9.81 m/s²)
-- ใช้สำหรับ absolute position
-- ไม่ทำ data smoothing
-- ไม่ enable() sensor
+**❌ Avoid:**
+- Forget gravity compensation (9.81 m/s²)
+- Use for absolute position
+- Skip data smoothing
+- Fail to enable() sensor
 
 ### ⚠️ Limitations
 

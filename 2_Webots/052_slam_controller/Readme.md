@@ -277,8 +277,8 @@ Timeline:
 
 ### 📊 Specifications
 
-| คุณสมบัติ | ค่า | หมายเหตุ |
-|---------|-----|--------|
+| Property | Value | Notes |
+|---------|-------|-------|
 | **Odometry Source** | Encoders + IMU | Proprioceptive |
 | **LIDAR Rays** | 360 | One per degree |
 | **LIDAR Range** | 0.05-2.0 m | Max detection |
@@ -289,14 +289,14 @@ Timeline:
 
 ### 💡 Usage Tips
 
-**✅ ทำได้:**
+**✅ Do:**
 - Loop closure detection
 - Multi-robot SLAM
 - Real-time mapping
 - Online optimization
 - Map saving/loading
 
-**❌ ที่ควรหลีกเลี่ยง:**
+**❌ Avoid:**
 - Ignoring odometry drift
 - Processing LIDAR too fast
 - No loop closure check

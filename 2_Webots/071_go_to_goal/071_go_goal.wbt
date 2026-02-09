@@ -27,7 +27,7 @@ RectangleArena {
 }
 
 # --- WAYPOINTS (Scattered Positions) ---
-# จุด A (2.0, 0.8) - ขวากลางๆ ค่อนไปทางบน
+# Point A (2.0, 0.8) - right center-ish, slightly upper
 Solid {
   translation 2.0 0.8 0.01
   children [
@@ -38,7 +38,7 @@ Solid {
   ]
   name "waypoint_A"
 }
-# จุด B (0.0, -2.2) - ล่างสุด ตรงกลาง
+# Point B (0.0, -2.2) - bottom-most, center
 Solid {
   translation 0.0 -2.2 0.01
   children [
@@ -49,7 +49,7 @@ Solid {
   ]
   name "waypoint_B"
 }
-# จุด C (-2.2, -0.5) - ซ้ายล่าง
+# Point C (-2.2, -0.5) - left-bottom
 Solid {
   translation -2.2 -0.5 0.01
   children [
@@ -60,7 +60,7 @@ Solid {
   ]
   name "waypoint_C"
 }
-# จุด D (-1.2, 1.8) - ซ้ายบน
+# Point D (-1.2, 1.8) - left-upper
 Solid {
   translation -1.2 1.8 0.01
   children [

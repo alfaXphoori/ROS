@@ -203,7 +203,7 @@ After exploring with this controller, you'll understand:
 
 ### 🎯 How It Works (PositionSensor)
 
-**PositionSensor** วัดตำแหน่งเชิงมุมของล้อ ให้ข้อมูลแบบ real-time:
+**PositionSensor** measures the angular position of the wheel, provides real-time data:
 
 ```
 🔄 Angular Position Reading

@@ -252,8 +252,8 @@ Result: 640×480 = 307,200 colored 3D points!
 
 ### 📊 Specifications
 
-| คุณสมบัติ | ค่า | หมายเหตุ |
-|---------|-----|--------|
+| Property | Value | Notes |
+|---------|-------|-------|
 | **Resolution** | 640×480 | RGB + Depth |
 | **Depth Range** | 0.1-6.0 m | Typical range |
 | **Depth Accuracy** | ±1-2% of range | At 1m: ±1-2cm |
@@ -264,14 +264,14 @@ Result: 640×480 = 307,200 colored 3D points!
 
 ### 💡 Usage Tips
 
-**✅ ทำได้:**
+**✅ Do:**
 - 3D point cloud generation
 - Object recognition + grasping
 - Collision detection
 - Plane fitting (tables, walls)
 - Semantic segmentation
 
-**❌ ที่ควรหลีกเลี่ยง:**
+**❌ Avoid:**
 - Trust all depth readings (filter noise)
 - Process full resolution (downsample)
 - Ignoring camera calibration
