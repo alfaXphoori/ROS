@@ -199,7 +199,7 @@ After exploring with this controller, you'll understand:
 
 ---
 
-## � Sensor Knowledge: PositionSensor (Wheel Encoder)
+## 📚 Sensor Knowledge: PositionSensor (Wheel Encoder)
 
 ### 🎯 How It Works (PositionSensor)
 
@@ -269,7 +269,7 @@ calibration_factor = actual_distance / encoder_distance
 
 ---
 
-## �🔍 Encoder vs. Time: Visual Comparison
+## 📊 Encoder vs. Time: Visual Comparison
 
 **Time-Based (Bad) 🚫**
 ```

@@ -195,7 +195,7 @@ After using this controller, you'll understand:
 
 ---
 
-## � Sensor Knowledge: Accelerometer
+## 📚 Sensor Knowledge: Accelerometer
 
 ### 🎯 How It Works
 

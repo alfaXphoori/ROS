@@ -153,7 +153,7 @@ def run_mission(self):
 
 ---
 
-## � Sensor Knowledge: PositionSensor (Wheel Encoder)
+## 📚 Sensor Knowledge: PositionSensor (Wheel Encoder)
 
 ### 🎯 How It Works
 
@@ -229,7 +229,7 @@ if abs(left_distance - right_distance) > 0.05:
 
 ---
 
-## �📊 Physics Reference
+## 📊 Physics Reference
 
 ### Wheel-to-Distance Conversion
 

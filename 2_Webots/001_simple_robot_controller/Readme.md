@@ -115,7 +115,7 @@ def cmd_vel_callback(self, msg):
 
 ---
 
-## � วิธีการสร้าง .wbt File (How to Create World Files)
+## 🔧 วิธีการสร้าง .wbt File (How to Create World Files)
 
 ### 🎯 .wbt File คืออะไร?
 
@@ -511,7 +511,7 @@ DEF ROBOT Solid {
 
 ---
 
-## �📊 Topic Reference
+## 📊 Topic Reference
 
 | Topic | Message Type | Purpose |
 |-------|--------------|---------|

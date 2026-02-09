@@ -201,7 +201,7 @@ After using this controller, you'll understand:
 
 ---
 
-## � Sensor Knowledge: DistanceSensor (IR/Ultrasonic)
+## 📚 Sensor Knowledge: DistanceSensor (IR/Ultrasonic)
 
 ### 🎯 How It Works
 

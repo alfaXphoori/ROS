@@ -190,7 +190,7 @@ After using this controller, you'll understand:
 
 ---
 
-## � Sensor Knowledge: TouchSensor (Bumper)
+## 📚 Sensor Knowledge: TouchSensor (Bumper)
 
 ### 🎯 How It Works
 
