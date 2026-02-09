@@ -1,0 +1,149 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+
+WorldInfo {
+}
+
+Viewpoint {
+  orientation -0.4891598184709118 0.48916047717159244 0.7221112792130897 1.8907729068043837
+  position 0.06248528188425385 -2.7531282549238454 7.193639067955213
+}
+
+TexturedBackground {
+}
+
+TexturedBackgroundLight {
+}
+
+RectangleArena {
+  floorSize 4 4
+}
+
+# --- Tutorial 00: Basic Robot for Keyboard Control ---
+DEF BasicBot Robot {
+  translation 0 0 0.1
+  # Rotate 90 degrees around Z-axis to face Y-axis
+  rotation 0 0 1 1.5708 
+  children [
+    # 1. Body
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.1 0.5 1  # Light blue
+        roughness 1
+        metalness 0
+      }
+      geometry DEF BODY_BOX Box {
+        size 0.4 0.2 0.1
+      }
+    }
+    # 2. Left Wheel
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0 0.12 0
+      }
+      device [
+        RotationalMotor {
+          name "left_motor"
+        }
+      ]
+      endPoint Solid {
+        translation 0 0.12 0
+        rotation 1 0 0 1.5708
+        name "left_wheel"
+        children [
+          DEF WHEEL Shape {
+            appearance PBRAppearance {
+              baseColor 0.2 0.2 0.2
+            }
+            geometry Cylinder {
+              height 0.04
+              radius 0.08
+            }
+          }
+        ]
+        boundingObject USE WHEEL
+        physics Physics {}
+      }
+    }
+    # 3. Right Wheel
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0 -0.12 0
+      }
+      device [
+        RotationalMotor {
+          name "right_motor"
+        }
+      ]
+      endPoint Solid {
+        translation 0 -0.12 0
+        rotation 1 0 0 1.5708
+        name "right_wheel"
+        children [
+          USE WHEEL
+        ]
+        boundingObject USE WHEEL
+        physics Physics {}
+      }
+    }
+    # 4. Ball Wheels (Front and Rear)
+    BallJoint {
+      jointParameters BallJointParameters { anchor -0.15 0 -0.04 }
+      endPoint Solid {
+        translation -0.15 0 -0.04
+        name "ball_wheel_rear"
+        children [
+          Shape {
+            appearance PBRAppearance { baseColor 0.5 0.5 0.5 roughness 0.3 metalness 0.1 }
+            geometry Sphere { radius 0.04 }
+          }
+        ]
+        boundingObject Sphere { radius 0.04 }
+        physics Physics { density -1 mass 0.1 }
+      }
+    }
+    BallJoint {
+      jointParameters BallJointParameters { anchor 0.15 0 -0.04 }
+      endPoint Solid {
+        translation 0.15 0 -0.04
+        name "ball_wheel_front"
+        children [
+          Shape {
+            appearance PBRAppearance { baseColor 0.5 0.5 0.5 roughness 0.3 metalness 0.1 }
+            geometry Sphere { radius 0.04 }
+          }
+        ]
+        boundingObject Sphere { radius 0.04 }
+        physics Physics { density -1 mass 0.1 }
+      }
+    }
+    # 5. Front Marker
+    Transform {
+      translation 0.2 0 0
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0 1 0  # Green
+            roughness 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.05 0.1 0.05
+          }
+        }
+      ]
+    }
+  ]
+  boundingObject USE BODY_BOX
+  physics Physics {
+    density -1
+    mass 5
+  }
+  name "BasicBot"
+  controller "<extern>"
+}

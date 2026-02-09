@@ -1,0 +1,385 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+
+WorldInfo {
+}
+
+Viewpoint {
+  orientation -0.4891598184709118 0.48916047717159244 0.7221112792130897 1.8907729068043837
+  position 0.06248528188425385 -2.7531282549238454 7.193639067955213
+}
+
+TexturedBackground {
+}
+
+TexturedBackgroundLight {
+}
+
+RectangleArena {
+  floorSize 6 6
+  wallHeight 0.3
+}
+
+# Obstacle 1 - Front wall
+DEF OBSTACLE1 Solid {
+  translation 0 2.0 0.15
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.8 0.2 0.2
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 1.2 0.1 0.3
+      }
+    }
+  ]
+  name "obstacle_1"
+  boundingObject Box {
+    size 1.2 0.1 0.3
+  }
+}
+
+# Obstacle 2 - Left wall
+DEF OBSTACLE2 Solid {
+  translation -1.2 0 0.15
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.8 0.2 0.2
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 2.0 0.3
+      }
+    }
+  ]
+  name "obstacle_2"
+  boundingObject Box {
+    size 0.1 2.0 0.3
+  }
+}
+
+# Obstacle 3 - Right wall
+DEF OBSTACLE3 Solid {
+  translation 1.2 0 0.15
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.8 0.2 0.2
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.1 2.0 0.3
+      }
+    }
+  ]
+  name "obstacle_3"
+  boundingObject Box {
+    size 0.1 2.0 0.3
+  }
+}
+
+# Obstacle 4 - Center pillar
+DEF OBSTACLE4 Solid {
+  translation -0.5 0.5 0.15
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.2 0.6 0.8
+        roughness 1
+        metalness 0
+      }
+      geometry Cylinder {
+        height 0.3
+        radius 0.2
+      }
+    }
+  ]
+  name "obstacle_4"
+  boundingObject Cylinder {
+    height 0.3
+    radius 0.2
+  }
+}
+
+# Obstacle 5 - Another pillar
+DEF OBSTACLE5 Solid {
+  translation 0.6 0.8 0.15
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.2 0.6 0.8
+        roughness 1
+        metalness 0
+      }
+      geometry Cylinder {
+        height 0.3
+        radius 0.2
+      }
+    }
+  ]
+  name "obstacle_5"
+  boundingObject Cylinder {
+    height 0.3
+    radius 0.2
+  }
+}
+
+# --- Level 3: Robot with IMU & Gyro ---
+# เปลี่ยนชื่อจาก DistanceBot เป็น IMUBot
+DEF IMUBot Robot {
+  translation 0 -1 0.1
+  rotation 0 0 1 1.5708
+  children [
+    # 1. Body
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.1 0.5 1
+        roughness 1
+        metalness 0
+      }
+      geometry DEF BODY_BOX Box {
+        size 0.4 0.2 0.1
+      }
+    }
+    
+    # 2. Left Wheel with Encoder
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0 0.12 0
+      }
+      device [
+        RotationalMotor {
+          name "left_motor"
+        }
+        PositionSensor {
+          name "left_wheel_sensor"
+        }
+      ]
+      endPoint Solid {
+        translation 0 0.12 0
+        rotation 1 0 0 1.5708
+        name "left_wheel"
+        children [
+          DEF WHEEL Shape {
+            appearance PBRAppearance {
+              baseColor 0.2 0.2 0.2
+            }
+            geometry Cylinder {
+              height 0.04
+              radius 0.08
+            }
+          }
+        ]
+        boundingObject USE WHEEL
+        physics Physics {}
+      }
+    }
+    
+    # 3. Right Wheel with Encoder
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0 -0.12 0
+      }
+      device [
+        RotationalMotor {
+          name "right_motor"
+        }
+        PositionSensor {
+          name "right_wheel_sensor"
+        }
+      ]
+      endPoint Solid {
+        translation 0 -0.12 0
+        rotation 1 0 0 1.5708
+        name "right_wheel"
+        children [
+          USE WHEEL
+        ]
+        boundingObject USE WHEEL
+        physics Physics {}
+      }
+    }
+    
+    # 4. Caster Wheel
+    Solid {
+      translation 0.15 0 -0.04
+      name "castor_wheel"
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.5 0.5 0.5 }
+          geometry Sphere { radius 0.04 }
+        }
+      ]
+      boundingObject Sphere { radius 0.04 }
+      physics Physics {}
+    }
+    
+    # 5. Front Distance Sensor (Center)
+    DistanceSensor {
+      # Lifted up to Z=0.06 to be on top of the body
+      translation 0.2 0 0.06 
+      rotation 0 0 1 0
+      name "ds_front"
+      children [
+        Shape {
+          appearance PBRAppearance { 
+            baseColor 1 1 0.6       # Light Yellow
+            emissiveColor 0.8 0.8 0 # Glowing effect
+          } 
+          geometry Box { size 0.05 0.05 0.05 } # Increased size
+        }
+      ]
+      lookupTable [
+        0 0 0
+        0.05 50 0
+        1.0 1000 0
+      ]
+      type "infra-red"
+      numberOfRays 2
+    }
+    
+    # 6. Front-Left Distance Sensor (45° left)
+    DistanceSensor {
+      # Lifted up to Z=0.06
+      translation 0.18 0.08 0.06
+      rotation 0 0 1 0.785398
+      name "ds_front_left"
+      children [
+        Shape {
+          appearance PBRAppearance { 
+            baseColor 1 1 0.6       # Light Yellow
+            emissiveColor 0.8 0.8 0 # Glowing effect
+          } 
+          geometry Box { size 0.05 0.05 0.05 } # Increased size
+        }
+      ]
+      lookupTable [
+        0 0 0
+        0.05 50 0
+        1.0 1000 0
+      ]
+      type "infra-red"
+      numberOfRays 2
+    }
+    
+    # 7. Front-Right Distance Sensor (45° right)
+    DistanceSensor {
+      # Lifted up to Z=0.06
+      translation 0.18 -0.08 0.06
+      rotation 0 0 1 -0.785398
+      name "ds_front_right"
+      children [
+        Shape {
+          appearance PBRAppearance { 
+            baseColor 1 1 0.6       # Light Yellow
+            emissiveColor 0.8 0.8 0 # Glowing effect
+          } 
+          geometry Box { size 0.05 0.05 0.05 } # Increased size
+        }
+      ]
+      lookupTable [
+        0 0 0
+        0.05 50 0
+        1.0 1000 0
+      ]
+      type "infra-red"
+      numberOfRays 2
+    }
+    
+    # 8. Left Distance Sensor (90° left)
+    DistanceSensor {
+      # Lifted up to Z=0.06
+      translation 0 0.11 0.06
+      rotation 0 0 1 1.5708
+      name "ds_left"
+      children [
+        Shape {
+          appearance PBRAppearance { 
+            baseColor 1 1 0.6       # Light Yellow
+            emissiveColor 0.8 0.8 0 # Glowing effect
+          } 
+          geometry Box { size 0.05 0.05 0.05 } # Increased size
+        }
+      ]
+      lookupTable [
+        0 0 0
+        0.05 50 0
+        1.0 1000 0
+      ]
+      type "infra-red"
+      numberOfRays 2
+    }
+    
+    # 9. Right Distance Sensor (90° right)
+    DistanceSensor {
+      # Lifted up to Z=0.06
+      translation 0 -0.11 0.06
+      rotation 0 0 1 -1.5708
+      name "ds_right"
+      children [
+        Shape {
+          appearance PBRAppearance { 
+            baseColor 1 1 0.6       # Light Yellow
+            emissiveColor 0.8 0.8 0 # Glowing effect
+          } 
+          geometry Box { size 0.05 0.05 0.05 } # Increased size
+        }
+      ]
+      lookupTable [
+        0 0 0
+        0.05 50 0
+        1.0 1000 0
+      ]
+      type "infra-red"
+      numberOfRays 2
+    }
+    
+    # --- NEW SENSORS: IMU, GYRO & ACCELEROMETER ---
+    InertialUnit {
+      name "imu"
+    }
+    Gyro {
+      name "gyro"
+    }
+    Accelerometer {
+      name "accelerometer"
+    }
+    
+    # 10. Front marker (direction indicator)
+    Solid {
+      # Lifted up to Z=0.06
+      translation 0.21 0 0.06
+      name "front_marker"
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0 1 0
+            roughness 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.05 0.1 0.02
+          }
+        }
+      ]
+    }
+  ]
+  
+  name "IMUBot"
+  boundingObject USE BODY_BOX
+  physics Physics {
+    density -1
+    mass 5
+  }
+  controller "<extern>"
+}

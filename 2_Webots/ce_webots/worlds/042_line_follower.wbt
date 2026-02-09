@@ -1,0 +1,262 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+
+WorldInfo {
+  title "Level 4.2 - Line Tracking"
+}
+
+Viewpoint {
+  orientation -0.5773502691896258 0.5773502691896258 0.5773502691896258 2.0944
+  position 0 0 7
+  follow "LineBot"
+}
+
+TexturedBackground {
+}
+
+TexturedBackgroundLight {
+}
+
+RectangleArena {
+  floorSize 6 6
+  wallHeight 0.2
+  floorAppearance PBRAppearance {
+    baseColor 0.8 0.8 0.8
+    roughness 1
+    metalness 0
+  }
+}
+
+# --- TRACK GENERATION (Black Lines) ---
+# สร้างเส้นทางสีดำด้วยการวางกล่องบางๆ บนพื้น
+
+# เส้นตรงขวา
+Solid {
+  translation 1.2 0 0.001
+  children [
+    Shape {
+      appearance PBRAppearance { baseColor 0 0 0 roughness 1 metalness 0 }
+      geometry Plane { size 0.15 2.4 }
+    }
+  ]
+  name "track_straight_1"
+}
+
+# เส้นตรงซ้าย
+Solid {
+  translation -1.2 0 0.001
+  children [
+    Shape {
+      appearance PBRAppearance { baseColor 0 0 0 roughness 1 metalness 0 }
+      geometry Plane { size 0.15 2.4 }
+    }
+  ]
+  name "track_straight_2"
+}
+
+# โค้งบน (สร้างจากท่อนตรงย่อยๆ ต่อกันเป็นรูปครึ่งวงกลม)
+Solid {
+  translation 1.1 1.3 0.001
+  rotation 0 0 1 0.26
+  children [ Shape { appearance PBRAppearance { baseColor 0 0 0 roughness 1 metalness 0 } geometry Plane { size 0.15 0.5 } } ]
+  name "track_curve_top_1"
+}
+Solid {
+  translation 0.8 1.7 0.001
+  rotation 0 0 1 0.78
+  children [ Shape { appearance PBRAppearance { baseColor 0 0 0 roughness 1 metalness 0 } geometry Plane { size 0.15 0.6 } } ]
+  name "track_curve_top_2"
+}
+Solid {
+  translation 0.3 1.9 0.001
+  rotation 0 0 1 1.3
+  children [ Shape { appearance PBRAppearance { baseColor 0 0 0 roughness 1 metalness 0 } geometry Plane { size 0.15 0.5 } } ]
+  name "track_curve_top_3"
+}
+Solid {
+  translation -0.3 1.9 0.001
+  rotation 0 0 1 -1.3
+  children [ Shape { appearance PBRAppearance { baseColor 0 0 0 roughness 1 metalness 0 } geometry Plane { size 0.15 0.5 } } ]
+  name "track_curve_top_4"
+}
+Solid {
+  translation -0.8 1.7 0.001
+  rotation 0 0 1 -0.78
+  children [ Shape { appearance PBRAppearance { baseColor 0 0 0 roughness 1 metalness 0 } geometry Plane { size 0.15 0.6 } } ]
+  name "track_curve_top_5"
+}
+Solid {
+  translation -1.1 1.3 0.001
+  rotation 0 0 1 -0.26
+  children [ Shape { appearance PBRAppearance { baseColor 0 0 0 roughness 1 metalness 0 } geometry Plane { size 0.15 0.5 } } ]
+  name "track_curve_top_6"
+}
+
+# โค้งล่าง
+Solid {
+  translation 1.1 -1.3 0.001
+  rotation 0 0 1 -0.26
+  children [ Shape { appearance PBRAppearance { baseColor 0 0 0 roughness 1 metalness 0 } geometry Plane { size 0.15 0.5 } } ]
+  name "track_curve_bottom_1"
+}
+Solid {
+  translation 0.8 -1.7 0.001
+  rotation 0 0 1 -0.78
+  children [ Shape { appearance PBRAppearance { baseColor 0 0 0 roughness 1 metalness 0 } geometry Plane { size 0.15 0.6 } } ]
+  name "track_curve_bottom_2"
+}
+Solid {
+  translation 0.3 -1.9 0.001
+  rotation 0 0 1 -1.3
+  children [ Shape { appearance PBRAppearance { baseColor 0 0 0 roughness 1 metalness 0 } geometry Plane { size 0.15 0.5 } } ]
+  name "track_curve_bottom_3"
+}
+Solid {
+  translation -0.3 -1.9 0.001
+  rotation 0 0 1 1.3
+  children [ Shape { appearance PBRAppearance { baseColor 0 0 0 roughness 1 metalness 0 } geometry Plane { size 0.15 0.5 } } ]
+  name "track_curve_bottom_4"
+}
+Solid {
+  translation -0.8 -1.7 0.001
+  rotation 0 0 1 0.78
+  children [ Shape { appearance PBRAppearance { baseColor 0 0 0 roughness 1 metalness 0 } geometry Plane { size 0.15 0.6 } } ]
+  name "track_curve_bottom_5"
+}
+Solid {
+  translation -1.1 -1.3 0.001
+  rotation 0 0 1 0.26
+  children [ Shape { appearance PBRAppearance { baseColor 0 0 0 roughness 1 metalness 0 } geometry Plane { size 0.15 0.5 } } ]
+  name "track_curve_bottom_6"
+}
+
+
+# --- Robot (Based on VisionBot from 4.1) ---
+DEF LineBot Robot {
+  translation 1.2 0 0.1  # Start on the right straight line
+  rotation 0 0 1 1.5708  # Facing North (along the line)
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.1 0.5 1  # Blue Color (VisionBot style)
+        roughness 1
+        metalness 0
+      }
+      geometry DEF BODY_BOX Box {
+        size 0.4 0.2 0.1
+      }
+    }
+    
+    # Front Marker
+    Solid {
+      translation 0.22 0 0.02
+      name "front_marker"
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0 1 0
+            roughness 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.05 0.1 0.02
+          }
+        }
+      ]
+    }
+    
+    # Camera (Tilted Down for Line Tracking)
+    Camera {
+      translation 0.2 0 0.15
+      rotation 0 1 0 0.5     # Tilted down ~28 degrees to see the floor
+      name "camera"
+      fieldOfView 1.0
+      width 160              # Lower resolution for faster processing
+      height 120
+    }
+    
+    # Wheels
+    HingeJoint {
+      jointParameters HingeJointParameters { axis 0 1 0 anchor 0 0.12 0 }
+      device [ RotationalMotor { name "left_motor" } ]
+      endPoint Solid {
+        translation 0 0.12 0
+        rotation 1 0 0 1.5708
+        name "left_wheel"
+        children [
+          DEF WHEEL Shape {
+            appearance PBRAppearance { baseColor 0.2 0.2 0.2 }
+            geometry Cylinder { height 0.04 radius 0.08 }
+          }
+        ]
+        boundingObject USE WHEEL
+        physics Physics {}
+      }
+    }
+    
+    HingeJoint {
+      jointParameters HingeJointParameters { axis 0 1 0 anchor 0 -0.12 0 }
+      device [ RotationalMotor { name "right_motor" } ]
+      endPoint Solid {
+        translation 0 -0.12 0
+        rotation 1 0 0 1.5708
+        name "right_wheel"
+        children [ USE WHEEL ]
+        boundingObject USE WHEEL
+        physics Physics {}
+      }
+    }
+    
+    BallJoint {
+      jointParameters BallJointParameters { anchor -0.15 0 -0.04 }
+      endPoint Solid {
+        translation -0.15 0 -0.04
+        name "ball_wheel_rear"
+        children [
+          Shape {
+            appearance PBRAppearance { baseColor 0.5 0.5 0.5 roughness 0.3 metalness 0.1 }
+            geometry Sphere { radius 0.04 }
+          }
+        ]
+        boundingObject Sphere { radius 0.04 }
+        physics Physics { density -1 mass 0.1 }
+      }
+    }
+    BallJoint {
+      jointParameters BallJointParameters { anchor 0.15 0 -0.04 }
+      endPoint Solid {
+        translation 0.15 0 -0.04
+        name "ball_wheel_front"
+        children [
+          Shape {
+            appearance PBRAppearance { baseColor 0.5 0.5 0.5 roughness 0.3 metalness 0.1 }
+            geometry Sphere { radius 0.04 }
+          }
+        ]
+        boundingObject Sphere { radius 0.04 }
+        physics Physics { density -1 mass 0.1 }
+      }
+    }
+    
+    # --- Extra Sensors from 4.1 (Included for completeness) ---
+    DistanceSensor { translation 0.2 0 0.06 rotation 0 0 1 0 name "ds_front" type "infra-red" }
+    DistanceSensor { translation 0.18 0.08 0.06 rotation 0 0 1 0.785 name "ds_front_left" type "infra-red" }
+    DistanceSensor { translation 0.18 -0.08 0.06 rotation 0 0 1 -0.785 name "ds_front_right" type "infra-red" }
+    DistanceSensor { translation 0 0.11 0.06 rotation 0 0 1 1.5708 name "ds_left" type "infra-red" }
+    DistanceSensor { translation 0 -0.11 0.06 rotation 0 0 1 -1.5708 name "ds_right" type "infra-red" }
+    
+    InertialUnit { name "imu" }
+    Gyro { name "gyro" }
+  ]
+  
+  name "LineBot"
+  boundingObject USE BODY_BOX
+  physics Physics {
+    density -1
+    mass 5
+  }
+  controller "<extern>"
+}

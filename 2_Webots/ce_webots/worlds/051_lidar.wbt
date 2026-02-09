@@ -1,0 +1,286 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+
+WorldInfo {
+  title "Level 5.1 - LIDAR Mapping & Obstacle Detection"
+}
+
+Viewpoint {
+  orientation -0.5773502691896258 0.5773502691896258 0.5773502691896258 2.0944
+  position 0 0 10
+  follow "LidarBot"
+}
+
+TexturedBackground {
+}
+
+TexturedBackgroundLight {
+}
+
+RectangleArena {
+  floorSize 4 4
+  wallHeight 0.4
+}
+
+# Obstacles for LIDAR to detect
+# Large Box 1
+Solid {
+  translation 0.1 1.2 0.25
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.8 0.2 0.2
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.8 0.8 0.5
+      }
+    }
+  ]
+  name "obstacle_box_1"
+  boundingObject Box { size 0.8 0.8 0.5 }
+}
+
+# Large Box 2
+Solid {
+  translation -0.8 0.8 0.25
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.2 0.8 0.2
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.6 1.0 0.5
+      }
+    }
+  ]
+  name "obstacle_box_2"
+  boundingObject Box { size 0.6 1.0 0.5 }
+}
+
+# Cylinder 1
+Solid {
+  translation 0.5 -1.0 0.3
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.2 0.2 0.8
+        roughness 1
+        metalness 0
+      }
+      geometry Cylinder {
+        height 0.6
+        radius 0.3
+      }
+    }
+  ]
+  name "obstacle_cylinder_1"
+  boundingObject Cylinder { height 0.6 radius 0.3 }
+}
+
+# Cylinder 2
+Solid {
+  translation -0.8 -1.0 0.25
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.8 0.8 0.2
+        roughness 1
+        metalness 0
+      }
+      geometry Cylinder {
+        height 0.5
+        radius 0.25
+      }
+    }
+  ]
+  name "obstacle_cylinder_2"
+  boundingObject Cylinder { height 0.5 radius 0.25 }
+}
+
+# Small Pillars
+Solid {
+  translation 1.2 1.0 0.15
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.6 0.3 0.6
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.3 0.3 0.3
+      }
+    }
+  ]
+  name "pillar_1"
+  boundingObject Box { size 0.3 0.3 0.3 }
+}
+
+Solid {
+  translation 1.0 -0.8 0.15
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.3 0.6 0.6
+        roughness 1
+        metalness 0
+      }
+      geometry Box {
+        size 0.3 0.3 0.3
+      }
+    }
+  ]
+  name "pillar_2"
+  boundingObject Box { size 0.3 0.3 0.3 }
+}
+
+# --- Robot with LIDAR ---
+DEF LidarBot Robot {
+  translation 0 0 0.1
+  rotation 0 0 1 1.5708
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.1 0.5 1
+        roughness 1
+        metalness 0
+      }
+      geometry DEF BODY_BOX Box {
+        size 0.4 0.2 0.1
+      }
+    }
+    
+    # Front Marker
+    Solid {
+      translation 0.22 0 0.02
+      name "front_marker"
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0 1 0
+            roughness 1
+            metalness 0
+          }
+          geometry Box {
+            size 0.05 0.1 0.02
+          }
+        }
+      ]
+    }
+    
+    # LIDAR Sensor (360-degree scanning)
+    Lidar {
+      translation 0 0 0.12
+      rotation 0 0 1 0
+      name "lidar"
+      horizontalResolution 360      # 360 points = 1 degree resolution
+      fieldOfView 6.28319           # 2*PI = 360 degrees
+      verticalFieldOfView 0.1
+      numberOfLayers 1
+      minRange 0.05
+      maxRange 2.0                  # 2 meters maximum range
+    }
+    
+    # LIDAR Housing (visual marker)
+    Solid {
+      translation 0 0 0.12
+      name "lidar_housing"
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.1 0.1 0.1
+            roughness 0.5
+            metalness 0.8
+          }
+          geometry Cylinder {
+            height 0.06
+            radius 0.08
+          }
+        }
+      ]
+    }
+    
+    # Wheels
+    HingeJoint {
+      jointParameters HingeJointParameters { axis 0 1 0 anchor 0 0.12 0 }
+      device [ RotationalMotor { name "left_motor" } ]
+      endPoint Solid {
+        translation 0 0.12 0
+        rotation 1 0 0 1.5708
+        name "left_wheel"
+        children [
+          DEF WHEEL Shape {
+            appearance PBRAppearance { baseColor 0.2 0.2 0.2 }
+            geometry Cylinder { height 0.04 radius 0.08 }
+          }
+        ]
+        boundingObject USE WHEEL
+        physics Physics {}
+      }
+    }
+    
+    HingeJoint {
+      jointParameters HingeJointParameters { axis 0 1 0 anchor 0 -0.12 0 }
+      device [ RotationalMotor { name "right_motor" } ]
+      endPoint Solid {
+        translation 0 -0.12 0
+        rotation 1 0 0 1.5708
+        name "right_wheel"
+        children [ USE WHEEL ]
+        boundingObject USE WHEEL
+        physics Physics {}
+      }
+    }
+    
+    # Ball Wheels (Front and Rear)
+    BallJoint {
+      jointParameters BallJointParameters { anchor -0.15 0 -0.04 }
+      endPoint Solid {
+        translation -0.15 0 -0.04
+        name "ball_wheel_rear"
+        children [
+          Shape {
+            appearance PBRAppearance { baseColor 0.5 0.5 0.5 roughness 0.3 metalness 0.1 }
+            geometry Sphere { radius 0.04 }
+          }
+        ]
+        boundingObject Sphere { radius 0.04 }
+        physics Physics { density -1 mass 0.1 }
+      }
+    }
+    BallJoint {
+      jointParameters BallJointParameters { anchor 0.15 0 -0.04 }
+      endPoint Solid {
+        translation 0.15 0 -0.04
+        name "ball_wheel_front"
+        children [
+          Shape {
+            appearance PBRAppearance { baseColor 0.5 0.5 0.5 roughness 0.3 metalness 0.1 }
+            geometry Sphere { radius 0.04 }
+          }
+        ]
+        boundingObject Sphere { radius 0.04 }
+        physics Physics { density -1 mass 0.1 }
+      }
+    }
+    
+    # IMU for orientation reference
+    InertialUnit { name "imu" }
+    Gyro { name "gyro" }
+  ]
+  
+  name "LidarBot"
+  boundingObject USE BODY_BOX
+  physics Physics {
+    density -1
+    mass 5
+  }
+  controller "<extern>"
+}

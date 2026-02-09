@@ -1,0 +1,436 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+
+WorldInfo {
+  title "Level 6.2 - 3D Mapping (Point Cloud)"
+  basicTimeStep 16
+}
+
+Viewpoint {
+  orientation -0.5773502691896258 0.5773502691896258 0.5773502691896258 2.0944
+  position 0 0 10
+  follow "RGBDBot"
+}
+
+TexturedBackground {
+}
+
+TexturedBackgroundLight {
+}
+
+RectangleArena {
+  floorSize 6 6
+  wallHeight 0.5
+}
+
+# ========== THE TABLE PROBLEM DEMONSTRATION ==========
+DEF TABLE_1 Group {
+  children [
+    Solid {
+      translation 1.8 0 0.75
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.6 0.3 0.1 roughness 1 metalness 0 }
+          geometry Box { size 1.2 0.8 0.05 }
+        }
+      ]
+      name "table_top_1"
+      boundingObject Box { size 1.2 0.8 0.05 }
+    }
+    Solid {
+      translation 2.2 0.3 0.375
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.5 0.25 0.08 roughness 1 }
+          geometry Box { size 0.08 0.08 0.75 }
+        }
+      ]
+      name "table_leg_1a"
+      boundingObject Box { size 0.08 0.08 0.75 }
+    }
+    Solid {
+      translation 2.2 -0.3 0.375
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.5 0.25 0.08 roughness 1 }
+          geometry Box { size 0.08 0.08 0.75 }
+        }
+      ]
+      name "table_leg_1b"
+      boundingObject Box { size 0.08 0.08 0.75 }
+    }
+    Solid {
+      translation 1.4 0.3 0.375
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.5 0.25 0.08 roughness 1 }
+          geometry Box { size 0.08 0.08 0.75 }
+        }
+      ]
+      name "table_leg_1c"
+      boundingObject Box { size 0.08 0.08 0.75 }
+    }
+    Solid {
+      translation 1.4 -0.3 0.375
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.5 0.25 0.08 roughness 1 }
+          geometry Box { size 0.08 0.08 0.75 }
+        }
+      ]
+      name "table_leg_1d"
+      boundingObject Box { size 0.08 0.08 0.75 }
+    }
+  ]
+}
+
+DEF TABLE_2 Group {
+  children [
+    Solid {
+      translation -1.8 1.0 0.6
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.7 0.4 0.15 roughness 1 metalness 0 }
+          geometry Box { size 1.0 0.6 0.05 }
+        }
+      ]
+      name "table_top_2"
+      boundingObject Box { size 1.0 0.6 0.05 }
+    }
+    Solid {
+      translation -1.8 1.0 0.3
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.5 0.25 0.08 roughness 1 }
+          geometry Cylinder { height 0.6 radius 0.06 }
+        }
+      ]
+      name "table_leg_2"
+      boundingObject Cylinder { height 0.6 radius 0.06 }
+    }
+  ]
+}
+
+# ========== OTHER OBSTACLES ==========
+Solid {
+  translation -1.5 -1.5 0.15
+  children [
+    Shape {
+      appearance PBRAppearance { baseColor 0.2 0.8 0.3 roughness 1 }
+      geometry Box { size 0.6 0.6 0.3 }
+    }
+  ]
+  name "low_box"
+  boundingObject Box { size 0.6 0.6 0.3 }
+}
+
+Solid {
+  translation 0.5 -2.0 0.4
+  children [
+    Shape {
+      appearance PBRAppearance { baseColor 0.8 0.2 0.2 roughness 1 }
+      geometry Cylinder { height 0.8 radius 0.2 }
+    }
+  ]
+  name "tall_cylinder"
+  boundingObject Cylinder { height 0.8 radius 0.2 }
+}
+
+Solid {
+  translation 0 2.0 0.9
+  children [
+    Shape {
+      appearance PBRAppearance { baseColor 0.2 0.4 0.8 roughness 1 }
+      geometry Box { size 0.8 0.5 0.1 }
+    }
+  ]
+  name "overhead"
+  boundingObject Box { size 0.8 0.5 0.1 }
+}
+
+Solid {
+  translation -2.2 -0.5 0.2
+  children [
+    Shape {
+      appearance PBRAppearance { baseColor 0.9 0.7 0.3 roughness 1 }
+      geometry Box { size 0.4 0.4 0.4 }
+    }
+  ]
+  name "stack_1"
+  boundingObject Box { size 0.4 0.4 0.4 }
+}
+
+Solid {
+  translation -2.2 -0.5 0.6
+  children [
+    Shape {
+      appearance PBRAppearance { baseColor 0.9 0.5 0.2 roughness 1 }
+      geometry Box { size 0.3 0.3 0.4 }
+    }
+  ]
+  name "stack_2"
+  boundingObject Box { size 0.3 0.3 0.4 }
+}
+
+# ========== RGB-D ROBOT (Stable Physics) ==========
+DEF RGBDBot Robot {
+  translation 0 0 0.1
+  rotation 0 0 1 1.5708
+  children [
+    # Robot Body
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.1 0.5 1
+        roughness 1
+        metalness 0
+      }
+      geometry DEF BODY_BOX Box { size 0.4 0.2 0.1 }
+    }
+    
+    # ===== LIDAR SYSTEM (Raised Up on Mast) =====
+    # Lidar Mast
+    Solid {
+      translation 0 0 0.15
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.1 0.1 0.1 roughness 0.8 }
+          geometry Cylinder { height 0.2 radius 0.02 }
+        }
+      ]
+      name "lidar_mast"
+    }
+
+    # LIDAR Sensor
+    Lidar {
+      translation 0 0 0.25  # High position
+      rotation 0 0 1 0
+      name "lidar"
+      horizontalResolution 360
+      fieldOfView 6.28319
+      verticalFieldOfView 0.1
+      numberOfLayers 1
+      minRange 0.05
+      maxRange 4.0
+    }
+    
+    # LIDAR Housing (Visual)
+    Solid {
+      translation 0 0 0.25
+      name "lidar_housing"
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.1 0.1 0.1 roughness 0.5 metalness 0.8 }
+          geometry Cylinder { height 0.06 radius 0.08 }
+        }
+      ]
+    }
+
+    # ===== RGB-D CAMERA SYSTEM (Lowered to Body) =====
+    
+    # Camera Mast (New Support Leg)
+    Solid {
+      translation 0.15 0 0.07
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.1 0.1 0.1 roughness 0.8 }
+          geometry Box { size 0.03 0.08 0.04 }
+        }
+      ]
+      name "camera_mast"
+    }
+
+    # RGB Camera
+    Camera {
+      translation 0.15 0 0.12  # Raised to 0.12
+      rotation 0 0 1 0
+      name "camera_rgb"
+      fieldOfView 1.5708
+      width 640
+      height 480
+      near 0.1
+      far 5.0
+    }
+    
+    # Depth Camera (RangeFinder)
+    RangeFinder {
+      translation 0.15 0 0.12
+      rotation 0 0 1 0
+      name "camera_depth"
+      fieldOfView 1.5708
+      width 640
+      height 480
+      minRange 0.1
+      maxRange 5.0
+    }
+    
+    # Camera Housing (Visual)
+    Solid {
+      translation 0.15 0 0.12
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.1 0.1 0.1 roughness 0.5 metalness 0.8 }
+          geometry Box { size 0.06 0.1 0.06 }
+        }
+      ]
+      name "camera_housing"
+    }
+    
+    # Camera Lens (Visual indicator)
+    Solid {
+      translation 0.18 0 0.12
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.2 0.2 0.2 roughness 0.1 metalness 1 }
+          geometry Cylinder { height 0.02 radius 0.025 }
+        }
+      ]
+      name "camera_lens"
+    }
+    
+    # RGB Indicator (left eye)
+    Solid {
+      translation 0.19 0.02 0.15
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0 1 0 emissiveColor 0 0.5 0 }
+          geometry Sphere { radius 0.008 }
+        }
+      ]
+      name "rgb_indicator"
+    }
+    
+    # Depth Indicator (right eye)
+    Solid {
+      translation 0.19 -0.02 0.15
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 1 0 0 emissiveColor 0 0.5 0 }
+          geometry Sphere { radius 0.008 }
+        }
+      ]
+      name "depth_indicator"
+    }
+    
+    # Front Direction Marker (Lowered)
+    Solid {
+      translation 0.22 0 0.01
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0 1 0.5 emissiveColor 0 0.3 0.15 }
+          geometry Box { size 0.03 0.08 0.02 }
+        }
+      ]
+      name "front_marker"
+    }
+    
+    # Left Wheel with Motor and Encoder
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0 0.12 -0.02
+      }
+      device [
+        RotationalMotor {
+          name "left_motor"
+          maxVelocity 20
+        }
+        PositionSensor {
+          name "left_encoder"
+        }
+      ]
+      endPoint Solid {
+        translation 0 0.12 -0.02
+        rotation 1 0 0 1.5708
+        children [
+          DEF WHEEL Shape {
+            appearance PBRAppearance {
+              baseColor 0.2 0.2 0.2
+              roughness 1
+            }
+            geometry Cylinder {
+              height 0.04
+              radius 0.08
+            }
+          }
+        ]
+        name "left_wheel"
+        boundingObject USE WHEEL
+        physics Physics {}
+      }
+    }
+    
+    # Right Wheel with Motor and Encoder
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0 -0.12 -0.02
+      }
+      device [
+        RotationalMotor {
+          name "right_motor"
+          maxVelocity 20
+        }
+        PositionSensor {
+          name "right_encoder"
+        }
+      ]
+      endPoint Solid {
+        translation 0 -0.12 -0.02
+        rotation 1 0 0 1.5708
+        children [
+          USE WHEEL
+        ]
+        name "right_wheel"
+        boundingObject USE WHEEL
+        physics Physics {}
+      }
+    }
+    
+    # Front Caster Wheel (Fix: Lowered to -0.06 to touch ground)
+    Solid {
+      translation 0.15 0 -0.06
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.5 0.5 0.5
+            roughness 0.5
+          }
+          geometry Sphere { radius 0.04 }
+        }
+      ]
+      name "caster_front"
+      boundingObject Sphere { radius 0.04 }
+      physics Physics {}
+    }
+
+    # Back Caster Wheel (Fix: Lowered to -0.06 to touch ground)
+    Solid {
+      translation -0.15 0 -0.06
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.5 0.5 0.5
+            roughness 0.5
+          }
+          geometry Sphere { radius 0.04 }
+        }
+      ]
+      name "caster_back"
+      boundingObject Sphere { radius 0.04 }
+      physics Physics {}
+    }
+    
+    # IMU and Gyro (Essential for SLAM/Navigation)
+    InertialUnit { name "imu" }
+    Gyro { name "gyro" }
+  ]
+  
+  name "RGBDBot"
+  boundingObject USE BODY_BOX
+  physics Physics { density -1 mass 5 }
+  controller "<extern>"
+  customData "10.0"
+}
