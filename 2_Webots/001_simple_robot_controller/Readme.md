@@ -6,7 +6,12 @@
 
 ## 📌 Overview
 
-The **Simple Robot Controller** is the essential bridge between **ROS 2** and **Webots simulation**. It runs inside the Webots environment as an external controller and translates ROS 2 velocity commands into motor movements using differential drive kinematics.
+Tutorial 00: Simple Robot Controller
+
+Webots controller that runs inside the simulation.
+Subscribes to /cmd_vel and controls the motors.
+
+This is the "brain" that runs on the robot itself.
 
 ### ✨ Key Features
 
@@ -21,7 +26,6 @@ The **Simple Robot Controller** is the essential bridge between **ROS 2** and **
 |------|---------|
 | `001_simple_robot_controller.py` | Main controller script |
 | `001_basic_control.wbt` | Webots world file |
-| `001_simple_robot_controller.md` | Detailed documentation |
 
 ---
 

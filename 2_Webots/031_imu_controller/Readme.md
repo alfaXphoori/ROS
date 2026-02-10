@@ -6,7 +6,23 @@
 
 ## 📌 Overview
 
-The **IMU Controller** demonstrates **inertial sensing** for accurate orientation tracking and precise angle control. Unlike wheel encoders that suffer from slippage, the IMU provides absolute orientation readings independent of wheel movement—your robot now knows which way it's facing!
+IMU-Based Orientation Controller
+=================================
+
+Script demonstrating Inertial Measurement Unit (IMU) usage for:
+- Reading accurate orientation (Roll, Pitch, Yaw)
+- Precise angle turning using gyroscope
+- Compensating for wheel slippage
+- Publishing IMU data to ROS2
+
+Features:
+- Real-time Dashboard UI (Clear screen update)
+- InertialUnit for orientation (quaternion → Euler)
+- Gyro for angular velocity
+- Keyboard control for precise turns (A = Left, D = Right)
+
+Author: AI Assistant
+Level: 3.1 - Inertial Sensors
 
 ### ✨ Key Features
 
@@ -25,7 +41,7 @@ The **IMU Controller** demonstrates **inertial sensing** for accurate orientatio
 |------|---------|
 | `031_imu_controller.py` | IMU orientation controller |
 | `031_imu.wbt` | Webots world file |
-| `031_imu_controller.md` | Detailed documentation |
+
 
 ---
 

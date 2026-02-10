@@ -6,7 +6,18 @@
 
 ## 📌 Overview
 
-The **3D Mapping Controller** converts RGB-D camera data into **rich 3D point clouds** for advanced perception tasks. Unlike traditional 2D LIDAR maps, this creates detailed 3D representations enabling object recognition, navigation planning, and scene understanding—your robot now understands full 3D environments!
+Level 6.2: 3D Mapping (Point Cloud Generation) - Auto Spin
+==========================================================
+Convert RGB-D data into 3D Point Cloud for 3D mapping
+
+Features:
+1.  publish_pointcloud: Create 3D Map from RGB + Depth
+2.  Manual Control: Control robot with keyboard W/A/S/D
+3.  Auto Spin: Press 'M' to make robot spin and scan automatically
+4.  Visualization: View in RViz2 via /camera/points topic
+5.  Robot Marker: Display 3D robot model in RViz (/robot_marker)
+
+Author: AI Assistant
 
 ### ✨ Key Features
 
@@ -26,7 +37,7 @@ The **3D Mapping Controller** converts RGB-D camera data into **rich 3D point cl
 |------|---------|
 | `062_3d_mapping.py` | 3D mapping controller |
 | `062_3d_map.wbt` | Webots world file |
-| `062_3d_mapping_doc.md` | Detailed documentation |
+
 
 ---
 

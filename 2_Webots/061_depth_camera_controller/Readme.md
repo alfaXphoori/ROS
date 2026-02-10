@@ -6,7 +6,19 @@
 
 ## 📌 Overview
 
-The **Depth Camera (RGB-D) Controller** demonstrates **3D vision**. Unlike 2D LIDAR that sees only a horizontal line, depth cameras capture full 3D structures with color information—enabling detection of obstacles at different heights like tables, shelves, and overhangs!
+Level 6.1: RGB-D Camera & Lidar Controller
+==========================================
+Control the RGBDBot and publish sensor data to ROS 2.
+
+Features:
+1.  Drive using Keyboard (W/A/S/D or Arrows) - Case Insensitive
+2.  Publish RGB Camera (/camera/rgb/image_raw)
+3.  Publish Depth Camera (/camera/depth/image_raw)
+4.  Publish Lidar Scans (/scan)
+5.  Max Speed defined in Python code
+6.  [NEW] Publish TF and Odometry for RViz visualization
+
+Author: AI Assistant
 
 ### ✨ Key Features
 
@@ -25,7 +37,7 @@ The **Depth Camera (RGB-D) Controller** demonstrates **3D vision**. Unlike 2D LI
 |------|---------|
 | `061_depth_camera_controller.py` | Depth perception controller |
 | `061_depth_camera.wbt` | Webots world file |
-| `061_depth_camera_doc.md` | Detailed documentation |
+
 
 ---
 

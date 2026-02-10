@@ -6,7 +6,23 @@
 
 ## 📌 Overview
 
-The **Accelerometer Controller** demonstrates **linear acceleration measurement** in all three axes (X, Y, Z). Accelerometers detect motion patterns, impacts, and orientation changes—understand how robots sense collisions and extreme movements!
+Accelerometer-Based Motion Controller
+======================================
+
+Script demonstrating Accelerometer usage for:
+- Detecting linear acceleration in X, Y, Z axes
+- Monitoring robot acceleration during movement
+- Detecting impacts and collisions
+- Publishing acceleration data to ROS2
+
+Features:
+- Real-time Dashboard UI with acceleration display
+- Accelerometer for linear acceleration (m/s²)
+- Collision/impact detection
+- Keyboard control (W=Forward, S=Backward, A/D=Turn)
+- Beautiful visual acceleration bars
+
+Level: 3.2 - Accelerometer Sensors
 
 ### ✨ Key Features
 
@@ -25,7 +41,7 @@ The **Accelerometer Controller** demonstrates **linear acceleration measurement*
 |------|---------|
 | `032_accelerometer_controller.py` | Acceleration controller script |
 | `032_accelerometer.wbt` | Webots world file |
-| `032_accelerometer_controller.md` | Detailed documentation |
+
 
 ---
 

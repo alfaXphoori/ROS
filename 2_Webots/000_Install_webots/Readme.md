@@ -236,8 +236,6 @@ cd ~/ros2_ws
 # Build the package
 colcon build --packages-select ce_webots
 
-![Webots Installation Complete](./imgs/1_complete.png)
-
 #file:1_complete.png
 
 # Source the setup script
@@ -253,7 +251,7 @@ ros2 pkg list | grep ce_webots
 # Expected output: ce_webots
 ```
 
-
+![Webots Installation Complete](./imgs/1_complete.png)
 ---
 
 ## 🔗 Additional Resources

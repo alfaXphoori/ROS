@@ -6,7 +6,16 @@
 
 ## 📌 Overview
 
-The **Distance Sensor Controller** demonstrates **proactive obstacle avoidance** using IR/Ultrasonic sensors. Unlike touch sensors that react AFTER collision, distance sensors detect obstacles BEFORE contact and smoothly adjust speed and direction—the robot navigates like a skilled driver!
+Autonomous Walk & Avoid
+=======================
+
+Script to make the robot autonomously walk forward and avoid obstacles
+using data from 5 distance sensors.
+
+Logic:
+1. Normal: Move forward at full speed
+2. Obstacle detected in front (< 0.5m): Turn away
+3. Obstacle detected on sides: Adjust slightly away
 
 ### ✨ Key Features
 
@@ -24,7 +33,7 @@ The **Distance Sensor Controller** demonstrates **proactive obstacle avoidance**
 |------|---------|
 | `022_distance_sensor_controller.py` | Proactive navigator script |
 | `022_distance_sensor.wbt` | Webots world file |
-| `022_distance_sensor_controller.md` | Detailed documentation |
+
 
 ---
 

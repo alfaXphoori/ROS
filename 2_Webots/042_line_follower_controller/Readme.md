@@ -6,7 +6,20 @@
 
 ## 📌 Overview
 
-The **Line Follower Controller** demonstrates **autonomous line tracking** using computer vision. The robot uses a downward-facing camera to detect a black line on the floor and automatically steers to follow it—a fundamental skill in warehouse automation and industrial robotics!
+
+Level 4.2: Line Follower (Camera)
+=================================
+Robot follows a black line on a white floor using a camera
+
+Logic:
+1. Read image from camera (Grayscale)
+2. Crop only the bottom part (ROI - Region of Interest) to see the line near the robot
+3. Find the position of dark pixels (black pixels)
+4. Calculate the centroid of the line
+5. Calculate Error = (image center - line centroid)
+6. Adjust left/right motor speeds to keep Error at 0 (P-Controller)
+
+Author: AI Assistant
 
 ### ✨ Key Features
 
@@ -25,7 +38,7 @@ The **Line Follower Controller** demonstrates **autonomous line tracking** using
 |------|---------|
 | `042_line_follower_controller.py` | Line following controller |
 | `042_line_follower.wbt` | Webots world with track |
-| `042_line_follower_controller.md` | Detailed documentation |
+
 
 ---
 

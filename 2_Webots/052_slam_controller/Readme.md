@@ -6,7 +6,17 @@
 
 ## 📌 Overview
 
-The **SLAM Controller** implements **Simultaneous Localization and Mapping**—the holy grail of autonomous robotics! The robot navigates unknown environments using only local sensors (wheel encoders, IMU, LIDAR), creating accurate maps while tracking its own position. No GPS needed—pure sensor fusion!
+Level 5.2: SLAM with Odometry (No GPS)
+======================================
+Creating maps without GPS, using wheel-based position calculation (Odometry)
+
+Features:
+1. Odometry: Calculate X, Y, Theta coordinates from Encoder and IMU
+2. Lidar Mapping: Draw walls onto the grid (Occupancy Grid)
+3. Console Visualizer: Display live map on screen
+4. RViz Marker: Visualizes the robot body
+
+Author: AI Assistant
 
 ### ✨ Key Features
 
@@ -26,7 +36,7 @@ The **SLAM Controller** implements **Simultaneous Localization and Mapping**—t
 |------|---------|
 | `052_slam_controller.py` | SLAM navigation controller |
 | `052_slam.wbt` | Webots world file |
-| `052_slam_controller_doc.md` | Detailed documentation |
+
 
 ---
 

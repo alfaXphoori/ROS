@@ -6,7 +6,21 @@
 
 ## 📌 Overview
 
-The **Wheel Encoder Mission** demonstrates **closed-loop distance control** using proprioceptive sensors. The robot moves forward exactly 5.4 meters (from y=-2.7 to y=2.7) by continuously reading wheel encoders and stopping when the target distance is reached—no time-based estimation, pure sensor feedback!
+Level 1.1: Wheel Encoder Mission
+Move forward exactly 1 meter and stop using encoder feedback only
+
+Mission:
+Command the robot to move forward exactly 1 meter and stop
+⚠️ Do not use time.sleep; rely only on odometry feedback
+
+This demonstrates:
+- Reading PositionSensor (wheel encoders)
+- Converting encoder radians to distance meters
+- Closed-loop control based on sensor feedback
+- Basic odometry computation
+
+Author: CE Robotics
+License: MIT
 
 ### ✨ Key Features
 
@@ -22,7 +36,7 @@ The **Wheel Encoder Mission** demonstrates **closed-loop distance control** usin
 |------|---------|
 | `011_wheel_encoder_mission.py` | Mission controller script |
 | `011_wheel_encoder.wbt` | Webots world file |
-| `011_wheel_encoder_mission.md` | Detailed documentation |
+
 
 ---
 

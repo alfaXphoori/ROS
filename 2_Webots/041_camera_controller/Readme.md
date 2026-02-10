@@ -6,7 +6,22 @@
 
 ## 📌 Overview
 
-The **RGB Camera Controller** demonstrates **computer vision** for autonomous robot control. The robot "sees" its environment through an RGB camera, detects colored objects (red balls), and autonomously tracks and chases targets using real-time image processing—your robot just gained sight!
+RGB Camera Controller - Color Detection
+========================================
+
+Script demonstrating RGB Camera usage for:
+- Capturing color images from robot camera
+- Processing raw pixel data (BGRA format)
+- Center pixel color detection
+- Multi-color object detection
+- Publishing camera images to ROS2
+
+Features:
+- Real-time color detection at center pixel
+- Visual RGB channel bars
+- Configurable color thresholds
+- Keyboard control for navigation
+- ROS2 image publishing
 
 ### ✨ Key Features
 
@@ -25,7 +40,7 @@ The **RGB Camera Controller** demonstrates **computer vision** for autonomous ro
 |------|---------|
 | `041_camera_controller.py` | Ball chaser controller script |
 | `041_camera.wbt` | Webots world file |
-| `041_camera_controller.md` | Detailed documentation |
+
 
 ---
 

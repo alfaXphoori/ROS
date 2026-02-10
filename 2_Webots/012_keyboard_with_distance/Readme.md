@@ -6,7 +6,17 @@
 
 ## 📌 Overview
 
-The **Keyboard Distance Controller** combines manual teleoperation with live encoder feedback. Unlike autonomous missions, this lets you explore the environment while seeing real-time distance measurements for each wheel and the total traveled distance—perfect for learning how encoders measure movement!
+Level 1.1: Keyboard Control with Distance Tracking
+
+Manual control with real-time encoder feedback showing distance traveled.
+Demonstrates how encoders measure movement during manual operation.
+
+Controls:
+  W/S - Forward/Backward
+  A/D - Turn Left/Right
+  X   - Stop
+  R   - Reset distance counter
+  ESC - Quit
 
 ### ✨ Key Features
 
@@ -23,7 +33,7 @@ The **Keyboard Distance Controller** combines manual teleoperation with live enc
 |------|---------|
 | `012_keyboard_with_distance.py` | Teleop + feedback controller |
 | `012_keyboard_with_distance.wbt` | Webots world file |
-| `012_keyboard_with_distance.md` | Detailed documentation |
+
 
 ---
 

@@ -6,7 +6,24 @@
 
 ## 📌 Overview
 
-The **LIDAR Controller** introduces **360-degree environment scanning**. LIDAR (Light Detection and Ranging) measures distances in all directions to create precise spatial maps. Unlike cameras that capture 2D images, LIDAR creates distance arrays enabling sophisticated obstacle avoidance and mapping—your robot now has 360° vision!
+Level 5.1 - LIDAR Mapping & Obstacle Detection
+
+This controller demonstrates LIDAR sensor usage for:
+- 360-degree environment scanning
+- Obstacle detection and distance measurement
+- Real-time map visualization
+- Autonomous obstacle avoidance
+- Sector-based navigation
+
+LIDAR (Light Detection and Ranging):
+- Emits laser pulses in all directions
+- Measures distance to obstacles
+- Creates 2D/3D point cloud of environment
+- Used in autonomous vehicles, robots, drones
+
+Keyboard Controls:
+- W: Move forward
+- S: Move backward
 
 ### ✨ Key Features
 
@@ -25,7 +42,7 @@ The **LIDAR Controller** introduces **360-degree environment scanning**. LIDAR (
 |------|---------|
 | `051_lidar_controller.py` | LIDAR navigation controller |
 | `051_lidar.wbt` | Webots world file |
-| `051_lidar_controller.md` | Detailed documentation |
+
 
 ---
 

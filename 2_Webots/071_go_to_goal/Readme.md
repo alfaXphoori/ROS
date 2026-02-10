@@ -6,7 +6,18 @@
 
 ## 📌 Overview
 
-The **Go to Goal Controller** implements advanced autonomous navigation with **waypoint-based path planning**. The robot navigates to multiple predefined goals while intelligently avoiding obstacles and recovering from stuck situations—the foundation of autonomous delivery and warehouse robots!
+Level 7.1: Go to Goal (Navigation + Obstacle Avoidance + Stuck Recovery)
+=========================================================================
+Navigate to waypoints with advanced obstacle avoidance and stuck recovery
+
+Features:
+1. Odometry: Calculate position (X, Y, Theta) from encoders and IMU
+2. Go-to-Goal: Navigate to specified waypoints using angle/distance control
+3. Obstacle Avoidance: 052 SLAM algorithm (Emergency/Critical/Mild/Wall/Clear)
+4. Stuck Detection: Automatically detect and recover from stuck situations
+5. Waypoint Loop: Visit multiple points in sequence
+
+Author: AI Assistant
 
 ### ✨ Key Features
 
@@ -26,7 +37,7 @@ The **Go to Goal Controller** implements advanced autonomous navigation with **w
 |------|---------|
 | `071_go_to_goal.py` | Waypoint navigation controller |
 | `071_go_goal.wbt` | Webots world file |
-| `071_go_to_goal_doc.md` | Detailed documentation |
+
 
 ---
 

@@ -6,7 +6,22 @@
 
 ## 📌 Overview
 
-The **Keyboard Teleop Controller** provides **human-in-the-loop control** for testing and manually driving the robot. It reads keyboard input without requiring the Enter key and publishes velocity commands to `/cmd_vel` in real-time.
+Tutorial 00: Keyboard Teleoperation Controller
+
+Basic keyboard control for differential drive robot.
+Learn manual control before adding sensors.
+
+Controls:
+    Q   W   E       Speed Control:
+    A   S   D       +  Increase speed
+        X           -  Decrease speed
+                    ESC  Quit
+
+Movement:
+    W - Forward          Q - Forward-Left
+    S - Backward         E - Forward-Right
+    A - Spin Left        X - Stop
+    D - Spin Right
 
 ### ✨ Key Features
 
@@ -22,7 +37,7 @@ The **Keyboard Teleop Controller** provides **human-in-the-loop control** for te
 |------|---------|
 | `002_keyboard_teleop.py` | Main teleop controller script |
 | `002_keyboard_teleop.wbt` | Webots world file |
-| `002_keyboard_teleop.md` | Detailed documentation |
+
 
 ---
 

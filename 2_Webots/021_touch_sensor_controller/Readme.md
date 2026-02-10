@@ -6,7 +6,19 @@
 
 ## 📌 Overview
 
-The **Touch Sensor Controller** demonstrates **reactive behaviors** using bumpers. The robot explores autonomously, detects obstacles through physical contact, and executes intelligent escape maneuvers using a simple state machine—collision detection has never been more interactive!
+Level 2.1: Touch Sensor / Bumper Controller
+
+Reactive behavior using TouchSensor (bumper type).
+Robot explores environment and reacts to physical contact.
+
+Mission: Navigate forward, detect obstacles with bumper sensor,
+         and execute escape maneuvers when collision is detected.
+
+This demonstrates:
+- TouchSensor API (type "bumper")
+- Reactive behaviors (stimulus → response)
+- Simple obstacle avoidance
+- State machine for behavior control
 
 ### ✨ Key Features
 
@@ -23,7 +35,7 @@ The **Touch Sensor Controller** demonstrates **reactive behaviors** using bumper
 |------|---------|
 | `021_touch_sensor_controller.py` | Reactive controller script |
 | `021_touch_sensor.wbt` | Webots world file |
-| `021_touch_sensor_controller.md` | Detailed documentation |
+
 
 ---
 
