@@ -1,10 +1,6 @@
 # 🤖 Install Webots for ROS 2 Jazzy
 
 <div align="center">
-  <img src="./imgs/1_complete.png" alt="Webots Installation Complete" width="500"/>
-</div>
-
-<div align="center">
 
 **A comprehensive guide to set up Webots with ROS 2 Jazzy on Ubuntu 22.04**
 
@@ -252,6 +248,9 @@ ros2 pkg list | grep ce_webots
 ```
 
 ![Webots Installation Complete](./imgs/1_complete.png)
+
+*Figure 1: Successful completion of Webots installation and ROS 2 package setup.*
+
 ---
 
 ## 🔗 Additional Resources
