@@ -18,7 +18,6 @@
 ```bash
 wget -qO- https://cyberbotics.com/Cyberbotics.asc | sudo tee /etc/apt/trusted.gpg.d/cyberbotics.asc
 echo "deb https://cyberbotics.com/debian/ binary-amd64/" | sudo tee /etc/apt/sources.list.d/cyberbotics.list
-sudo apt update
 ```
 
 ### Step 2️⃣ Install Webots
@@ -26,7 +25,8 @@ sudo apt update
 ```bash
 sudo apt install webots
 ```
-
+#### OR 
+- Mauanl Install ([Webots Download]([https://docs.ros.org/en/ros2/Installation.html](https://drive.google.com/file/d/1Tfv30zlxfBkMNNqX0jkhqE105ZEgcDNq/view?usp=sharing)))
 ---
 
 ## 🔧 (Optional) Install Webots ROS 2 Interface
@@ -34,6 +34,7 @@ sudo apt install webots
 To use Webots seamlessly with ROS 2 Jazzy:
 
 ```bash
+sudo apt update
 sudo apt install ros-jazzy-webots-ros2
 ```
 
