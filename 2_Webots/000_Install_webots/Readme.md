@@ -30,32 +30,6 @@ Before you begin, ensure you have:
 
 ## 🚀 Installation Steps
 
-## 🗑️ Uninstall Webots
-
-If you need to remove Webots from your system, follow the method you used for installation:
-
-### Uninstall (Apt Package Manager)
-
-If you installed Webots via apt:
-```bash
-sudo apt remove --purge webots
-sudo apt autoremove
-```
-
-### Uninstall (Manual Download)
-
-If you installed Webots manually:
-```bash
-rm -rf ~/webots
-```
-
-### Remove Cyberbotics Repository (Optional)
-```bash
-sudo rm /etc/apt/sources.list.d/cyberbotics.list
-sudo rm /etc/apt/trusted.gpg.d/cyberbotics.asc
-sudo apt update
-```
-
 ---
 ### Step 1️⃣ Add Cyberbotics Repository
 
@@ -141,6 +115,34 @@ webots
 Or launch with specific world file:
 ```bash
 webots ~/path/to/world/file.wbt
+```
+
+---
+
+## 🗑️ Uninstall Webots
+
+If you need to remove Webots from your system, follow the method you used for installation:
+
+### Uninstall (Apt Package Manager)
+
+If you installed Webots via apt:
+```bash
+sudo apt remove --purge webots
+sudo apt autoremove
+```
+
+### Uninstall (Manual Download)
+
+If you installed Webots manually:
+```bash
+rm -rf ~/webots
+```
+
+### Remove Cyberbotics Repository (Optional)
+```bash
+sudo rm /etc/apt/sources.list.d/cyberbotics.list
+sudo rm /etc/apt/trusted.gpg.d/cyberbotics.asc
+sudo apt update
 ```
 
 ---
