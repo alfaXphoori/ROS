@@ -1,5 +1,6 @@
 # 🤖 Install Webots for ROS 2 Jazzy
 
+
 <div align="center">
   <img src="./imgs/1_complete.png" alt="Webots Installation Complete" width="500"/>
 </div>
@@ -23,7 +24,7 @@ Before you begin, ensure you have:
 |------|--------|------|
 | 🐧 **Ubuntu 22.04 LTS** | Required | [Download](https://ubuntu.com/download/desktop) |
 | ✅ **ROS 2 Jazzy** | Required | [Installation Guide](https://docs.ros.org/en/jazzy/Installation.html) |
-| 💾 **~2GB Disk Space** | Required | — |
+
 
 > **Tip:** To verify your ROS 2 installation:
 > ```bash
@@ -151,8 +152,6 @@ sudo apt update
 
 ---
 
----
-
 ## 📦 Create Your First ROS 2 Webots Package
 
 After installation, set up your ROS 2 workspace for Webots projects:
@@ -234,8 +233,11 @@ Add these essential dependencies:
 # Navigate to workspace root
 cd ~/ros2_ws
 
+
 # Build the package
 colcon build --packages-select ce_webots
+
+![Webots Installation Complete](./imgs/1_complete.png)
 
 # Source the setup script
 source install/setup.bash
