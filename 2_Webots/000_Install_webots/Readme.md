@@ -26,7 +26,7 @@ echo "deb https://cyberbotics.com/debian/ binary-amd64/" | sudo tee /etc/apt/sou
 sudo apt install webots
 ```
 #### OR 
-- Mauanl Install ([Webots Download]([https://docs.ros.org/en/ros2/Installation.html](https://drive.google.com/file/d/1Tfv30zlxfBkMNNqX0jkhqE105ZEgcDNq/view?usp=sharing)))
+- Install ([Webots Download](https://drive.google.com/file/d/1Tfv30zlxfBkMNNqX0jkhqE105ZEgcDNq/view?usp=sharing)
 ---
 
 ## 🔧 (Optional) Install Webots ROS 2 Interface
