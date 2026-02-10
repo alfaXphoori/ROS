@@ -7,7 +7,6 @@
 [![Webots](https://img.shields.io/badge/Webots-2023b+-blue?style=flat-square&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PC9zdmc+)]()
 [![ROS 2](https://img.shields.io/badge/ROS%202-Jazzy-34aadc?style=flat-square)]()
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04%20LTS-E95420?style=flat-square&logo=ubuntu)]()
-
 </div>
 
 ---
@@ -31,6 +30,33 @@ Before you begin, ensure you have:
 
 ## 🚀 Installation Steps
 
+## 🗑️ Uninstall Webots
+
+If you need to remove Webots from your system, follow the method you used for installation:
+
+### Uninstall (Apt Package Manager)
+
+If you installed Webots via apt:
+```bash
+sudo apt remove --purge webots
+sudo apt autoremove
+```
+
+### Uninstall (Manual Download)
+
+If you installed Webots manually:
+```bash
+rm -rf ~/webots
+```
+
+### Remove Cyberbotics Repository (Optional)
+```bash
+sudo rm /etc/apt/sources.list.d/cyberbotics.list
+sudo rm /etc/apt/trusted.gpg.d/cyberbotics.asc
+sudo apt update
+```
+
+---
 ### Step 1️⃣ Add Cyberbotics Repository
 
 Add the official Webots package repository to your system:
@@ -71,7 +97,7 @@ tar -xzf webots-*.tar.gz -C ~/
 For seamless ROS 2 integration, install the Webots ROS 2 interface package:
 
 ```bash
-sudo apt install ros-jazzy-webots-ros2
+sudo apt-get install ros-jazzy-webots-ros2
 ```
 
 This enables:
