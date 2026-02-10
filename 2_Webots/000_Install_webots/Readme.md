@@ -71,7 +71,6 @@ tar -xzf webots-*.tar.gz -C ~/
 For seamless ROS 2 integration, install the Webots ROS 2 interface package:
 
 ```bash
-sudo apt update
 sudo apt install ros-jazzy-webots-ros2
 ```
 
