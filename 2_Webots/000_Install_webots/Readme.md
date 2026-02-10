@@ -1,5 +1,6 @@
 # 🤖 Install Webots for ROS 2 Jazzy
 
+![Webots Installation Complete](./imgs/1_complete.png)
 
 <div align="center">
   <img src="./imgs/1_complete.png" alt="Webots Installation Complete" width="500"/>
@@ -251,6 +252,7 @@ ros2 pkg list | grep ce_webots
 
 # Expected output: ce_webots
 ```
+
 
 ---
 
