@@ -1,7 +1,5 @@
 # 🤖 Install Webots for ROS 2 Jazzy
 
-![Webots Installation Complete](./imgs/1_complete.png)
-
 <div align="center">
   <img src="./imgs/1_complete.png" alt="Webots Installation Complete" width="500"/>
 </div>
@@ -239,6 +237,8 @@ cd ~/ros2_ws
 colcon build --packages-select ce_webots
 
 ![Webots Installation Complete](./imgs/1_complete.png)
+
+#file:1_complete.png
 
 # Source the setup script
 source install/setup.bash
