@@ -42,19 +42,53 @@ Author: AI Assistant
 
 ---
 
-## 🚀 Quick Start
+## 🚀 How to Run This Lab
 
-### Step 1️⃣: Start Webots
+### Prerequisites
+
+- ✅ Webots installed
+- ✅ ROS 2 Jazzy installed and sourced
+- ✅ Understanding of Lab 041 (camera basics)
+- ✅ Workspace built and sourced
+
+### Running Steps
+
+#### Terminal 1: Launch Webots Simulation
 
 ```bash
 webots ~/ros2_ws/src/ce_webots/worlds/042_line_follower.wbt
 ```
 
-### Step 2️⃣: Run Line Follower
+**Environment features:**
+- Track with black line on white/gray floor
+- Curved and straight sections
+- Various track complexities (sharp turns, gentle curves)
+- Robot with downward-facing camera
+
+#### Terminal 2: Run Line Follower
 
 ```bash
+# Source your workspace
+source ~/ros2_ws/install/setup.bash
+
+# Run the line follower
 ros2 run ce_webots 042_line_follower_controller
 ```
+
+**What to observe:**
+- Robot automatically follows the black line
+- Real-time line position feedback
+- Adaptive speed control (slower on sharp turns)
+- Motor speed adjustments visible in display
+- Smooth navigation through curves
+
+### Automatic Operation
+
+The line follower runs autonomously:
+- No keyboard control needed
+- Continuously adjusts left/right motors
+- Uses proportional control for smooth following
+- Handles curves and straight sections
 
 ### Real-Time Dashboard
 
@@ -81,6 +115,103 @@ ros2 run ce_webots 042_line_follower_controller
 ⚡ MOTOR CONTROL: L=4.2 rad/s | R=3.8 rad/s
 ────────────────────────────────────────────────────────
 ```
+
+### Understanding the Control
+
+**Line Position:**
+- **0.0-0.4:** Line on left → increase right motor speed
+- **0.4-0.6:** Line centered → both motors equal speed
+- **0.6-1.0:** Line on right → increase left motor speed
+
+**Proportional Control:**
+```
+error = image_center - line_centroid
+left_speed = base_speed - (Kp × error)
+right_speed = base_speed + (Kp × error)
+```
+
+### Monitoring Topics
+
+```bash
+# Terminal 3 (optional): View camera ROI
+ros2 run rqt_image_view rqt_image_view
+# Select: /camera/line_roi
+
+# Monitor line position
+ros2 topic echo /line/position
+
+# Monitor control values
+ros2 topic echo /pid/error
+
+# Check camera feed
+ros2 topic list | grep camera
+```
+
+### Tuning Parameters
+
+Key parameters to adjust performance:
+
+1. **Proportional Gain (Kp):**
+   - **Higher (3.0-5.0):** Aggressive, fast response, may oscillate
+   - **Lower (1.0-2.0):** Gentle, smooth, may lose line on sharp turns
+   - **Optimal:** ~2.5-3.5 for most tracks
+
+2. **Base Speed:**
+   - **Higher:** Faster but harder to control
+   - **Lower:** More stable but slower
+   - **Adaptive:** Reduce speed when error is high
+
+3. **Brightness Threshold:**
+   - **Higher (200+):** Only detects very dark pixels
+   - **Lower (100-150):** Detects more but may include shadows
+   - **Auto-adjust:** Calculate threshold from image statistics
+
+### Experiment Ideas
+
+1. **Add PID Control:**
+   - Implement derivative term (reduce oscillation)
+   - Add integral term (eliminate steady-state error)
+
+2. **Advanced Features:**
+   - Detect intersection and make decisions
+   - Handle broken lines or gaps
+   - Speed up on straight sections
+   - Add line width monitoring
+
+3. **Improve Robustness:**
+   - Add edge detection (Canny/Sobel)
+   - Implement Hough line detection
+   - Use color-based segmentation
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| **Robot loses line** | Reduce speed or increase Kp |
+| **Oscillates on straight** | Decrease Kp or add derivative term |
+| **Can't handle sharp turns** | Reduce base speed or add adaptive speed |
+| **No line detected** | Adjust brightness threshold |
+| **Wrong ROI** | Check camera placement and crop settings |
+
+### Line Follower Algorithm
+
+```
+1. Capture camera image (160x120)
+2. Crop bottom half (ROI near robot)
+3. Convert to grayscale
+4. Threshold: dark pixels (< threshold) = line
+5. Calculate weighted average (centroid)
+6. Compute error = center - centroid
+7. Apply P-control: adjust motor speeds
+8. Repeat at camera frame rate
+```
+
+### Performance Metrics
+
+- **Track Completion Time:** How fast can it complete a lap?
+- **Position Error:** Average deviation from line center
+- **Oscillation:** Frequency of left-right corrections
+- **Recovery Time:** Time to recover after losing line
 
 ---
 

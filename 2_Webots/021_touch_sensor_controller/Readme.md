@@ -39,19 +39,43 @@ This demonstrates:
 
 ---
 
-## 🚀 Quick Start
+## 🚀 How to Run This Lab
 
-### Step 1️⃣: Start Webots
+### Prerequisites
+
+- ✅ Webots installed
+- ✅ ROS 2 Jazzy installed and sourced
+- ✅ Basic understanding of sensor integration
+- ✅ Workspace built and sourced
+
+### Running Steps
+
+#### Terminal 1: Launch Webots Simulation
 
 ```bash
 webots ~/ros2_ws/src/ce_webots/worlds/021_touch_sensor.wbt
 ```
 
-### Step 2️⃣: Run Reactive Controller
+**What to expect:**
+- Arena with obstacles (walls, boxes)
+- Robot with visible bumper sensors
+- Robot starts in exploring state
+
+#### Terminal 2: Run Touch Sensor Controller
 
 ```bash
+# Source your workspace
+source ~/ros2_ws/install/setup.bash
+
+# Run the reactive controller
 ros2 run ce_webots 021_touch_sensor_controller
 ```
+
+**What to observe:**
+- Robot moves forward
+- On collision: backs up and turns
+- Collision counter increments
+- State machine transitions displayed
 
 ### Expected Behavior
 
@@ -80,6 +104,47 @@ Behaviors:
 ```
 
 **Watch:** Robot bumps obstacles, backs up, turns away, and continues exploring!
+
+### Understanding the States
+
+1. **EXPLORING** - Moving forward, seeking obstacles
+2. **COLLISION DETECTED** - Bumper triggered
+3. **BACKING UP** - Reversing away from obstacle
+4. **TURNING** - Rotating to new direction
+5. **Back to EXPLORING** - Resume forward movement
+
+### Monitoring Topics
+
+```bash
+# Terminal 3 (optional): Monitor bumper states
+ros2 topic echo /bumper/front
+ros2 topic echo /bumper/left
+ros2 topic echo /bumper/right
+
+# Monitor collision events
+ros2 topic echo /collision_events
+
+# Check node information
+ros2 node list
+ros2 node info /touch_sensor_controller
+```
+
+### Experiment Ideas
+
+Try these modifications:
+1. **Change turn angle** - Edit turn duration for sharper/wider turns
+2. **Add delay** - Pause after collision before backing up
+3. **Speed variation** - Slow down when exploring vs escaping
+4. **Collision memory** - Remember which side hit most often
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| **Bumpers not triggering** | Check sensor names in code match world file |
+| **Robot gets stuck** | Increase backup distance or turn angle |
+| **No collision messages** | Verify bumpers are enabled in code |
+| **Continuous triggering** | Add debounce delay or check sensor placement |
 
 ---
 

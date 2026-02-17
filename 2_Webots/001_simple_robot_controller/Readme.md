@@ -29,6 +29,98 @@ This is the "brain" that runs on the robot itself.
 
 ---
 
+## 🚀 How to Run This Lab
+
+### Prerequisites
+
+- ✅ Webots installed (see [000_Install_webots](../000_Install_webots/Readme.md))
+- ✅ ROS 2 Jazzy installed and sourced
+- ✅ Workspace built: `colcon build && source install/setup.bash`
+
+### Running Steps
+
+#### Terminal 1: Launch Webots Simulation
+
+```bash
+webots ~/ros2_ws/src/ce_webots/worlds/001_basic_control.wbt
+```
+
+**What happens:** 
+- Webots GUI opens with the robot simulation
+- Robot is loaded and ready to receive commands
+- Simulation waits for controller to connect
+
+#### Terminal 2: Run the Robot Controller
+
+```bash
+# Make sure you've sourced your workspace
+source ~/ros2_ws/install/setup.bash
+
+# Run the controller
+ros2 run ce_webots 001_simple_robot_controller
+```
+
+**Expected Output:**
+```
+[INFO] [simple_robot_controller]: Simple Robot Controller Started
+[INFO] [simple_robot_controller]: Waiting for /cmd_vel commands...
+[INFO] [simple_robot_controller]: Robot ready! Publish to /cmd_vel to control
+```
+
+#### Terminal 3: Send Test Commands
+
+Test the robot with different velocities:
+
+```bash
+# Move forward at 0.5 m/s
+ros2 topic pub /cmd_vel geometry_msgs/msg/Twist \
+  "{linear: {x: 0.5, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}" \
+  --once
+
+# Rotate counterclockwise at 0.5 rad/s
+ros2 topic pub /cmd_vel geometry_msgs/msg/Twist \
+  "{linear: {x: 0.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.5}}" \
+  --once
+
+# Move in a circle (forward + rotation)
+ros2 topic pub /cmd_vel geometry_msgs/msg/Twist \
+  "{linear: {x: 0.3, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.3}}" \
+  --once
+
+# Stop the robot
+ros2 topic pub /cmd_vel geometry_msgs/msg/Twist \
+  "{linear: {x: 0.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}" \
+  --once
+```
+
+### Monitoring & Debugging
+
+```bash
+# List all active topics
+ros2 topic list
+
+# Monitor /cmd_vel commands in real-time
+ros2 topic echo /cmd_vel
+
+# Check message publication rate
+ros2 topic hz /cmd_vel
+
+# View robot node information
+ros2 node list
+ros2 node info /simple_robot_controller
+```
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| **Controller doesn't start** | Ensure Webots is running first |
+| **Robot doesn't move** | Check if /cmd_vel is being published: `ros2 topic echo /cmd_vel` |
+| **Topic not found** | Verify workspace is sourced: `source ~/ros2_ws/install/setup.bash` |
+| **Connection error** | Restart both Webots and the controller |
+
+---
+
 ## 🚀 Quick Start
 
 ### Step 1️⃣: Launch Webots

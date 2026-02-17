@@ -41,19 +41,152 @@ Author: AI Assistant
 
 ---
 
-## 🚀 Quick Start
+## 🚀 How to Run This Lab
 
-### Step 1️⃣: Start Webots
+### Prerequisites
+
+- ✅ Webots installed
+- ✅ ROS 2 Jazzy installed and sourced
+- ✅ **RViz2 installed**
+- ✅ Understanding of 3D perception concepts
+- ✅ Workspace built and sourced
+
+### Running Steps
+
+#### Terminal 1: Launch Webots Simulation
 
 ```bash
 webots ~/ros2_ws/src/ce_webots/worlds/061_depth_camera.wbt
 ```
 
-### Step 2️⃣: Run Depth Camera Controller
+**Environment features:**
+- Arena with 3D obstacles (tables, shelves, overhanging objects)
+- Objects at different heights
+- Robot with RGB-D camera
+- LIDAR for comparison
+
+#### Terminal 2: Run Depth Camera Controller
 
 ```bash
+# Source your workspace
+source ~/ros2_ws/install/setup.bash
+
+# Run the controller
 ros2 run ce_webots 061_depth_camera_controller
 ```
+
+**What to observe:**
+- Real-time point cloud generation
+- 3D obstacle detection
+- RGB and depth image publishing
+- LIDAR scan publishing
+- Keyboard control (WASD)
+
+#### Terminal 3: Launch RViz2 for 3D Visualization
+
+```bash
+# Launch RViz2
+rviz2
+```
+
+### 📊 RViz Configuration for Depth Camera
+
+#### Step 1: Set Fixed Frame
+
+- Set **Fixed Frame** to `base_link` or `camera_link`
+
+#### Step 2: Add PointCloud2 Display
+
+1. Click **Add** → **PointCloud2**
+2. Configure:
+   - **Topic:** `/camera/points`
+   - **Size (m):** `0.01`
+   - **Style:** Points or Flat Squares
+   - **Color Transformer:** RGB8 or AxisColor
+   - **Decay Time:** `0`
+
+**What you'll see:** Colored 3D point cloud of the environment!
+
+#### Step 3: Add Image Displays (Optional)
+
+**RGB Camera:**
+1. Click **Add** → **Image**
+2. Topic: `/camera/rgb/image_raw`
+
+**Depth Camera:**
+1. Click **Add** → **Image**  
+2. Topic: `/camera/depth/image_raw`
+
+#### Step 4: Add LaserScan (for comparison)
+
+1. Click **Add** → **LaserScan**
+2. Configure:
+   - **Topic:** `/scan`
+   - **Color:** Red
+   - **Size:** `0.05`
+
+#### Step 5: Save Configuration
+
+```bash
+File → Save Config As → ~/ros2_ws/src/ce_webots/config/061_depth_camera.rviz
+```
+
+Load next time:
+```bash
+rviz2 -d ~/ros2_ws/src/ce_webots/config/061_depth_camera.rviz
+```
+
+### Interactive Controls (Terminal 2)
+
+- **W** - Move forward
+- **A** - Turn left
+- **S** - Move backward
+- **D** - Turn right
+- **Arrow keys** - Also work (case insensitive)
+- **ESC / Q** - Quit
+
+### What You Should See in RViz
+
+**PointCloud2 Display:**
+- Full 3D representation of obstacles
+- Color from RGB camera
+- Points at multiple heights
+- Tabletops and overhanging objects visible
+
+**Comparison:**
+- LaserScan: Single horizontal line (2D)
+- Point Cloud: Full 3D volume
+
+### Monitoring Topics
+
+```bash
+# Terminal 4 (optional): Check topics
+ros2 topic list | grep camera
+
+# Monitor point cloud
+ros2 topic hz /camera/points
+ros2 topic echo /camera/points --once
+
+# View RGB image
+ros2 run rqt_image_view rqt_image_view /camera/rgb/image_raw
+
+# View depth image
+ros2 run rqt_image_view rqt_image_view /camera/depth/image_raw
+
+# Compare with LIDAR
+ros2 topic echo /scan
+```
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| **No point cloud visible** | Check topic `/camera/points` is publishing |
+| **Points too small** | Increase Size (m) in PointCloud2 display |
+| **No color** | Set Color Transformer to `RGB8` |
+| **RViz slow** | Reduce point decimation or lower camera resolution |
+| **Depth image black** | Normal - depth shown as grayscale intensity |
+| **No TF frames** | Verify TF is being published |
 
 ---
 

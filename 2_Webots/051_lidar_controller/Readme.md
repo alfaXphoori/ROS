@@ -46,19 +46,53 @@ Keyboard Controls:
 
 ---
 
-## 🚀 Quick Start
+## 🚀 How to Run This Lab
 
-### Step 1️⃣: Start Webots
+### Prerequisites
+
+- ✅ Webots installed
+- ✅ ROS 2 Jazzy installed and sourced
+- ✅ Understanding of range sensors
+- ✅ Workspace built and sourced
+
+### Running Steps
+
+#### Terminal 1: Launch Webots Simulation
 
 ```bash
 webots ~/ros2_ws/src/ce_webots/worlds/051_lidar.wbt
 ```
 
-### Step 2️⃣: Run LIDAR Controller
+**Environment features:**
+- Complex maze or obstacle course
+- 360° visibility for LIDAR testing
+- Various obstacle types and distances
+- Open and narrow areas
+
+#### Terminal 2: Run LIDAR Controller
 
 ```bash
+# Source your workspace
+source ~/ros2_ws/install/setup.bash
+
+# Run the LIDAR navigator
 ros2 run ce_webots 051_lidar_controller
 ```
+
+**What to observe:**
+- Beautiful 360° LIDAR visualization in terminal
+- Real-time obstacle detection in all directions
+- Sector-based navigation decisions
+- Smart obstacle avoidance behavior
+- Distance readings for front/left/right/back
+
+### Interactive Controls
+
+- **W** - Move forward
+- **S** - Move backward
+- **ESC** - Exit
+
+**Note:** Controller also has autonomous navigation mode.
 
 ### Real-Time Visualization
 
@@ -90,6 +124,42 @@ ros2 run ce_webots 051_lidar_controller
 
 ================================================================================
 ```
+
+### Monitoring Topics
+
+```bash
+# Terminal 3 (optional): Monitor LIDAR scans
+ros2 topic echo /scan
+
+# Check scan rate
+ros2 topic hz /scan
+
+# View scan info
+ros2 topic info /scan
+
+# Monitor specific sectors
+ros2 topic echo /lidar/front
+ros2 topic echo /lidar/obstacles
+```
+
+### Understanding LIDAR Data
+
+**LaserScan Message:**
+- **ranges[]:** Array of 360 distance measurements (in meters)
+- **angle_min:** Starting angle (-180° or -π)
+- **angle_max:** Ending angle (180° or π)
+- **angle_increment:** Angular resolution (typically 1°)
+- **range_min:** Minimum detection range (e.g., 0.05m)
+- **range_max:** Maximum detection range (e.g., 5.0m)
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| **No LIDAR data** | Check if LIDAR is enabled and timestep is correct |
+| **Infinite values** | Normal when no obstacle detected in that direction |
+| **Robot crashes** | Decrease speed or increase safety distance |
+| **Jerky movement** | Smooth velocity transitions or add acceleration limits |
 
 ---
 

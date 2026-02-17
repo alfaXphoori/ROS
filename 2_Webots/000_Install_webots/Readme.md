@@ -104,6 +104,72 @@ ROS 2: Jazzy (or later)
 
 ---
 
+## 🚀 How to Run Webots
+
+### Method 1: Launch Webots GUI
+
+Start the Webots simulator with graphical interface:
+
+```bash
+# Launch Webots
+webots
+
+# Or launch with a specific world file
+webots ~/ros2_ws/src/ce_webots/worlds/<world_file>.wbt
+```
+
+### Method 2: Test with ROS 2 Integration
+
+Verify that ROS 2 can communicate with Webots:
+
+```bash
+# Terminal 1: Start a Webots world
+webots ~/ros2_ws/src/ce_webots/worlds/001_basic_control.wbt
+
+# Terminal 2: Check ROS 2 topics (wait a few seconds for simulation to start)
+ros2 topic list
+
+# You should see topics like:
+# /cmd_vel
+# /robot/odom
+# /parameter_events
+# /rosout
+```
+
+### Method 3: Run Example Controller
+
+Test a simple velocity command:
+
+```bash
+# Terminal 1: Start Webots with world file
+webots ~/ros2_ws/src/ce_webots/worlds/001_basic_control.wbt
+
+# Terminal 2: Publish velocity command
+ros2 topic pub /cmd_vel geometry_msgs/msg/Twist \
+  "{linear: {x: 0.5, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: 0.0}}" \
+  --once
+
+# The robot should move forward!
+```
+
+### Common Launch Options
+
+```bash
+# Launch in background
+webots --mode=run world.wbt &
+
+# Launch without GUI (fast mode)
+webots --mode=fast --no-rendering world.wbt
+
+# Launch with specific time step
+webots --mode=run --time-step=16 world.wbt
+
+# Launch in fullscreen
+webots --fullscreen world.wbt
+```
+
+---
+
 ## 🎮 Launch Webots
 
 Start the Webots simulator:

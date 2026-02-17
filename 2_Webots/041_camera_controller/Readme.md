@@ -44,19 +44,54 @@ Features:
 
 ---
 
-## 🚀 Quick Start
+## 🚀 How to Run This Lab
 
-### Step 1️⃣: Start Webots
+### Prerequisites
+
+- ✅ Webots installed
+- ✅ ROS 2 Jazzy installed and sourced
+- ✅ Basic understanding of computer vision concepts
+- ✅ Workspace built and sourced
+
+### Running Steps
+
+#### Terminal 1: Launch Webots Simulation
 
 ```bash
 webots ~/ros2_ws/src/ce_webots/worlds/041_camera.wbt
 ```
 
-### Step 2️⃣: Run Camera Controller
+**Environment features:**
+- Arena with colored objects (red, green, blue balls)
+- Robot with forward-facing camera
+- Good lighting for color detection
+- Open space for ball chasing
+
+#### Terminal 2: Run Camera Controller
 
 ```bash
+# Source your workspace
+source ~/ros2_ws/install/setup.bash
+
+# Run the ball chaser
 ros2 run ce_webots 041_camera_controller
 ```
+
+**What to observe:**
+- Real-time camera feed processing
+- Ball detection status (detected/not detected)
+- Ball position indicator (left/center/right)
+- Autonomous chasing behavior in AUTO mode
+- Manual control available with WASD keys
+
+### Interactive Controls
+
+- **M** - Toggle between AUTO and MANUAL modes
+- **W** - Move forward (manual mode)
+- **A** - Turn left (manual mode)
+- **S** - Move backward (manual mode)
+- **D** - Turn right (manual mode)
+- **Q** - Quit
 
 ### Real-Time Dashboard
 
@@ -80,6 +115,81 @@ ros2 run ce_webots 041_camera_controller
 ------------------------------------------------------------
 ⌨️  CONTROLS: WASD=Manual | M=Auto Mode | Q=Quit
 ============================================================
+```
+
+### Understanding the Display
+
+- **Position Bar:** Shows where ball appears in image (0.0 = left, 0.5 = center, 1.0 = right)
+- **AUTO Mode:** Robot automatically chases the ball
+- **MANUAL Mode:** User controls robot with keyboard
+
+### Autonomous Behavior
+
+When ball is detected:
+1. **Ball on left** (pos < 0.4): Turn left
+2. **Ball centered** (0.4 ≤ pos ≤ 0.6): Move forward
+3. **Ball on right** (pos > 0.6): Turn right
+4. **Ball not detected**: Stop and search
+
+### Monitoring Topics
+
+```bash
+# Terminal 3 (optional): View camera image
+ros2 run rqt_image_view rqt_image_view
+# Select topic: /camera/image_raw
+
+# Monitor ball detection
+ros2 topic echo /ball_detected
+
+# Monitor ball position
+ros2 topic echo /ball_position
+
+# List all camera topics
+ros2 topic list | grep camera
+```
+
+### Experiment Ideas
+
+1. **Change Target Color:**
+   - Modify BGR thresholds to track green or blue objects
+   - Test with multiple colored objects
+
+2. **Improve Detection:**
+   - Add blob size filtering
+   - Implement morphological operations (erosion/dilation)
+   - Use HSV color space instead of BGR
+
+3. **Advanced Behaviors:**
+   - Stop at certain distance from ball
+   - Circle around the ball
+   - Track multiple objects simultaneously
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| **No ball detected** | Check color thresholds match object color in simulation |
+| **Detection too sensitive** | Tighten BGR threshold ranges |
+| **Robot doesn't chase** | Verify AUTO mode is enabled (press M) |
+| **Camera image blank** | Check if camera is enabled and resolution is correct |
+| **Position always 0.5** | No color match - adjust thresholds |
+
+### Color Detection Tips
+
+**BGR Format in Webots:**
+- **Red Ball:** BGR [0, 0, 150-255]
+- **Green Ball:** BGR [0, 150-255, 0]
+- **Blue Ball:** BGR [150-255, 0, 0]
+
+**Threshold Tuning:**
+```python
+# Tight threshold (precise but may miss)
+min_color = [200, 0, 0]  # Pure blue
+max_color = [255, 50, 50]
+
+# Loose threshold (detects more but less accurate)
+min_color = [150, 0, 0]
+max_color = [255, 100, 100]
 ```
 
 ---

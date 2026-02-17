@@ -134,6 +134,88 @@ ros2 topic pub /cmd_vel geometry_msgs/msg/Twist \
 
 ---
 
+## 🚀 How to Run Each Lab
+
+### General Running Pattern
+
+Most tutorials follow this pattern:
+
+1. **Terminal 1:** Start Webots with the world file
+2. **Terminal 2:** Run the controller
+3. **Terminal 3 (optional):** Monitor topics or visualize in RViz
+
+### Labs Without RViz (001-051)
+
+```bash
+# Terminal 1: Start Webots simulation
+webots ~/ros2_ws/src/ce_webots/worlds/<lab_world_file>.wbt
+
+# Terminal 2: Run the controller
+ros2 run ce_webots <controller_name>
+
+# Terminal 3 (optional): Monitor topics
+ros2 topic list
+ros2 topic echo /cmd_vel
+```
+
+### Labs With RViz (052, 061, 062, 071)
+
+For labs that use RViz visualization:
+
+```bash
+# Terminal 1: Start Webots simulation
+webots ~/ros2_ws/src/ce_webots/worlds/<lab_world_file>.wbt
+
+# Terminal 2: Run the controller
+ros2 run ce_webots <controller_name>
+
+# Terminal 3: Launch RViz2
+rviz2
+```
+
+#### RViz Configuration Steps:
+
+1. **Set Fixed Frame:**
+   - In RViz left panel, set `Fixed Frame` to `odom` or `map`
+
+2. **Add Visualization Topics:**
+   - Click "Add" button (bottom left)
+   - Select appropriate display types:
+     - **052 SLAM:** Add `LaserScan` (/scan), `Map` (/map), `Odometry` (/odom)
+     - **061 Depth Camera:** Add `PointCloud2` (/camera/points), `Image` (/camera/rgb/image_raw)
+     - **062 3D Mapping:** Add `PointCloud2` (/camera/points), `Marker` (/robot_marker)
+     - **071 Go-to-Goal:** Add `LaserScan` (/scan), `Odometry` (/odom), `Marker` (/waypoint_markers)
+
+3. **Configure Topics:**
+   - For each display, set the correct topic name
+   - Adjust visualization parameters (size, color, decay time)
+
+4. **Save Configuration:**
+   - File → Save Config As → `<lab_name>_config.rviz`
+   - Load next time: `rviz2 -d <lab_name>_config.rviz`
+
+### Quick Reference by Lab Number
+
+| Lab | Webots World File | Controller | RViz Required |
+|-----|-------------------|------------|---------------|
+| 001 | `001_basic_control.wbt` | `001_simple_robot_controller` | ❌ |
+| 002 | `002_keyboard_teleop.wbt` | `002_keyboard_teleop` | ❌ |
+| 011 | `011_wheel_encoder.wbt` | `011_wheel_encoder_mission` | ❌ |
+| 012 | `012_keyboard_with_distance.wbt` | `012_keyboard_with_distance` | ❌ |
+| 021 | `021_touch_sensor.wbt` | `021_touch_sensor_controller` | ❌ |
+| 022 | `022_distance_sensor.wbt` | `022_distance_sensor_controller` | ❌ |
+| 031 | `031_imu.wbt` | `031_imu_controller` | ❌ |
+| 032 | `032_accelerometer.wbt` | `032_accelerometer_controller` | ❌ |
+| 041 | `041_camera.wbt` | `041_camera_controller` | ❌ |
+| 042 | `042_line_follower.wbt` | `042_line_follower_controller` | ❌ |
+| 051 | `051_lidar.wbt` | `051_lidar_controller` | ❌ |
+| 052 | `052_slam.wbt` | `052_slam_controller` | ✅ |
+| 061 | `061_depth_camera.wbt` | `061_depth_camera_controller` | ✅ |
+| 062 | `062_3d_map.wbt` | `062_3d_mapping` | ✅ |
+| 071 | `071_go_goal.wbt` | `071_go_to_goal` | ✅ |
+
+---
+
 ## 📁 Directory Structure
 
 ```

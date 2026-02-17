@@ -40,19 +40,152 @@ Author: AI Assistant
 
 ---
 
-## 🚀 Quick Start
+## 🚀 How to Run This Lab
 
-### Step 1️⃣: Start Webots
+### Prerequisites
+
+- ✅ Webots installed
+- ✅ ROS 2 Jazzy installed and sourced
+- ✅ **RViz2 installed** (`sudo apt install ros-jazzy-rviz2`)
+- ✅ Understanding of Lab 051 (LIDAR basics)
+- ✅ Workspace built and sourced
+
+### Running Steps
+
+#### Terminal 1: Launch Webots Simulation
 
 ```bash
 webots ~/ros2_ws/src/ce_webots/worlds/052_slam.wbt
 ```
 
-### Step 2️⃣: Run SLAM Controller
+**Environment:**
+- Large arena with multiple rooms and corridors
+- Various obstacles for mapping
+- Starting position in open area
+- Up to 10m × 10m coverage area
+
+#### Terminal 2: Run SLAM Controller
 
 ```bash
+# Source your workspace
+source ~/ros2_ws/install/setup.bash
+
+# Run the SLAM controller
 ros2 run ce_webots 052_slam_controller
 ```
+
+**What to observe:**
+- Real-time position tracking (X, Y, θ)
+- Occupancy grid map building
+- Autonomous exploration behavior
+- Map coverage statistics
+- Terminal-based map visualization
+
+#### Terminal 3: Launch RViz2 for Visualization
+
+```bash
+# Source ROS 2
+source /opt/ros/jazzy/setup.bash
+source ~/ros2_ws/install/setup.bash
+
+# Launch RViz2
+rviz2
+```
+
+### 📊 RViz Configuration for SLAM
+
+Follow these steps to visualize the SLAM data in RViz:
+
+#### Step 1: Set Fixed Frame
+
+In the left panel under "Global Options":
+- Set **Fixed Frame** to `odom`
+
+#### Step 2: Add LaserScan Display
+
+1. Click **Add** button (bottom left)
+2. Select **By display type** tab
+3. Choose **LaserScan**
+4. Click **OK**
+
+Configure LaserScan:
+- **Topic:** `/scan`
+- **Size (m):** `0.05`
+- **Color:** Red or Yellow
+- **Decay Time:** `0`
+
+#### Step 3: Add Map Display
+
+1. Click **Add** button
+2. Select **Map**
+3. Click **OK**
+
+Configure Map:
+- **Topic:** `/map`
+- **Color Scheme:** map or costmap
+- **Alpha:** `0.7`
+
+#### Step 4: Add Odometry Display
+
+1. Click **Add** button
+2. Select **Odometry**
+3. Click **OK**
+
+Configure Odometry:
+- **Topic:** `/odom`
+- **Position Tolerance:** `0.1`
+- **Angle Tolerance:** `0.1`
+- **Keep:** `100` (show trail)
+
+Optional - Add Arrow for heading:
+- **Shape:** Arrow
+- **Color:** Blue
+- **Arrow Length:** `0.3`
+
+#### Step 5: Add RobotModel (Optional)
+
+1. Click **Add** button
+2. Select **RobotModel**
+3. Click **OK**
+
+This shows a 3D model of the robot if URDF is available.
+
+#### Step 6: Add Marker for Robot Body
+
+1. Click **Add** button  
+2. Select **Marker**
+3. Click **OK**
+
+Configure Marker:
+- **Topic:** `/robot_marker`
+
+### Save RViz Configuration
+
+To save your setup:
+```bash
+File → Save Config As → ~/ros2_ws/src/ce_webots/config/052_slam.rviz
+```
+
+Next time, load directly:
+```bash
+rviz2 -d ~/ros2_ws/src/ce_webots/config/052_slam.rviz
+```
+
+### What You Should See in RViz
+
+- **Red/Yellow dots:** LIDAR scan points (real-time obstacles)
+- **Gray occupancy grid:** The map being built
+- **Black cells:** Detected obstacles/walls
+- **White cells:** Free space
+- **Gray cells:** Unknown/unexplored areas
+- **Blue arrow:** Robot position and heading
+- **Trail:** Robot's path history
+
+### Interactive Controls (Terminal 2)
+
+- **M** - Toggle between MANUAL and AUTO exploration modes
+- **R** - Reset map (start mapping over)
+- **Q** - Quit program
 
 ### Real-Time SLAM Dashboard
 
@@ -86,6 +219,70 @@ ros2 run ce_webots 052_slam_controller
 ⌨️  CONTROLS: M=Mode Toggle | R=Reset Map | Q=Quit
 ================================================================================
 ```
+
+### Monitoring Topics
+
+```bash
+# Terminal 4 (optional): Check published topics
+ros2 topic list
+
+# Monitor map updates
+ros2 topic hz /map
+
+# View occupancy grid data
+ros2 topic echo /map --once
+
+# Monitor odometry
+ros2 topic echo /odom
+
+# Check TF transforms
+ros2 run tf2_ros tf2_echo odom base_link
+```
+
+### Understanding SLAM Data
+
+**Published Topics:**
+- `/scan` - LaserScan data from LIDAR
+- `/map` - OccupancyGrid (the built map)
+- `/odom` - Odometry (robot position)
+- `/tf` - Transform tree (coordinate frames)
+- `/robot_marker` - Visualization marker
+
+**Map Resolution:**
+- Grid: 200×200 cells
+- Cell size: 5cm (0.05m)
+- Total coverage: 10m × 10m
+- Unknown cells: -1
+- Free cells: 0
+- Occupied cells: 100
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| **RViz shows nothing** | Check Fixed Frame is set to `odom` |
+| **No LaserScan visible** | Verify topic `/scan` is being published |
+| **Map not building** | Check LIDAR data and robot is moving |
+| **Robot position wrong** | Verify encoders and IMU are working |
+| **RViz crashes** | Reduce Decay Time or Keep value in displays |
+| **TF errors** | Check that TF tree is being published correctly |
+
+### Performance Tips
+
+1. **Map Quality:**
+   - Move slowly for better accuracy
+   - Revisit areas for loop closure
+   - Avoid rapid rotations
+
+2.**RViz Performance:**
+   - Reduce LaserScan point size
+   - Lower Decay Time
+   - Limit Keep history
+
+3. **Exploration:**
+   - Let robot explore systematically
+   - Cover all rooms and corridors
+   - Check map coverage percentage
 
 ---
 

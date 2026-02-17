@@ -40,19 +40,44 @@ License: MIT
 
 ---
 
-## 🚀 Quick Start
+## 🚀 How to Run This Lab
 
-### Step 1️⃣: Start Webots
+### Prerequisites
+
+- ✅ Webots installed
+- ✅ ROS 2 Jazzy installed and sourced
+- ✅ Understanding of basic control (Lab 001)
+- ✅ Workspace built and sourced
+
+### Running Steps
+
+#### Terminal 1: Launch Webots Simulation
 
 ```bash
 webots ~/ros2_ws/src/ce_webots/worlds/011_wheel_encoder.wbt
 ```
 
-### Step 2️⃣: Run Mission
+**What happens:**
+- Webots opens with a clear arena
+- Robot positioned at starting point
+- Encoder sensors are automatically enabled
+
+#### Terminal 2: Run the Mission Controller
 
 ```bash
+# Source your workspace
+source ~/ros2_ws/install/setup.bash
+
+# Run the mission
 ros2 run ce_webots 011_wheel_encoder_mission
 ```
+
+**What to observe:**
+- Countdown appears (3 seconds)
+- Robot automatically moves forward
+- Real-time distance updates in terminal
+- Robot stops precisely at 5.4 meters
+- Final accuracy report displayed
 
 ### Expected Output
 
@@ -84,6 +109,36 @@ Error: 0.0023m (0.04%)
 ```
 
 🎯 Watch as the robot reaches its destination with incredible precision!
+
+### Understanding the Output
+
+- **Distance:** Current traveled distance in meters
+- **Remaining:** Distance left to reach goal
+- **Error:** Final accuracy (should be < 1cm)
+- **Percentage:** Accuracy as percentage of target
+
+### Monitoring & Debugging
+
+```bash
+# Terminal 3 (optional): Monitor encoder values
+ros2 topic echo /robot/wheel_encoders
+
+# Monitor odometry if published
+ros2 topic echo /odom
+
+# Check node information
+ros2 node list
+ros2 node info /wheel_encoder_mission
+```
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| **Robot doesn't move** | Check if world file is loaded correctly |
+| **Distance not updating** | Verify encoders are enabled in code |
+| **Robot overshoots** | Check wheel radius parameter (should be 0.08m) |
+| **NaN values** | Add encoder stabilization delay |
 
 ---
 

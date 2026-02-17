@@ -37,19 +37,44 @@ Logic:
 
 ---
 
-## 🚀 Quick Start
+## 🚀 How to Run This Lab
 
-### Step 1️⃣: Start Webots
+### Prerequisites
+
+- ✅ Webots installed
+- ✅ ROS 2 Jazzy installed and sourced
+- ✅ Understanding of Lab 021 (touch sensors)
+- ✅ Workspace built and sourced
+
+### Running Steps
+
+#### Terminal 1: Launch Webots Simulation
 
 ```bash
 webots ~/ros2_ws/src/ce_webots/worlds/022_distance_sensor.wbt
 ```
 
-### Step 2️⃣: Run Autonomous Navigator
+**Environment features:**
+- Complex maze or obstacle course
+- Multiple obstacles at varying distances
+- Narrow passages to test avoidance
+
+#### Terminal 2: Run Distance Sensor Controller
 
 ```bash
+# Source your workspace
+source ~/ros2_ws/install/setup.bash
+
+# Run the autonomous navigator
 ros2 run ce_webots 022_distance_sensor_controller
 ```
+
+**What to observe:**
+- Beautiful real-time sensor visualization
+- Color-coded distance bars (green/yellow/red)
+- Smooth obstacle avoidance
+- Robot navigates WITHOUT touching obstacles
+- Adaptive behavior based on available space
 
 ### Real-Time Dashboard
 
@@ -95,6 +120,64 @@ ros2 run ce_webots 022_distance_sensor_controller
 - 🟢 **Green bars:** Safe distance (> 0.5m)
 - 🟡 **Yellow bars:** Warning zone (0.2m - 0.5m)
 - 🔴 **Red bars:** Danger zone (< 0.2m)
+
+### Understanding the Behavior
+
+1. **FORWARD** (🟢) - All sensors show safe distance
+2. **ADJUST LEFT/RIGHT** (🟡) - Side obstacle detected, gentle correction
+3. **TURN LEFT/RIGHT** (🔴) - Front obstacle close, sharp turn needed
+4. **WALL FOLLOWING** - Maintains consistent distance from walls
+
+### Monitoring Topics
+
+```bash
+# Terminal 3 (optional): Monitor distance sensors
+ros2 topic echo /distance/front
+ros2 topic echo /distance/front_left
+ros2 topic echo /distance/front_right
+ros2 topic echo /distance/left
+ros2 topic echo /distance/right
+
+# Monitor navigation decisions
+ros2 topic echo /nav_state
+
+# Check all active topics
+ros2 topic list
+```
+
+### Experiment Ideas
+
+1. **Adjust Thresholds:**
+   - Change AVOID_DISTANCE from 0.35m to 0.5m for more cautious behavior
+   - Modify SIDE_ADJUST_DIST for tighter wall following
+
+2. **Speed Control:**
+   - Reduce MAX_SPEED for smoother navigation
+   - Add dynamic speed based on closest obstacle
+
+3. **Sensor Weighting:**
+   - Give front sensor higher priority
+   - Implement sensor fusion algorithms
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| **Robot crashes into walls** | Decrease MAX_SPEED or increase AVOID_DISTANCE |
+| **Too cautious (stops far away)** | Decrease AVOID_DISTANCE threshold |
+| **Sensor readings incorrect** | Check sensor placement and max_range in world file |
+| **Jerky movement** | Smooth out velocity transitions or add gradual acceleration |
+| **Gets stuck in corners** | Add corner detection logic or escape behavior |
+
+### Comparison: Touch vs Distance Sensors
+
+| Aspect | Touch (021) | Distance (022) |
+|--------|-------------|----------------|
+| **Detection** | Contact required | Proactive sensing |
+| **Safety** | Collisions occur | Collision-free |
+| **Smoothness** | Stop-and-go | Continuous flow |
+| **Complexity** | Simple reactive | Multi-sensor fusion |
+| **Use Case** | Simple robots | Autonomous vehicles |
 
 ---
 

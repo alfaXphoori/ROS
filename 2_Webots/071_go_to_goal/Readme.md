@@ -41,18 +41,124 @@ Author: AI Assistant
 
 ---
 
-## 🚀 Quick Start
+## 🚀 How to Run This Lab
 
-### Step 1️⃣: Start Webots
+### Prerequisites
+
+- ✅ Webots installed
+- ✅ ROS 2 Jazzy installed and sourced
+- ✅ **RViz2 installed**
+- ✅ Labs 031 (IMU), 051 (LIDAR), 052 (SLAM) completed
+- ✅ Workspace built and sourced
+
+### Running Steps
+
+#### Terminal 1: Launch Webots Simulation
 
 ```bash
 webots ~/ros2_ws/src/ce_webots/worlds/071_go_goal.wbt
 ```
 
-### Step 2️⃣: Run Go to Goal Navigator
+**Environment features:**
+- Large arena with obstacles
+- Multiple waypoints to navigate
+- Complex obstacle configurations
+- Testing ground for autonomous navigation
+
+#### Terminal 2: Run Go-to-Goal Navigator
 
 ```bash
+# Source your workspace
+source ~/ros2_ws/install/setup.bash
+
+# Run the waypoint navigator
 ros2 run ce_webots 071_go_to_goal
+```
+
+**What to observe:**
+- Autonomous waypoint navigation
+- Multi-level obstacle avoidance
+- State machine transitions (TURN → MOVE → REACHED)
+- Stuck detection and recovery
+- Progress toward each waypoint
+- Real-time position and heading
+
+#### Terminal 3: Launch RViz2
+
+```bash
+# Launch RViz2
+rviz2
+```
+
+### 📊 RViz Configuration for Go-to-Goal Navigation
+
+#### Step 1: Set Fixed Frame
+
+- Set **Fixed Frame** to `odom`
+
+#### Step 2: Add LaserScan Display
+
+1. Click **Add** → **LaserScan**
+2. Configure:
+   - **Topic:** `/scan`
+   - **Size (m):** `0.05`
+   - **Color:** Red or Yellow
+   - **Style:** Flat Squares
+
+#### Step 3: Add Odometry Display
+
+1. Click **Add** → **Odometry**
+2. Configure:
+   - **Topic:** `/odom`
+   - **Keep:** `500` (show path history)
+   - **Position Tolerance:** `0.1`
+   - **Angle Tolerance:** `0.1`
+   - **Shape:** Arrow
+   - **Color:** Blue
+   - **Shaft Length:** `0.3`
+   - **Head Length:** `0.1`
+
+#### Step 4: Add Waypoint Markers
+
+1. Click **Add** → **Marker**
+2. Configure:
+   - **Topic:** `/waypoint_markers`
+
+OR
+
+1. Click **Add** → **MarkerArray**
+2. Configure:
+   - **Topic:** `/waypoint_markers`
+
+This displays:
+- Green spheres for pending waypoints
+- Yellow sphere for current target
+- Blue sphere for completed waypoints
+- Red sphere for current robot position
+
+#### Step 5: Add Path Display (Optional)
+
+1. Click **Add** → **Path**
+2. Configure:
+   - **Topic:** `/planned_path` (if published)
+   - **Color:** Green
+   - **Alpha:** `0.5`
+
+#### Step 6: Add Map (if available)
+
+1. Click **Add** → **Map**
+2. Configure:
+   - **Topic:** `/map` (if SLAM-based mapping is enabled)
+
+### Save RViz Configuration
+
+```bash
+File → Save Config As → ~/ros2_ws/src/ce_webots/config/071_go_to_goal.rviz
+```
+
+Load next time:
+```bash
+rviz2 -d ~/ros2_ws/src/ce_webots/config/071_go_to_goal.rviz
 ```
 
 ### Real-Time Navigation Dashboard
@@ -90,6 +196,146 @@ ros2 run ce_webots 071_go_to_goal
 
 ================================================================================
 ```
+
+### What You Should See in RViz
+
+**LaserScan (Red/Yellow):**
+- 360° obstacle detection
+- Updates in real-time as robot moves
+- Shows walls and obstacles
+
+**Odometry Trail (Blue):**
+- Path history showing where robot has been
+- Arrow shows current position and heading
+- Should align with planned waypoints
+
+**Waypoint Markers:**
+- **Green spheres:** Future waypoints (pending)
+- **Yellow sphere:** Current target waypoint
+- **Blue spheres:** Completed waypoints
+- **Red sphere:** Current robot position
+
+**Navigation Behavior:**
+- Robot turns toward waypoint
+- Moves forward while avoiding obstacles
+- Reaches waypoint and moves to next
+
+### Monitoring Topics
+
+```bash
+# Terminal 4 (optional): Monitor navigation
+ros2 topic list
+
+# Monitor odometry
+ros2 topic echo /odom
+
+# Check waypoint status
+ros2 topic echo /current_waypoint
+
+# View LIDAR scan
+ros2 topic echo /scan
+
+# Monitor navigation state
+ros2 topic echo /nav_state
+
+# Check waypoint markers
+ros2 topic echo /waypoint_markers
+
+# Monitor TF transforms
+ros2 run tf2_ros tf2_echo odom base_link
+```
+
+### Understanding the Navigation States
+
+**State Machine:**
+
+1. **TURN:** Rotate toward waypoint
+   - Adjusts heading until aligned (within tolerance)
+   - Uses IMU for accurate angle control
+   - Threshold: typically ±5°
+
+2. **MOVE:** Move toward waypoint
+   - Drives forward while monitoring obstacles
+   - Adjusts path based on LIDAR data
+   - Reduces speed when close to goal
+
+3. **REACHED:** Waypoint achieved
+   - Stops at waypoint
+   - Marks waypoint as completed
+   - Advances to next waypoint
+   - Threshold: typically 0.2m
+
+**Obstacle Avoidance Levels:**
+- **Emergency** (< 0.15m): Hard brake, reverse
+- **Critical** (< 0.25m): Sharp turn away
+- **Mild** (< 0.40m): Gentle adjustment
+- **Wall Follow:** Maintain distance from walls
+- **Clear:** Full speed ahead
+
+### Interactive Controls
+
+The system runs autonomously, but you can monitor progress:
+- Watch Terminal 2 for status updates
+- Observe RViz for visual confirmation
+- Check waypoint completion progress
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| **Robot doesn't move** | Check if waypoints are defined in code |
+| **Overshoots waypoints** | Reduce speed or increase tolerance |
+| **Gets stuck** | Verify stuck detection is enabled, check obstacle clearance |
+| **Wrong heading** | Check IMU calibration and coordinate system |
+| **Crashes into obstacles** | Decrease speed or increase safety distances |
+| **RViz markers not visible** | Check `/waypoint_markers` topic is publishing |
+| **Odometry drift** | Normal for encoder-only - consider adding GPS or visual odometry |
+
+### Waypoint Configuration
+
+To modify waypoints, edit the controller code:
+
+```python
+# Example waypoint list
+waypoints = [
+    (0, 0),    # Home
+    (5, 0),    # Point 1
+    (5, 5),    # Point 2
+    (0, 5),    # Point 3
+    (0, 0),    # Return home
+]
+```
+
+### Performance Metrics
+
+Monitor these metrics to evaluate navigation:
+- **Success Rate:** Percentage of waypoints reached
+- **Path Efficiency:** Actual distance / optimal distance
+- **Time to Goal:** How long to reach each waypoint
+- **Stuck Events:** Number of stuck detections
+- **Collision Avoidance:** Near-miss count
+
+### Advanced Experiments
+
+1. **Complex Paths:**
+   - Add more waypoints
+   - Create figure-8 patterns
+   - Navigate through narrow passages
+
+2. **Dynamic Obstacles:**
+   - Add moving obstacles
+   - Test reactive avoidance
+   - Implement dynamic replanning
+
+3. **Optimization:**
+   - Tune PID parameters
+   - Adjust safety thresholds
+   - Optimize speed profiles
+
+4. **Integration:**
+   - Combine with global path planning
+   - Add visual odometry
+   - Implement loop closure
 
 ---
 

@@ -41,6 +41,115 @@ Movement:
 
 ---
 
+## 🚀 How to Run This Lab
+
+### Prerequisites
+
+- ✅ Webots installed
+- ✅ ROS 2 Jazzy installed and sourced
+- ✅ Lab 001 completed (understanding of basic robot control)
+- ✅ Workspace built and sourced
+
+### Running Steps
+
+#### Terminal 1: Launch Webots Simulation
+
+```bash
+webots ~/ros2_ws/src/ce_webots/worlds/002_keyboard_teleop.wbt
+```
+
+**Note:** You can use the same world file as Lab 001:
+```bash
+webots ~/ros2_ws/src/ce_webots/worlds/001_basic_control.wbt
+```
+
+#### Terminal 2: Run Robot Controller (from Lab 001)
+
+```bash
+# Source your workspace
+source ~/ros2_ws/install/setup.bash
+
+# Run the basic controller
+ros2 run ce_webots 001_simple_robot_controller
+```
+
+**Expected Output:**
+```
+[INFO] [simple_robot_controller]: Simple Robot Controller Started
+[INFO] [simple_robot_controller]: Waiting for /cmd_vel commands...
+```
+
+#### Terminal 3: Run Keyboard Teleop
+
+```bash
+# Source your workspace
+source ~/ros2_ws/install/setup.bash
+
+# Run the teleop node
+ros2 run ce_webots 002_keyboard_teleop
+```
+
+**Expected Output:**
+```
+============================================================
+       ⌨️  KEYBOARD TELEOP CONTROLLER
+============================================================
+
+Movement:
+    W / ↑ → Forward           Q → Forward-Left
+    S / ↓ → Backward          E → Forward-Right
+    A / ← → Turn Left         X → Stop
+    D / → → Turn Right        ESC → Quit
+
+Speed Control:
+    + → Increase Speed
+    - → Decrease Speed
+
+============================================================
+Current Speed: 0.50 m/s | Turn Rate: 0.50 rad/s
+============================================================
+```
+
+#### Controlling the Robot
+
+1. **Focus on Terminal 3** (where keyboard teleop is running)
+2. **Press keys** to control the robot - no need to press Enter!
+3. **Adjust speed** with `+` and `-` keys
+4. **Stop** with `X` key
+5. **Quit** with `ESC` key
+
+### Quick Test Sequence
+
+Try this sequence to test all movements:
+
+1. Press `W` - robot moves forward
+2. Press `+` twice - speed increases
+3. Press `A` - robot turns left
+4. Press `E` - robot moves forward-right
+5. Press `X` - robot stops
+6. Press `ESC` - exit program
+
+### Monitoring Topics
+
+```bash
+# Terminal 4 (optional): Monitor velocity commands
+ros2 topic echo /cmd_vel
+
+# You'll see velocity commands change as you press keys
+```
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| **Keys don't work** | Make sure Terminal 3 is focused (click on it) |
+| **Robot doesn't move** | Check if controller (Terminal 2) is running |
+| **Need to press Enter** | This shouldn't happen - check terminal focus |
+| **Keyboard stops responding** | Restart teleop node (Terminal 3) |
+| **Can't exit** | Press `ESC` or `Ctrl+C` |
+
+---
+
 ## 🚀 Quick Start
 
 ### Prerequisites

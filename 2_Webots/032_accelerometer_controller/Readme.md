@@ -45,19 +45,57 @@ Level: 3.2 - Accelerometer Sensors
 
 ---
 
-## 🚀 Quick Start
+## 🚀 How to Run This Lab
 
-### Step 1️⃣: Start Webots
+### Prerequisites
+
+- ✅ Webots installed
+- ✅ ROS 2 Jazzy installed and sourced
+- ✅ Understanding of acceleration concepts
+- ✅ Workspace built and sourced
+
+### Running Steps
+
+#### Terminal 1: Launch Webots Simulation
 
 ```bash
 webots ~/ros2_ws/src/ce_webots/worlds/032_accelerometer.wbt
 ```
 
-### Step 2️⃣: Run Accelerometer Controller
+**Environment:**
+- Open arena for movement testing
+- May include ramps or obstacles for impact testing
+- Robot with accelerometer sensor
+
+#### Terminal 2: Run Accelerometer Controller
 
 ```bash
+# Source your workspace
+source ~/ros2_ws/install/setup.bash
+
+# Run the controller
 ros2 run ce_webots 032_accelerometer_controller
 ```
+
+**What to observe:**
+- Real-time acceleration display with visual bars
+- X, Y, Z acceleration values
+- Gravity compensation (Z-axis)
+- Impact detection when colliding with objects
+- Motion pattern analysis
+
+### Interactive Controls
+
+- **W** - Move forward (observe X-axis acceleration)
+- **S** - Move backward (negative X-axis acceleration)
+- **A** - Turn left (Y-axis acceleration)
+- **D** - Turn right (Y-axis acceleration)
+- **ESC** - Exit
+
+**Try:**
+- Quick start/stop to see acceleration spikes
+- Gentle vs aggressive movements
+- Collision with obstacles (impact detection)
 
 ### Real-Time Dashboard
 
@@ -78,6 +116,78 @@ ros2 run ce_webots 032_accelerometer_controller
 🎮 STATUS: 🚀 Accelerating Forward...
 ==============================================================
 ```
+
+### Understanding Acceleration Values
+
+- **X-axis (Forward):** Positive when accelerating forward, negative when braking
+- **Y-axis (Left):** Non-zero during turns
+- **Z-axis (Up):** ~9.81 m/s² when stationary (gravity)
+- **Magnitude:** Total acceleration vector length
+
+### Monitoring Topics
+
+```bash
+# Terminal 3 (optional): Monitor accelerometer data
+ros2 topic echo /imu/data
+
+# Monitor linear acceleration only
+ros2 topic echo /accel/linear
+
+# Monitor impact events
+ros2 topic echo /impact_detected
+
+# Check publication rate
+ros2 topic hz /imu/data
+```
+
+### Experiment Ideas
+
+1. **Analyze Motion Patterns:**
+   - Record acceleration during different movements
+   - Identify start, cruise, and stop phases
+   - Measure acceleration/deceleration rates
+
+2. **Impact Detection:**
+   - Test threshold for collision detection
+   - Distinguish gentle touch from hard impact
+   - Implement emergency stop on high impact
+
+3. **Vibration Analysis:**
+   - Monitor high-frequency oscillations
+   - Filter noise vs real acceleration
+   - Implement smoothing algorithms
+
+4. **Gravity Compensation:**
+   - Verify Z-axis shows 9.81 m/s² at rest
+   - Test on slopes (gravity component changes)
+   - Implement tilt detection
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| **No acceleration data** | Check if accelerometer is enabled in code |
+| **Z-axis not ~9.81** | Verify gravity compensation is off or check calibration |
+| **Noisy readings** | Increase HISTORY_SIZE for better smoothing |
+| **No impact detection** | Lower IMPACT_THRESHOLD or check collision physics |
+| **Always shows impact** | Increase threshold or add debounce logic |
+
+### Practical Applications
+
+1. **Fall Detection:** Detect robot tipping over (sudden Z-axis change)
+2. **Collision Avoidance:** Emergency brake on impact
+3. **Terrain Analysis:** Identify rough vs smooth surfaces
+4. **Activity Recognition:** Classify robot movements
+5. **Odometry Enhancement:** Detect wheel slippage
+
+### Accelerometer vs Other Sensors
+
+| Sensor | Measures | Use Case |
+|--------|----------|----------|
+| **Accelerometer** | Linear acceleration | Impact, motion detection |
+| **Gyroscope (IMU)** | Angular velocity | Heading, rotation |
+| **Encoders** | Wheel rotation | Distance, speed |
+| **GPS** | Absolute position | Outdoor navigation |
 
 ---
 

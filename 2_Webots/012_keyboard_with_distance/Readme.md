@@ -37,19 +37,68 @@ Controls:
 
 ---
 
-## 🚀 Quick Start
+## 🚀 How to Run This Lab
 
-### Step 1️⃣: Start Webots
+### Prerequisites
 
+- ✅ Webots installed
+- ✅ ROS 2 Jazzy installed and sourced
+- ✅ Lab 002 (keyboard teleop) completed
+- ✅ Lab 011 (encoders) understanding
+- ✅ Workspace built and sourced
+
+### Running Steps
+
+#### Terminal 1: Launch Webots Simulation
+
+```bash
+webots ~/ros2_ws/src/ce_webots/worlds/012_keyboard_with_distance.wbt
+```
+
+**Note:** You can also use the encoder world from Lab 011:
 ```bash
 webots ~/ros2_ws/src/ce_webots/worlds/011_wheel_encoder.wbt
 ```
 
-### Step 2️⃣: Run Manual Controller
+#### Terminal 2: Run the Keyboard + Distance Controller
 
 ```bash
+# Source your workspace
+source ~/ros2_ws/install/setup.bash
+
+# Run the controller
 ros2 run ce_webots 012_keyboard_with_distance
 ```
+
+**What to observe:**
+- Control panel displays with current speed settings
+- Distance counter starts at 0.000m
+- Distance updates in real-time as you drive
+- Individual wheel distances shown
+
+#### Controlling the Robot
+
+1. **Focus on Terminal 2**
+2. **Use keys to control:**
+   - `W` - Move forward (distance increases)
+   - `S` - Move backward (distance increases)
+   - `A` - Turn left (wheels show differential)
+   - `D` - Turn right (wheels show differential)
+   - `X` - Stop
+   - `R` - **Reset distance counter** (useful for measuring specific segments)
+   - `+/-` - Adjust speed
+   - `ESC` - Exit
+
+### Example Mission Sequence
+
+Try measuring a square path:
+
+1. Press `R` to reset counter
+2. Press `W` until distance shows ~1.0m
+3. Press `X` to stop
+4. Press `D` (turn 90° right)
+5. Repeat for 4 sides
+6. Check final position accuracy!
 
 ### Live Display
 
@@ -70,6 +119,29 @@ Speed: 0.50 m/s | Turn: 0.50 rad/s
 ```
 
 **Watch:** Distance updates live as you drive!
+
+### Monitoring Topics
+
+```bash
+# Terminal 3 (optional): Monitor velocity commands
+ros2 topic echo /cmd_vel
+
+# Monitor encoder readings
+ros2 topic echo /robot/encoders
+
+# Check publication rates
+ros2 topic hz /cmd_vel
+```
+
+### Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| **Distance not updating** | Check if encoders are enabled and stabilized |
+| **Negative distance** | Normal for backward movement - shows absolute distance |
+| **Left/Right mismatch** | Expected during turns - differential drive behavior |
+| **Reset doesn't work** | Press `R` key, make sure terminal is focused |
+| **NaN values** | Encoder not stabilized - restart simulation |
 
 ---
 

@@ -45,19 +45,51 @@ Level: 3.1 - Inertial Sensors
 
 ---
 
-## 🚀 Quick Start
+## 🚀 How to Run This Lab
 
-### Step 1️⃣: Start Webots
+### Prerequisites
+
+- ✅ Webots installed
+- ✅ ROS 2 Jazzy installed and sourced
+- ✅ Understanding of orientation concepts (Roll, Pitch, Yaw)
+- ✅ Workspace built and sourced
+
+### Running Steps
+
+#### Terminal 1: Launch Webots Simulation
 
 ```bash
 webots ~/ros2_ws/src/ce_webots/worlds/031_imu.wbt
 ```
 
-### Step 2️⃣: Run IMU Controller
+**Environment:**
+- Open arena for rotation testing
+- Robot with IMU sensor mounted
+- Clear space for 360° turns
+
+#### Terminal 2: Run IMU Controller
 
 ```bash
+# Source your workspace
+source ~/ros2_ws/install/setup.bash
+
+# Run the IMU controller
 ros2 run ce_webots 031_imu_controller
 ```
+
+**What to observe:**
+- Real-time compass display with heading
+- Demonstration sequence of precise turns
+- Roll, Pitch, Yaw values continuously updated
+- Angular velocity readings during turns
+- Automatic turn-to-angle demonstrations
+
+### Interactive Controls
+
+During demo sequence, you can also control manually:
+- **A** - Turn left (counterclockwise)
+- **D** - Turn right (clockwise)
+- **ESC** - Exit
 
 ### Real-Time Compass Display
 
