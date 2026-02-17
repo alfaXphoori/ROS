@@ -125,7 +125,7 @@ DEF EncoderBot Robot {
           Shape {
             appearance PBRAppearance { baseColor 0.5 0.5 0.5 roughness 0.3 metalness 0.1 }
             geometry Sphere { radius 0.04 }
-          }
+          }ß
         ]
         boundingObject Sphere { radius 0.04 }
         physics Physics { density -1 mass 0.1 }
@@ -147,6 +147,7 @@ DEF EncoderBot Robot {
          # Low friction for smooth rolling
          density -1 mass 0.1
       }
+     }
     }
     # 5. Front Marker/Nose
     Transform {

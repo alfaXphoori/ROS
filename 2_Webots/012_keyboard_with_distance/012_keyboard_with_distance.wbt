@@ -145,9 +145,10 @@ DEF EncoderBot Robot {
         boundingObject Sphere { radius 0.04 }
         physics Physics {
          # Low friction for smooth rolling
-         density -1 mass 0.1
+         density -1 mass 0.1ß
       }
     }
+  }
     # 5. Front Marker/Nose
     Transform {
       translation 0.2 0 0 # Positioned at the front edge (X=0.2)
