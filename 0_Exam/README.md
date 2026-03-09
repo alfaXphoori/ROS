@@ -73,10 +73,10 @@ ros2 topic echo /robot_name
 ## 🖼️ ตัวอย่างผลงานที่ถูกต้อง
 
 ### แผนที่ SLAM + หุ่นยนต์ใน Webots
-![example_slam](imgs/example_slam.png)
+<img src="imgs/example_slam.png" width="600"/>
 
 ### topic `/robot_name`
-![example_topic](imgs/example_topic.png)
+<img src="imgs/example_topic.png" width="500"/>
 
 ---
 
