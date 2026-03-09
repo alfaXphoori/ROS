@@ -1,33 +1,41 @@
-# 📝 สอบปฏิบัติ - ROS2 & Webots
+# 🤖 สอบปฏิบัติ — ROS2 & Webots
 
-> **เวลาสอบ: 3 ชั่วโมง**
+---
+
+<div align="center">
+
+| 🕐 เวลาสอบ | 📅 วันที่ | ⏰ กำหนดส่ง |
+|:-----------:|:--------:|:-----------:|
+| **3 ชั่วโมง** | **10 / 03 / 2026** | **ไม่เกิน 12:15 น.** |
+
+</div>
+
+> ⚠️ **งานที่ส่งหลัง 12:15 น. จะไม่ได้รับการตรวจ**
 
 ---
 
 ## 📋 ข้อกำหนดทั่วไป
 
 | รายการ | รายละเอียด |
-|--------|-----------|
-| ภาษา | **Python เท่านั้น** |
-| Package | `exam_ชื่อนักศึกษา` เช่น `exam_phoori` |
-| Node file | `exam_ชื่อนักศึกษา_node.py` เช่น `exam_phoori_node.py` |
-| World file | [`exam_world.wbt`](imgs/exam_world.wbt) |
+|:------:|-----------|
+| 🐍 ภาษา | **Python เท่านั้น** |
+| 📦 Package | `exam_ชื่อนักศึกษา` เช่น `exam_phoori` |
+| 📄 Node file | `exam_ชื่อนักศึกษา_node.py` เช่น `exam_phoori_node.py` |
+| 🌍 World file | [📥 ดาวน์โหลด exam_world.wbt](imgs/exam_world.wbt) |
 
 ---
 
 ## 🎯 ภาระงาน (Tasks)
 
-### Task 1 — สร้าง ROS2 Package
+### ✅ Task 1 — สร้าง ROS2 Package
 
-สร้าง package ใหม่ชื่อ `exam_ชื่อนักศึกษา` (แทนที่ด้วยชื่อจริง เช่น `exam_phoori`)
-
-โครงสร้าง package ที่ต้องใช้:
+สร้าง package ใหม่ชื่อ `exam_ชื่อนักศึกษา` (เช่น `exam_phoori`)
 
 ```
 exam_phoori/
 ├── exam_phoori/
 │   ├── __init__.py
-│   └── exam_phoori_node.py        ← ไฟล์หลัก (Node เดียว ทำทุก task)
+│   └── exam_phoori_node.py    ← ไฟล์หลัก (Node เดียว ทำทุก task)
 ├── package.xml
 ├── setup.py
 └── setup.cfg
@@ -35,44 +43,52 @@ exam_phoori/
 
 ---
 
-### Task 2 — ควบคุมหุ่นยนต์ + SLAM + กล้อง
+### ✅ Task 2 — ควบคุมหุ่นยนต์ + SLAM + กล้อง
 
-เขียน node ใน `exam_ชื่อนักศึกษา_node.py` ที่ทำงานพร้อมกัน **3 อย่าง**:
+เขียน node ใน `exam_ชื่อนักศึกษา_node.py` ให้ทำงานพร้อมกัน **3 อย่าง**:
 
-1. **ควบคุมหุ่นยนต์** ให้เคลื่อนที่สำรวจพื้นที่ใน `exam_world.wbt` (keyboard หรือ autonomous)
-2. **ทำแผนที่ SLAM** โดยใช้ Lidar สร้าง Occupancy Grid และ publish ผ่าน ROS2
-3. **เปิดกล้อง** และ publish ภาพจากกล้องหุ่นยนต์ผ่าน topic `/image_raw`
-
-## �️ ตัวอย่างผลงานที่ถูกต้อง
-
-### ตัวอย่างที่ 1 — แผนที่ SLAM + หุ่นยนต์ใน Webots
-
-![example_slam](imgs/slam_map.png)
-
-> แผนที่ Occupancy Grid ที่ถูกต้องจะเห็นผนังห้อง (สีดำ) และพื้นที่เปิด (สีเทา) ในหน้าต่าง RViz  
-> พร้อมกับหุ่นยนต์ที่แสดงอยู่ใน Webots และ Camera view
+| # | งาน | รายละเอียด |
+|---|-----|-----------|
+| 1 | 🕹️ **ควบคุมหุ่นยนต์** | เคลื่อนที่สำรวจพื้นที่ใน `exam_world.wbt` (keyboard หรือ autonomous) |
+| 2 | 🗺️ **SLAM** | ใช้ Lidar สร้าง Occupancy Grid และ publish ผ่าน ROS2 |
+| 3 | 📷 **กล้อง** | publish ภาพจากกล้องหุ่นยนต์ผ่าน topic `/image_raw` |
 
 ---
 
-### ตัวอย่างที่ 2 — topic `/robot_name`
+### ✅ Task 3 — Publisher `/robot_name`
 
-![example_topic](imgs/robot_name.png)
+publish ข้อมูลส่วนตัวผ่าน topic `/robot_name` รูปแบบ:
 
-> ผลลัพธ์ที่ถูกต้องจากคำสั่ง `ros2 topic echo /robot_name`  
-> ข้อมูลจะแสดงชื่อ นามสกุล และรหัสนักศึกษา ซ้ำทุก ๆ cycle
+```
+Name: [ชื่อ นามสกุล]  ID: [รหัสนักศึกษา]
+```
+
+ตรวจสอบด้วย:
+```bash
+ros2 topic echo /robot_name
+```
 
 ---
 
-## �📸 การส่งงาน
+## 🖼️ ตัวอย่างผลงานที่ถูกต้อง
+
+### แผนที่ SLAM + หุ่นยนต์ใน Webots
+![example_slam](imgs/example_slam.png)
+
+### topic `/robot_name`
+![example_topic](imgs/example_topic.png)
+
+---
+
+## 📸 การส่งงาน
 
 | # | สิ่งที่ต้องส่ง | รายละเอียด |
-|---|--------------|-----------|
-| 1 | **ภาพแผนที่ SLAM** | ภาพ screenshot แผนที่ที่ทำเสร็จแล้ว + ภาพหุ่นยนต์ใน Webots |
-| 2 | **ภาพ topic /robot_name** | ภาพ screenshot แสดงผลคำสั่ง `ros2 topic echo /robot_name` |
-| 3 | **ZIP file** | บีบอัด folder `exam_ชื่อนักศึกษา` → `exam_ชื่อนักศึกษา.zip` เช่น `exam_phoori.zip` |
+|:-:|--------------|-----------|
+| 1 | 🗺️ **ภาพแผนที่ SLAM** | screenshot แผนที่ + ภาพหุ่นยนต์ใน Webots |
+| 2 | 📡 **ภาพ topic /robot_name** | screenshot ผลคำสั่ง `ros2 topic echo /robot_name` |
+| 3 | 🗜️ **ZIP file** | `exam_ชื่อนักศึกษา.zip` เช่น `exam_phoori.zip` |
 
-### วิธีสร้าง ZIP file
-
+**วิธีสร้าง ZIP:**
 ```bash
 cd ~/ros2_ws/src
 zip -r exam_phoori.zip exam_phoori/
@@ -83,7 +99,7 @@ zip -r exam_phoori.zip exam_phoori/
 ## ✅ เกณฑ์การให้คะแนน
 
 | หัวข้อ | คะแนน |
-|--------|-------|
+|--------|:-----:|
 | สร้าง package และ node ถูกต้องตามชื่อที่กำหนด | 2 |
 | Node ทำงานได้ (ไม่ error เมื่อ run) | 2 |
 | หุ่นยนต์เคลื่อนที่ได้ใน Webots | 4 |
@@ -92,10 +108,12 @@ zip -r exam_phoori.zip exam_phoori/
 | publish `/robot_name` มีชื่อ-นามสกุล-รหัส นศ | 3 |
 | **รวม** | **20** |
 
+---
 
-## 📤 ลิงก์ส่งงาน
+## 📤 ส่งงาน
 
-> **[👉 คลิกที่นี่เพื่อส่งงาน](https://docs.google.com/forms/d/e/1FAIpQLScJNaKMrzGsNUltcTbqbFs8zb7nuiC_8Rb9BtSzjeCdtY4VQQ/viewform?usp=dialog)**
+> ### [👉 คลิกที่นี่เพื่อส่งงาน](https://docs.google.com/forms/d/e/1FAIpQLScJNaKMrzGsNUltcTbqbFs8zb7nuiC_8Rb9BtSzjeCdtY4VQQ/viewform?usp=dialog)
+> ⏰ ส่งได้ **ไม่เกิน 12:15 น.** วันที่ 10/03/2026
 
 ---
 
