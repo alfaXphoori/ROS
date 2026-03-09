@@ -1,0 +1,421 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+
+WorldInfo {
+  title "Exam Phoori - Slalom Corridor 4x10"
+  basicTimeStep 16
+}
+
+Viewpoint {
+  orientation -0.5773502691896258 0.5773502691896258 0.5773502691896258 2.0944
+  position 0 0 18
+  follow "ExamBot"
+}
+
+TexturedBackground {
+}
+
+TexturedBackgroundLight {
+}
+
+# ============================================================
+# พื้น + กำแพง (4 m x 10 m corridor แนว Y)
+# หุ่นยนต์เริ่มที่ y=-4.5  เดินตรงไปยัง  y=+4.5
+# ============================================================
+RectangleArena {
+  floorSize 4 10
+  floorTileSize 1.0 1.0
+  wallHeight 0.7
+  floorAppearance PBRAppearance {
+    baseColor 0.65 0.65 0.55
+    roughness 1
+    metalness 0
+  }
+}
+
+# ============================================================
+# จุดเริ่มต้น (Start Marker) — สีเขียว ที่ y=-4.5
+# ============================================================
+Solid {
+  translation 0 -4.5 0.01
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.0 0.9 0.1
+        roughness 1
+        emissiveColor 0.0 0.4 0.05
+      }
+      geometry Cylinder { height 0.02 radius 0.3 }
+    }
+  ]
+  name "start_marker"
+}
+
+# ============================================================
+# จุดสิ้นสุด (Goal Marker) — สีแดง ที่ y=+4.5
+# ============================================================
+Solid {
+  translation 0 4.5 0.01
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.9 0.1 0.0
+        roughness 1
+        emissiveColor 0.4 0.05 0.0
+      }
+      geometry Cylinder { height 0.02 radius 0.3 }
+    }
+  ]
+  name "goal_marker"
+}
+
+# ============================================================
+# สิ่งกีดขวาง — slalom ซ้าย-ขวาสลับ ใน corridor 4x10
+# ============================================================
+
+# --- กีดขวาง 1: กล่องสีแดง — y=-3.0 ชิดขวา เว้นทางซ้าย ---
+Solid {
+  translation 0.9 -3.0 0.3
+  children [
+    Shape {
+      appearance PBRAppearance { baseColor 0.9 0.15 0.15 roughness 1 metalness 0 }
+      geometry Box { size 1.0 0.6 0.6 }
+    }
+  ]
+  name "obstacle_1"
+  boundingObject Box { size 1.0 0.6 0.6 }
+  physics Physics {}
+}
+
+# --- กีดขวาง 2: กระบอกสีน้ำเงิน — y=-1.8 ชิดซ้าย เว้นทางขวา ---
+Solid {
+  translation -1.1 -1.8 0.35
+  children [
+    Shape {
+      appearance PBRAppearance { baseColor 0.15 0.3 0.9 roughness 1 metalness 0 }
+      geometry Cylinder { height 0.7 radius 0.35 }
+    }
+  ]
+  name "obstacle_2"
+  boundingObject Cylinder { height 0.7 radius 0.35 }
+  physics Physics {}
+}
+
+# --- กีดขวาง 3: กล่องสีส้ม — y=-0.3 กลาง-ขวานิดๆ ---
+Solid {
+  translation 0.5 -0.3 0.3
+  children [
+    Shape {
+      appearance PBRAppearance { baseColor 0.95 0.5 0.05 roughness 1 metalness 0 }
+      geometry Box { size 0.7 0.6 0.6 }
+    }
+  ]
+  name "obstacle_3"
+  boundingObject Box { size 0.7 0.6 0.6 }
+  physics Physics {}
+}
+
+# --- กีดขวาง 4: กระบอกสีม่วง — y=1.2 ชิดซ้าย ---
+Solid {
+  translation -1.1 1.2 0.35
+  children [
+    Shape {
+      appearance PBRAppearance { baseColor 0.6 0.1 0.8 roughness 1 metalness 0 }
+      geometry Cylinder { height 0.7 radius 0.30 }
+    }
+  ]
+  name "obstacle_4"
+  boundingObject Cylinder { height 0.7 radius 0.30 }
+  physics Physics {}
+}
+
+# --- กีดขวาง 5: กล่องสีเขียวเข้ม — y=2.5 ชิดขวา ---
+Solid {
+  translation 1.0 2.5 0.3
+  children [
+    Shape {
+      appearance PBRAppearance { baseColor 0.1 0.65 0.2 roughness 1 metalness 0 }
+      geometry Box { size 0.9 0.55 0.6 }
+    }
+  ]
+  name "obstacle_5"
+  boundingObject Box { size 0.9 0.55 0.6 }
+  physics Physics {}
+}
+
+# --- กีดขวาง 6: กระบอกสีเหลือง — y=3.5 กลาง บีบทางสุดท้าย ---
+Solid {
+  translation -0.3 3.5 0.35
+  children [
+    Shape {
+      appearance PBRAppearance { baseColor 0.95 0.85 0.05 roughness 1 metalness 0 }
+      geometry Cylinder { height 0.7 radius 0.35 }
+    }
+  ]
+  name "obstacle_6"
+  boundingObject Cylinder { height 0.7 radius 0.35 }
+  physics Physics {}
+}
+
+# ========== RGB-D ROBOT (same as 071_go_goal) ==========
+DEF ExamBot Robot {
+  translation 0 -4.5 0.1
+  rotation 0 0 1 1.5708
+  children [
+    # Robot Body
+    Shape {
+      appearance PBRAppearance {
+        baseColor 0.1 0.5 1
+        roughness 1
+        metalness 0
+      }
+      geometry DEF BODY_BOX Box { size 0.4 0.2 0.1 }
+    }
+    
+    # ===== LIDAR SYSTEM (Raised Up on Mast) =====
+    # Lidar Mast
+    Solid {
+      translation 0 0 0.15
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.1 0.1 0.1 roughness 0.8 }
+          geometry Cylinder { height 0.2 radius 0.02 }
+        }
+      ]
+      name "lidar_mast"
+    }
+
+    # LIDAR Sensor
+    Lidar {
+      translation 0 0 0.25
+      rotation 0 0 1 0
+      name "lidar"
+      horizontalResolution 360
+      fieldOfView 6.28319
+      verticalFieldOfView 0.1
+      numberOfLayers 1
+      minRange 0.03
+      maxRange 4.0
+    }
+    
+    # LIDAR Housing
+    Solid {
+      translation 0 0 0.25
+      name "lidar_housing"
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.1 0.1 0.1 roughness 0.5 metalness 0.8 }
+          geometry Cylinder { height 0.06 radius 0.08 }
+        }
+      ]
+    }
+
+    # ===== RGB-D CAMERA SYSTEM =====
+    
+    # Camera Mast
+    Solid {
+      translation 0.15 0 0.07
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.1 0.1 0.1 roughness 0.8 }
+          geometry Box { size 0.03 0.08 0.04 }
+        }
+      ]
+      name "camera_mast"
+    }
+
+    # RGB Camera
+    Camera {
+      translation 0.15 0 0.12
+      rotation 0 0 1 0
+      name "camera_rgb"
+      fieldOfView 1.5708
+      width 640
+      height 480
+      near 0.1
+      far 5.0
+    }
+    
+    # Depth Camera (RangeFinder)
+    RangeFinder {
+      translation 0.15 0 0.12
+      rotation 0 0 1 0
+      name "camera_depth"
+      fieldOfView 1.5708
+      width 640
+      height 480
+      minRange 0.1
+      maxRange 5.0
+    }
+    
+    # Camera Housing
+    Solid {
+      translation 0.15 0 0.12
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.1 0.1 0.1 roughness 0.5 metalness 0.8 }
+          geometry Box { size 0.06 0.1 0.06 }
+        }
+      ]
+      name "camera_housing"
+    }
+    
+    # Camera Lens
+    Solid {
+      translation 0.18 0 0.12
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0.2 0.2 0.2 roughness 0.1 metalness 1 }
+          geometry Cylinder { height 0.02 radius 0.025 }
+        }
+      ]
+      name "camera_lens"
+    }
+    
+    # RGB Indicator
+    Solid {
+      translation 0.19 0.02 0.15
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0 1 0 emissiveColor 0 0.5 0 }
+          geometry Sphere { radius 0.008 }
+        }
+      ]
+      name "rgb_indicator"
+    }
+    
+    # Depth Indicator
+    Solid {
+      translation 0.19 -0.02 0.15
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 1 0 0 emissiveColor 0 0.5 0 }
+          geometry Sphere { radius 0.008 }
+        }
+      ]
+      name "depth_indicator"
+    }
+    
+    # Front Direction Marker
+    Solid {
+      translation 0.22 0 0.01
+      children [
+        Shape {
+          appearance PBRAppearance { baseColor 0 1 0.5 emissiveColor 0 0.3 0.15 }
+          geometry Box { size 0.03 0.08 0.02 }
+        }
+      ]
+      name "front_marker"
+    }
+    
+    # Left Wheel with Motor and Encoder
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0 0.12 -0.02
+      }
+      device [
+        RotationalMotor {
+          name "left_motor"
+          maxVelocity 20
+        }
+        PositionSensor {
+          name "left_encoder"
+        }
+      ]
+      endPoint Solid {
+        translation 0 0.12 -0.02
+        rotation 1 0 0 1.5708
+        children [
+          DEF WHEEL Shape {
+            appearance PBRAppearance {
+              baseColor 0.2 0.2 0.2
+              roughness 1
+            }
+            geometry Cylinder {
+              height 0.04
+              radius 0.08
+            }
+          }
+        ]
+        name "left_wheel"
+        boundingObject USE WHEEL
+        physics Physics {}
+      }
+    }
+    
+    # Right Wheel with Motor and Encoder
+    HingeJoint {
+      jointParameters HingeJointParameters {
+        axis 0 1 0
+        anchor 0 -0.12 -0.02
+      }
+      device [
+        RotationalMotor {
+          name "right_motor"
+          maxVelocity 20
+        }
+        PositionSensor {
+          name "right_encoder"
+        }
+      ]
+      endPoint Solid {
+        translation 0 -0.12 -0.02
+        rotation 1 0 0 1.5708
+        children [
+          USE WHEEL
+        ]
+        name "right_wheel"
+        boundingObject USE WHEEL
+        physics Physics {}
+      }
+    }
+    
+    # Front Caster Wheel
+    Solid {
+      translation 0.15 0 -0.06
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.5 0.5 0.5
+            roughness 0.5
+          }
+          geometry Sphere { radius 0.04 }
+        }
+      ]
+      name "caster_front"
+      boundingObject Sphere { radius 0.04 }
+      physics Physics {}
+    }
+
+    # Back Caster Wheel
+    Solid {
+      translation -0.15 0 -0.06
+      children [
+        Shape {
+          appearance PBRAppearance {
+            baseColor 0.5 0.5 0.5
+            roughness 0.5
+          }
+          geometry Sphere { radius 0.04 }
+        }
+      ]
+      name "caster_back"
+      boundingObject Sphere { radius 0.04 }
+      physics Physics {}
+    }
+    
+    InertialUnit { name "imu" }
+    Gyro { name "gyro" }
+    GPS { name "gps" }
+    Compass { name "compass" }
+  ]
+  
+  name "ExamBot"
+  boundingObject USE BODY_BOX
+  physics Physics { density -1 mass 5 }
+  controller "<extern>"
+}

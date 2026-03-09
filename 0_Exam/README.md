@@ -11,7 +11,7 @@
 | ภาษา | **Python เท่านั้น** |
 | Package | `exam_ชื่อนักศึกษา` เช่น `exam_phoori` |
 | Node file | `exam_ชื่อนักศึกษา_node.py` เช่น `exam_phoori_node.py` |
-| World file | `exam_world.wbt` |
+| World file | [`exam_world.wbt`](imgs/exam_world.wbt) |
 
 ---
 
@@ -47,7 +47,7 @@ exam_phoori/
 
 ### ตัวอย่างที่ 1 — แผนที่ SLAM + หุ่นยนต์ใน Webots
 
-![example_slam](imgs/example_slam.png)
+![example_slam](imgs/slam_map.png)
 
 > แผนที่ Occupancy Grid ที่ถูกต้องจะเห็นผนังห้อง (สีดำ) และพื้นที่เปิด (สีเทา) ในหน้าต่าง RViz  
 > พร้อมกับหุ่นยนต์ที่แสดงอยู่ใน Webots และ Camera view
@@ -56,7 +56,7 @@ exam_phoori/
 
 ### ตัวอย่างที่ 2 — topic `/robot_name`
 
-![example_topic](imgs/example_topic.png)
+![example_topic](imgs/robot_name.png)
 
 > ผลลัพธ์ที่ถูกต้องจากคำสั่ง `ros2 topic echo /robot_name`  
 > ข้อมูลจะแสดงชื่อ นามสกุล และรหัสนักศึกษา ซ้ำทุก ๆ cycle
